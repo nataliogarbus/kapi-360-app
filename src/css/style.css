@@ -1,0 +1,432 @@
+:root {
+            --kapi-green: #00DD82;
+            --kapi-blue: #0057FF;
+            --kapi-bg-dark: #1A1A1A;
+            --kapi-border: #4B5563;
+            --kapi-text-primary: #E5E7EB;
+            --kapi-text-secondary: #9CA3AF;
+        }
+        html { scroll-behavior: smooth; }
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--kapi-bg-dark);
+            color: var(--kapi-text-primary);
+        }
+        #particles-js {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            top: 0;
+            left: 0;
+        }
+        .content-container {
+            position: relative;
+            z-index: 1;
+        }
+        .text-shadow-custom { text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.7); }
+        
+        /* --- ESTILOS ANTIGUOS DE FORMULARIO (serán reemplazados por los nuevos) --- */
+        .main-selector {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin-top: 1.5rem;
+            padding-bottom: 0.5rem;
+        }
+        .main-selector-input { display: none; }
+        .main-selector-label {
+            padding: 0.5rem 0;
+            font-weight: 600;
+            color: var(--kapi-text-secondary);
+            border-bottom: 2px solid transparent;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .main-selector-label:hover { color: var(--kapi-text-primary); }
+        .main-selector-input:checked + .main-selector-label {
+            color: var(--kapi-text-primary);
+            border-bottom-color: var(--kapi-blue);
+        }
+        .enfoque-checkbox-input { display: none; }
+        .enfoque-checkbox-label {
+            display: flex; flex-direction: column; justify-content: center; text-align: center;
+            padding: 1.25rem 1rem; border: 2px solid var(--kapi-border); /* Padding ajustado */
+            border-radius: 0.75rem; cursor: pointer; transition: all 0.2s ease-in-out;
+            height: 100%; background-color: rgba(30, 30, 30, 0.5);
+        }
+        .enfoque-checkbox-label:hover { border-color: var(--kapi-blue); transform: translateY(-4px); }
+        .enfoque-checkbox-input:checked + .enfoque-checkbox-label {
+            border-color: var(--kapi-green); background-color: rgba(0, 221, 130, 0.1); transform: translateY(-4px);
+        }
+        .enfoque-title { font-weight: 700; color: var(--kapi-text-primary); }
+        .enfoque-desc { display: none; } /* Oculto por defecto, se muestra en tooltip via title attribute */
+        .manual-textarea, .consulta-input, .consulta-textarea {
+             width: 100%; background-color: rgba(30, 30, 30, 0.5);
+             border: 2px solid var(--kapi-border); color: white;
+             padding: 0.75rem 1rem; border-radius: 0.5rem; transition: border-color 0.3s ease;
+        }
+        .manual-textarea:focus, .consulta-input:focus, .consulta-textarea:focus {
+             outline: none; border-color: var(--kapi-blue);
+        }
+        .form-button {
+            background-color: var(--kapi-blue); color: white;
+            font-weight: 700; text-transform: uppercase;
+            border-radius: 0.5rem; transition: background-color 0.3s ease;
+            white-space: nowrap;
+        }
+        .form-button:hover { background-color: #0044CC; }
+
+        /* Estilos de Secciones Adicionales */
+        .card-hover-effect { transition: transform 0.3s ease-out, box-shadow 0.3s ease-out; }
+        .card-hover-effect:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 25px -5px rgba(0, 87, 255, 0.1), 0 10px 10px -5px rgba(0, 87, 255, 0.04);
+        }
+        .faq-category-title, .faq-question { cursor: pointer; }
+        .faq-category-content, .faq-answer { max-height: 0; overflow: hidden; transition: max-height 0.5s ease-in-out; }
+        .faq-icon { transition: transform 0.3s ease-in-out; }
+        .open > .faq-category-title .faq-icon, .faq-question-container.open .faq-question .faq-icon { transform: rotate(45deg); }
+        .reveal-on-scroll { opacity: 0; transform: translateY(30px); transition: opacity 0.8s ease-out, transform 0.8s ease-out; }
+        .revealed { opacity: 1; transform: translateY(0); }
+
+        /* Estilos para "Cómo Funciona" */
+        .step-card {
+            position: relative;
+            padding-top: 3rem;
+        }
+        .step-number {
+            width: 3.5rem;
+            height: 3.5rem;
+            background-color: var(--kapi-blue);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            font-weight: 900;
+            color: white;
+            margin: 0 auto 1rem;
+            border: 4px solid var(--kapi-bg-dark);
+        }
+        .step-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: white;
+        }
+        .step-description {
+            margin-top: 0.5rem;
+            color: var(--kapi-text-secondary);
+        }
+        @media (min-width: 768px) {
+            .step-card:not(:last-child)::after {
+                content: '';
+                position: absolute;
+                top: 1.75rem; /* Alineado verticalmente con el centro del número */
+                right: -50%;
+                width: 100%;
+                height: 2px;
+                background: repeating-linear-gradient(90deg, var(--kapi-border), var(--kapi-border) 4px, transparent 4px, transparent 10px);
+                z-index: -1;
+            }
+        }
+
+        /* --- Tooltip Styles --- */
+        [data-tooltip] {
+            position: relative;
+            cursor: help;
+        }
+
+        [data-tooltip]::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            bottom: 125%; /* Position above the element */
+            left: 50%;
+            transform: translateX(-50%);
+            min-width: 250px;
+            max-width: 350px;
+            background-color: #0057FF; /* Kapi Blue */
+            color: #fff;
+            padding: 0.75rem;
+            border-radius: 0.5rem;
+            font-size: 0.875rem;
+            line-height: 1.4;
+            text-align: left;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+            z-index: 10;
+            pointer-events: none; /* Allow mouse to pass through */
+        }
+
+        [data-tooltip]:hover::after {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        /* --- Accordion Styles for Dashboard --- */
+        .accordion-item {
+            background-color: rgba(30, 30, 30, 0.5);
+            border: 2px solid var(--kapi-border);
+            border-radius: 0.75rem;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+        .accordion-item:not(:last-child) {
+            margin-bottom: 1rem;
+        }
+        .accordion-header {
+            padding: 1.5rem;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .accordion-header:hover {
+            background-color: rgba(40, 40, 40, 0.7);
+        }
+        .accordion-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.5s ease-in-out, padding 0.3s ease;
+            padding: 0 1.5rem;
+        }
+        .accordion-item.open .accordion-content {
+            padding: 1.5rem;
+            max-height: 2000px; /* Large enough for content */
+        }
+        .accordion-arrow {
+            transition: transform 0.3s ease;
+        }
+        .accordion-item.open .accordion-arrow {
+            transform: rotate(90deg);
+        }
+
+        /* --- Tabs Styles for Solutions --- */
+        .solution-tabs {
+            display: flex;
+            border-bottom: 1px solid var(--kapi-border);
+            margin-bottom: 1rem;
+        }
+        .tab-button {
+            padding: 0.5rem 1rem;
+            cursor: pointer;
+            background-color: transparent;
+            border: none;
+            color: var(--kapi-text-secondary);
+            font-weight: 600;
+            transition: all 0.3s ease;
+            border-bottom: 2px solid transparent;
+        }
+        .tab-button:hover {
+            color: var(--kapi-text-primary);
+        }
+        .tab-button.active {
+            color: var(--kapi-green);
+            border-bottom-color: var(--kapi-green);
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+
+        /* --- Intelligence Panel Styles --- */
+        #intelligence-panel {
+            transform: translateX(100%);
+        }
+        #intelligence-panel.open {
+            transform: translateX(0);
+        }
+
+        /* --- Animated Headline --- */
+        #headline-animated .letter {
+            display: inline-block;
+            opacity: 0; /* Start hidden */
+        }
+
+        #animated-headline-container {
+            display: inline-flex;
+            align-items: baseline;
+            justify-content: center;
+        }
+
+        #headline-animated {
+            display: inline-block;
+            text-align: left;
+            margin-left: 1.5rem;
+        }
+
+/* --- INICIO DE ESTILOS DEL NUEVO FORMULARIO --- */
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.form-group > label {
+    font-weight: 500;
+    font-size: 14px;
+}
+
+.main-action-group {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+}
+
+.input-with-icon {
+    position: relative;
+    flex-grow: 1;
+}
+
+.input-with-icon .icon {
+    position: absolute;
+    left: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #9CA3AF;
+    pointer-events: none;
+}
+
+.form-input-field {
+    background-color: #2B2B2B;
+    border: 1px solid #4A4A4A;
+    color: #E5E7EB;
+    padding: 16px 18px 16px 50px;
+    border-radius: 8px;
+    font-family: 'Poppins', sans-serif;
+    font-size: 16px;
+    transition: all 0.3s ease;
+    width: 100%;
+    box-sizing: border-box;
+}
+.form-input-field:focus {
+    outline: none;
+    border-color: #0057FF;
+    box-shadow: 0 0 0 3px rgba(0, 87, 255, 0.3);
+}
+
+.cta-submit-button {
+    background-color: transparent;
+    color: var(--kapi-blue);
+    font-weight: 600;
+    font-size: 16px;
+    padding: 14px 24px; /* Ajuste de padding por el borde */
+    border: 2px solid var(--kapi-blue);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    flex-shrink: 0;
+    white-space: nowrap;
+}
+.cta-submit-button:hover {
+    background-color: var(--kapi-blue);
+    color: #FFFFFF;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0, 87, 255, 0.2);
+}
+
+.spinner { display: none; }
+.cta-submit-button.loading .button-text { display: none; }
+.cta-submit-button.loading .spinner { display: block; }
+
+/* Estilos de .radio-group y .mode-selector-label eliminados para volver al diseño original */
+
+#conditional-options { 
+    display: none; 
+    animation: fadeInDown 0.5s ease; 
+}
+.checkbox-grid { 
+    display: grid; 
+    grid-template-columns: 1fr 1fr; 
+    gap: 12px; 
+}
+.custom-checkbox-label { 
+    display: flex; 
+    align-items: center; 
+    background-color: #2B2B2B; 
+    padding: 12px 16px; 
+    border-radius: 8px; 
+    cursor: pointer; 
+    border: 1px solid #4A4A4A; 
+    transition: all 0.3s ease; 
+}
+.custom-checkbox-label:hover { 
+    border-color: #0057FF; 
+}
+.custom-checkbox-label span { 
+    font-size: 14px; 
+}
+.custom-checkbox-display { 
+    width: 20px; 
+    height: 20px; 
+    flex-shrink: 0; 
+    background-color: transparent; 
+    border: 2px solid #6a6a6a; 
+    border-radius: 6px; 
+    margin-right: 12px; 
+    display: flex; 
+    align-items: center; 
+    justify-content: center; 
+    transition: all 0.3s ease; 
+}
+.custom-checkbox-input { 
+    display: none; 
+}
+.custom-checkbox-input:checked + .custom-checkbox-display { 
+    background-color: #0057FF; 
+    border-color: #0057FF; 
+}
+.custom-checkbox-input:checked + .custom-checkbox-display svg { 
+    opacity: 1; 
+}
+.custom-checkbox-display svg { 
+    width: 14px; 
+    height: 14px; 
+    stroke: white; 
+    stroke-width: 3; 
+    opacity: 0; 
+    transition: opacity 0.2s ease; 
+}
+.privacy-text { 
+    text-align: center; 
+    font-size: 13px; 
+    color: #9CA3AF; 
+    margin-top: 1.5rem;
+}
+
+@media (max-width: 768px) {
+    .main-action-group {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    .cta-submit-button {
+        width: 100%;
+    }
+    .radio-group {
+        grid-template-columns: 1fr 1fr; /* 2 columnas en móvil */
+    }
+    .checkbox-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@keyframes fadeInDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes spin { to { transform: rotate(360deg); } }
+.spinner { 
+    width: 20px; 
+    height: 20px; 
+    border: 3px solid rgba(255, 255, 255, 0.3); 
+    border-radius: 50%; 
+    border-top-color: #FFFFFF; 
+    animation: spin 1s ease-in-out infinite; 
+}
+
+/* --- FIN DE ESTILOS DEL NUEVO FORMULARIO --- */

@@ -1,0 +1,313 @@
+{
+  "generalScore": 71,
+  "clientUrl": "ejemplo.com",
+  "rutas": [
+    {
+      "id": "mercado_competencia",
+      "title": "Mercado y Competencia",
+      "score": 61,
+      "coordenadas": [
+        {
+          "id": "autoridad-dominio",
+          "title": "Autoridad de Dominio",
+          "score": 75,
+          "status": "Mejorable",
+          "what_is_it": "Mide la reputación y relevancia de tu sitio web en internet, basado en la calidad y cantidad de enlaces entrantes.",
+          "why_it_matters": "Una autoridad alta significa que Google confía en tu sitio, lo que se traduce en mejores rankings y más tráfico orgánico que tu competencia.",
+          "sub_kpis": [
+            { "label": "Calidad Backlinks", "value": 80 },
+            { "label": "Cantidad Backlinks", "value": 60 },
+            { "label": "Relevancia Dominios", "value": 70 }
+          ],
+          "soluciones": {
+            "diy": { "content": "Utiliza herramientas como Ahrefs Free Backlink Checker para analizar tus 100 mejores enlaces. Busca directorios de tu industria y contacta a sitios relevantes para solicitar enlaces." },
+            "con_kapi": { "content": "Te entregamos un dashboard interactivo con el perfil completo de tus backlinks y los de tu competencia. Identificamos oportunidades de link building de alto impacto y te guiamos en el proceso de adquisición." },
+            "kapi_lo_hace": { "content": "Nuestro equipo de SEO se encarga de la estrategia y ejecución de una campaña de link building de alta calidad, consiguiendo enlaces relevantes que disparan tu autoridad de dominio." }
+          }
+        },
+        {
+          "id": "huella-buscadores",
+          "title": "Huella en Buscadores",
+          "score": 50,
+          "status": "Crítico",
+          "what_is_it": "Evalúa para cuántas palabras clave relevantes para tu negocio aparece tu sitio en las primeras páginas de Google.",
+          "why_it_matters": "Si tu huella es pequeña, eres invisible para clientes potenciales que buscan activamente tus productos o servicios.",
+          "sub_kpis": [
+            { "label": "Keywords Top 3", "value": 30 },
+            { "label": "Keywords Top 10", "value": 50 },
+            { "label": "Volumen Total", "value": 60 }
+          ],
+          "soluciones": {
+            "diy": { "content": "Usa Google Search Console para ver tus keywords actuales. Investiga con 'Google Keyword Planner' términos que usan tus clientes y crea contenido (artículos, páginas de servicio) para esos términos." },
+            "con_kapi": { "content": "Realizamos un análisis exhaustivo de palabras clave, identificando las de mayor oportunidad (alto volumen, baja competencia) y te entregamos un plan de contenidos para atacarlas." },
+            "kapi_lo_hace": { "content": "Creamos y optimizamos el contenido de tu web para posicionar en cientos de palabras clave relevantes, aumentando drásticamente tu visibilidad y el tráfico cualificado." }
+          }
+        },
+        {
+          "id": "analisis-competidores",
+          "title": "Análisis de Competencia",
+          "score": 55,
+          "status": "Crítico",
+          "what_is_it": "Compara la cantidad y calidad de tus backlinks (enlaces entrantes) con los de tus competidores directos.",
+          "why_it_matters": "Entender la estrategia de enlaces de tu competencia te permite encontrar oportunidades para superarlos y capturar una mayor cuota de mercado.",
+          "sub_kpis": [
+            { "label": "Brecha de Backlinks", "value": 50 },
+            { "label": "Brecha de Contenido", "value": 60 }
+          ],
+          "soluciones": {
+            "diy": { "content": "Utiliza herramientas gratuitas como 'SimilarWeb' o 'Ubersuggest' para obtener un vistazo general del tráfico y las palabras clave de tus competidores. Analiza qué están haciendo bien." },
+            "con_kapi": { "content": "Te proporcionamos un informe detallado de la estrategia online de hasta 3 competidores: sus mejores palabras clave, sus fuentes de tráfico y sus campañas de anuncios." },
+            "kapi_lo_hace": { "content": "Monitoreamos continuamente a tu competencia, adaptamos tu estrategia en tiempo real y ejecutamos campañas para superar sus resultados y capturar su cuota de mercado digital." }
+          }
+        },
+        {
+          "id": "palabras-clave-oportunidad",
+          "title": "Palabras Clave de Oportunidad",
+          "score": 65,
+          "status": "Mejorable",
+          "what_is_it": "Identifica términos de búsqueda de alto valor para los que tu competencia rankea y tú no.",
+          "why_it_matters": "Son oportunidades de bajo esfuerzo y alto impacto para crear contenido específico y robar tráfico cualificado a tus competidores.",
+          "sub_kpis": [
+            { "label": "Relevancia", "value": 70 },
+            { "label": "Dificultad", "value": 80 },
+            { "label": "Volumen", "value": 50 }
+          ],
+          "soluciones": {
+            "diy": { "content": "Encuentra en foros como Reddit o Quora las preguntas que hacen tus clientes. Cada pregunta es una potencial palabra clave de oportunidad para un artículo de blog." },
+            "con_kapi": { "content": "Mediante análisis de 'Keyword Gap', te entregamos un listado priorizado de palabras clave que tu competencia usa y tú no, con el potencial de tráfico estimado para cada una." },
+            "kapi_lo_hace": { "content": "Desarrollamos una estrategia de contenidos completa para posicionarte en esas palabras clave de oportunidad, generando artículos, guías y recursos que atraen tráfico de alto valor." }
+          }
+        }
+      ]
+    },
+    {
+      "id": "plataforma_ux",
+      "title": "Plataforma y UX",
+      "score": 82,
+      "coordenadas": [
+        {
+          "id": "velocidad-carga",
+          "title": "Velocidad de Carga",
+          "score": 95,
+          "status": "Óptimo",
+          "what_is_it": "Mide el tiempo que tarda tu página en ser interactiva y visualmente estable para el usuario.",
+          "why_it_matters": "Cada segundo de retraso aumenta la tasa de rebote. Un sitio rápido se asocia con profesionalismo y eficiencia.",
+          "sub_kpis": [
+            { "label": "Móvil", "value": 90 },
+            { "label": "Escritorio", "value": 98 }
+          ],
+          "soluciones": {
+            "diy": { "content": "Usa 'Google PageSpeed Insights' para obtener un reporte gratuito. Comprime las imágenes de tu web con herramientas online como 'TinyPNG' antes de subirlas." },
+            "con_kapi": { "content": "Realizamos una auditoría técnica de velocidad, identificando los cuellos de botella (imágenes, código, servidor) y te damos un plan de acción priorizado para solucionarlos." },
+            "kapi_lo_hace": { "content": "Nuestro equipo de desarrollo optimiza tu sitio web a nivel de código, imágenes y servidor para garantizar tiempos de carga inferiores a 2 segundos, mejorando el SEO y la experiencia de usuario." }
+          }
+        },
+        {
+          "id": "experiencia-movil",
+          "title": "Experiencia Móvil",
+          "score": 75,
+          "status": "Mejorable",
+          "what_is_it": "Analiza si tu web es fácil, rápida y cómoda de usar en dispositivos móviles, que representan más del 60% del tráfico.",
+          "why_it_matters": "Una mala experiencia móvil no solo frustra a los usuarios y pierde ventas, sino que Google penaliza tu ranking general por ello.",
+          "sub_kpis": [
+            { "label": "Usabilidad", "value": 70 },
+            { "label": "Velocidad Móvil", "value": 80 }
+          ],
+          "soluciones": {
+            "diy": { "content": "Prueba tu web en tu propio teléfono. ¿Son los botones fáciles de presionar? ¿El texto es legible sin hacer zoom? Anota los puntos de fricción." },
+            "con_kapi": { "content": "Hacemos un análisis de usabilidad móvil, grabando sesiones de usuarios reales para identificar puntos de frustración y te entregamos un reporte con recomendaciones visuales." },
+            "kapi_lo_hace": { "content": "Rediseñamos y optimizamos la versión móvil de tu sitio para que sea intuitiva, rápida y esté 100% orientada a la conversión desde cualquier dispositivo." }
+          }
+        },
+        {
+          "id": "core-web-vitals",
+          "title": "Core Web Vitals",
+          "score": 80,
+          "status": "Óptimo",
+          "what_is_it": "Métricas de Google (LCP, FID, CLS) que miden la experiencia de usuario real en términos de carga, interactividad y estabilidad visual.",
+          "why_it_matters": "Google usa estas métricas como un factor de ranking. Aprobarlas no solo mejora tu SEO, sino que deleita a tus usuarios.",
+          "sub_kpis": [
+            { "label": "LCP", "value": 85 },
+            { "label": "FID", "value": 95 },
+            { "label": "CLS", "value": 70 }
+          ],
+          "soluciones": {
+            "diy": { "content": "Revisa tu reporte de Core Web Vitals en Google Search Console. A menudo, el problema de CLS (cambio de diseño acumulado) se soluciona especificando el tamaño (ancho y alto) de las imágenes en tu web." },
+            "con_kapi": { "content": "Analizamos en profundidad cada una de las Core Web Vitals, identificamos las causas raíz de los problemas y te damos las directrices técnicas para que tu equipo de desarrollo las solucione." },
+            "kapi_lo_hace": { "content": "Nos encargamos de la optimización técnica completa de las Core Web Vitals, garantizando que tu sitio apruebe la evaluación de Google y ofrezca una experiencia de usuario impecable." }
+          }
+        },
+        {
+          "id": "accesibilidad",
+          "title": "Nivel de Accesibilidad",
+          "score": 78,
+          "status": "Mejorable",
+          "what_is_it": "Evalúa si tu sitio puede ser navegado por personas con discapacidades (ej. lectores de pantalla), según las normas WCAG.",
+          "why_it_matters": "Un sitio accesible amplía tu mercado potencial y es una señal de responsabilidad social que mejora la imagen de tu marca.",
+          "sub_kpis": [
+            { "label": "Contraste", "value": 85 },
+            { "label": "Etiquetas ARIA", "value": 70 },
+            { "label": "Navegación Teclado", "value": 80 }
+          ],
+          "soluciones": {
+            "diy": { "content": "Usa un 'contrast checker' online para verificar que tus colores de texto y fondo son legibles. Asegúrate de que todas tus imágenes tengan texto alternativo (etiqueta alt)." },
+            "con_kapi": { "content": "Realizamos una auditoría de accesibilidad WCAG 2.1, entregándote un reporte detallado de los puntos a corregir para cumplir con los estándares internacionales." },
+            "kapi_lo_hace": { "content": "Ajustamos el código y diseño de tu sitio web para que sea completamente accesible, incluyendo la navegación por teclado, la compatibilidad con lectores de pantalla y los contrastes adecuados." }
+          }
+        }
+      ]
+    },
+    {
+      "id": "contenido_redes",
+      "title": "Contenido y Redes",
+      "score": 68,
+      "coordenadas": [
+        {
+          "id": "frecuencia-publicacion",
+          "title": "Consistencia de Contenido",
+          "score": 60,
+          "status": "Mejorable",
+          "what_is_it": "Evalúa la regularidad con la que publicas contenido de valor en tu blog y redes sociales.",
+          "why_it_matters": "La consistencia genera confianza, mantiene a tu audiencia enganchada y le indica a los buscadores que tu sitio es una fuente de información relevante y activa.",
+          "sub_kpis": [
+            { "label": "Blog", "value": 50 },
+            { "label": "Redes Sociales", "value": 70 }
+          ],
+          "soluciones": {
+            "diy": { "content": "Crea un calendario de contenidos simple. Planifica un artículo de blog al mes y 2 publicaciones en redes a la semana. La clave es la constancia, no la cantidad." },
+            "con_kapi": { "content": "Analizamos a tu audiencia y definimos una estrategia de contenidos con los temas, formatos y canales ideales para tu negocio. Te entregamos un calendario editorial para 3 meses." },
+            "kapi_lo_hace": { "content": "Nos convertimos en tu equipo de contenidos: investigamos, creamos y publicamos contenido de valor en tu blog y redes sociales, asegurando un flujo constante que atrae y nutre a tu audiencia." }
+          }
+        },
+        {
+          "id": "engagement-redes",
+          "title": "Engagement en Redes",
+          "score": 80,
+          "status": "Óptimo",
+          "what_is_it": "Mide el nivel de interacción (likes, comentarios, compartidos) que tu audiencia tiene con tu contenido en redes sociales.",
+          "why_it_matters": "Un alto engagement significa que tu mensaje resuena con tu público, lo que amplifica tu alcance orgánico y construye una comunidad leal a tu marca.",
+          "sub_kpis": [
+            { "label": "Tasa Interacción", "value": 85 },
+            { "label": "Crecimiento Comunidad", "value": 75 }
+          ],
+          "soluciones": {
+            "diy": { "content": "Haz preguntas en tus publicaciones, crea encuestas y responde siempre a los comentarios. El objetivo es iniciar conversaciones, no solo publicar anuncios." },
+            "con_kapi": { "content": "Analizamos tus métricas de redes sociales y te damos insights sobre qué tipo de contenido genera más interacción. Te proponemos ideas y formatos para aumentar el engagement." },
+            "kapi_lo_hace": { "content": "Gestionamos tus comunidades online, creando contenido interactivo, respondiendo a los usuarios y generando campañas que aumentan la participación y el compromiso con tu marca." }
+          }
+        },
+        {
+          "id": "calidad-seo-onpage",
+          "title": "Calidad SEO On-Page",
+          "score": 55,
+          "status": "Crítico",
+          "what_is_it": "Analiza si tu contenido está optimizado para SEO, con buenos títulos, meta descripciones, uso de palabras clave y estructura.",
+          "why_it_matters": "Puedes tener el mejor contenido, pero si no está optimizado, Google no lo entenderá ni lo mostrará a la audiencia correcta.",
+          "sub_kpis": [
+            { "label": "Títulos y Metas", "value": 60 },
+            { "label": "Uso de Keywords", "value": 50 },
+            { "label": "Estructura (H1, H2)", "value": 55 }
+          ],
+          "soluciones": {
+            "diy": { "content": "Instala un plugin de SEO como 'Rank Math' o 'Yoast' en tu WordPress. Te darán una guía paso a paso para optimizar cada página y artículo." },
+            "con_kapi": { "content": "Realizamos una auditoría SEO On-Page completa de tu sitio, entregándote una hoja de ruta con todas las optimizaciones necesarias para mejorar tu ranking en Google." },
+            "kapi_lo_hace": { "content": "Optimizamos todos los elementos SEO On-Page de tu web, desde la estructura de URLs y encabezados hasta la optimización de cada pieza de contenido para maximizar tu visibilidad." }
+          }
+        },
+        {
+          "id": "activos-conversion",
+          "title": "Activos de Conversión",
+          "score": 75,
+          "status": "Mejorable",
+          "what_is_it": "Verifica si tu contenido incluye llamadas a la acción (CTAs), catálogos descargables, o demos para convertir visitantes en leads.",
+          "why_it_matters": "Son los puentes entre el interés y la acción. Sin ellos, estás dejando que potenciales clientes se vayan sin dar el siguiente paso.",
+          "sub_kpis": [
+            { "label": "CTAs Visibles", "value": 80 },
+            { "label": "Lead Magnets", "value": 70 }
+          ],
+          "soluciones": {
+            "diy": { "content": "Añade un botón de 'Contactar' o 'Pedir Cotización' al final de cada página de servicio. Crea un PDF simple (ej. '5 errores comunes en tu industria') y ofrécelo a cambio de un email." },
+            "con_kapi": { "content": "Analizamos el recorrido de tu usuario y diseñamos los 'Lead Magnets' (activos de conversión) más efectivos para tu audiencia, como guías, checklists o webinars." },
+            "kapi_lo_hace": { "content": "Creamos, diseñamos e implementamos una estrategia completa de activos de conversión, integrándelos en tu web y automatizando la entrega para generar un flujo constante de leads cualificados." }
+          }
+        }
+      ]
+    },
+    {
+      "id": "crecimiento_ia",
+      "title": "Crecimiento e IA",
+      "score": 75,
+      "coordenadas": [
+        {
+          "id": "generacion-leads",
+          "title": "Captura de Leads",
+          "score": 75,
+          "status": "Mejorable",
+          "what_is_it": "Analiza la presencia y efectividad de herramientas de captura de prospectos, como formularios de contacto, suscripciones a newsletters o cotizadores.",
+          "why_it_matters": "Sin puntos de captura claros, el 98% de los visitantes de tu web se irán sin dejar rastro. Es la puerta de entrada a tu embudo de ventas.",
+          "sub_kpis": [
+            { "label": "Formularios", "value": 80 },
+            { "label": "Pop-ups", "value": 60 },
+            { "label": "Ofertas", "value": 70 }
+          ],
+          "soluciones": {
+            "diy": { "content": "Asegúrate de que tu formulario de contacto funcione y sea visible. Considera añadir un formulario de suscripción a un newsletter en el pie de página de tu web." },
+            "con_kapi": { "content": "Diseñamos una estrategia de captura de leads multicanal, optimizando tus formularios y creando pop-ups inteligentes que no molestan al usuario pero que son efectivos para la conversión." },
+            "kapi_lo_hace": { "content": "Implementamos y gestionamos todo tu ecosistema de captura de leads, desde formularios y pop-ups hasta chatbots y cotizadores interactivos, integrándolos con tu CRM." }
+          }
+        },
+        {
+          "id": "automatizacion-marketing",
+          "title": "Potencial de Automatización",
+          "score": 85,
+          "status": "Óptimo",
+          "what_is_it": "Evalúa si estás utilizando herramientas que te permitan automatizar tareas de marketing, como el seguimiento de correos o la segmentación de audiencias.",
+          "why_it_matters": "La automatización te permite escalar tus esfuerzos de marketing, nutrir a tus prospectos de forma personalizada y ahorrar cientos de horas de trabajo manual.",
+          "sub_kpis": [
+            { "label": "Email Marketing", "value": 90 },
+            { "label": "CRM", "value": 80 }
+          ],
+          "soluciones": {
+            "diy": { "content": "Prueba herramientas como 'Mailchimp' o 'HubSpot Free' para crear secuencias de email de bienvenida automáticas para tus nuevos suscriptores." },
+            "con_kapi": { "content": "Auditamos tus procesos actuales y diseñamos un plan de automatización de marketing, recomendando las herramientas adecuadas y definiendo los flujos de trabajo clave para nutrir a tus leads." },
+            "kapi_lo_hace": { "content": "Implementamos y gestionamos tu plataforma de automatización de marketing (como HubSpot o ActiveCampaign), creando flujos complejos que segmentan, nutren y cualifican a tus leads sin intervención manual." }
+          }
+        },
+        {
+          "id": "pixel-seguimiento",
+          "title": "Pixel de Seguimiento",
+          "score": 50,
+          "status": "Crítico",
+          "what_is_it": "Verifica si tienes instalados los pixeles de Meta (Facebook) y Google para medir conversiones y hacer retargeting.",
+          "why_it_matters": "No tenerlos es como conducir a ciegas. Te impiden saber qué campañas funcionan y pierdes la oportunidad de re-impactar al 98% que no convierte en la primera visita.",
+          "sub_kpis": [
+            { "label": "Pixel de Meta", "value": 40 },
+            { "label": "Google Analytics 4", "value": 60 }
+          ],
+          "soluciones": {
+            "diy": { "content": "Sigue las guías oficiales de Google y Meta para crear tus pixeles. Luego, usa el plugin 'Google Site Kit' en WordPress para instalarlos sin tocar código." },
+            "con_kapi": { "content": "Auditamos tu instalación actual de pixeles y te damos un plan de etiquetado avanzado para medir todas las conversiones importantes en tu sitio (envíos de formulario, clics en botones, etc.)." },
+            "kapi_lo_hace": { "content": "Nos encargamos de la instalación y configuración completa de tus pixeles de seguimiento y Google Analytics 4, asegurando que cada dato relevante sea medido para optimizar tus campañas de anuncios." }
+          }
+        },
+        {
+          "id": "analisis-predictivo",
+          "title": "Potencial Predictivo",
+          "score": 90,
+          "status": "Óptimo",
+          "what_is_it": "Evalúa la calidad y estructura de tus datos para determinar su potencial para aplicar modelos de IA (ej. predecir qué cliente comprará).",
+          "why_it_matters": "Aquí es donde dejas de reaccionar al mercado y empiezas a anticiparte. Es la diferencia entre competir y dominar.",
+          "sub_kpis": [
+            { "label": "Calidad de Datos", "value": 95 },
+            { "label": "Historial", "value": 85 }
+          ],
+          "soluciones": {
+            "diy": { "content": "Comienza por consolidar tus datos de clientes (ventas, interacciones, etc.) en una única hoja de cálculo. La organización es el primer paso para cualquier análisis futuro." },
+            "con_kapi": { "content": "Analizamos la estructura de tus datos y te entregamos un reporte sobre su potencial para modelos predictivos, como 'Lead Scoring' (priorizar leads con más probabilidad de compra) o 'Churn Prediction' (predecir qué clientes se darán de baja)." },
+            "kapi_lo_hace": { "content": "Construimos e implementamos modelos de Machine Learning personalizados para tu negocio, integrándolos con tu CRM para que tu equipo de ventas pueda tomar decisiones basadas en predicciones de IA." }
+          }
+        }
+      ]
+    }
+  ]
+}
