@@ -222,11 +222,7 @@ const PilarAccordion: React.FC<{ pilar: Pilar }> = ({ pilar }) => {
 
 // --- COMPONENTE PRINCIPAL AJUSTADO ---
 const ReportSection: React.FC<ReportSectionProps> = ({ report, isLoading }) => {
-    const reporteData = useMemo(() => {
-    const parsedData = parseReport(report);
-    console.log("--- PARSED REPORT DATA ---", parsedData);
-    return parsedData;
-  }, [report]);
+    const reporteData = useMemo(() => parseReport(report), [report]);
 
   if (isLoading) {
     return (
