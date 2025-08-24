@@ -46,6 +46,7 @@ export default function Home() {
         throw new Error(result.error || 'Error del servidor');
       }
 
+      console.log("--- RAW API RESPONSE ---", result.analysis);
       setReport(result.analysis);
 
     } catch (err: any) {
