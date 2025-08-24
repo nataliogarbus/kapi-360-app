@@ -1,14 +1,8 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
-import dynamic from 'next/dynamic';
 
-// Importación dinámica del componente de partículas con SSR desactivado
-const ParticlesBackground = dynamic(() => import('@/components/ParticlesBackground'), {
-  ssr: false,
-  // Opcional: puedes añadir un componente de carga aquí mientras se carga
-  // loading: () => <p>Loading particles...</p>,
-});
+// Se ha eliminado la importación del componente ParticlesBackground para estabilizar la aplicación.
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -26,7 +20,6 @@ export default function RootLayout({
     <html lang="es">
       <body className={`${inter.className} bg-[#1a1a1a]`}>
         {children}
-        <ParticlesBackground />
         {/* El botón de WhatsApp se mantiene igual */}
         <a
           href="https://wa.me/541123805651"
