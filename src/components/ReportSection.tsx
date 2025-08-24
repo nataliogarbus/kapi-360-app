@@ -42,55 +42,53 @@ const parseReport = (markdown: string): Reporte => {
 
   const getScore = (text: string | undefined) => text ? parseInt(text, 10) : 0;
 
-  const puntajeGeneralMatch = markdown.match(/\*\*Puntaje General:\*\* (\d+)\/100/);
+  const puntajeGeneralMatch = markdown.match(/\**Puntaje General:\** (\d+)\/100/);
   const puntajeGeneral = getScore(puntajeGeneralMatch?.[1]);
 
   const pilaresText = markdown.split('## ').slice(1);
   const pilares: Pilar[] = pilaresText.map(pilarText => {
     const tituloMatch = pilarText.match(/(.*?)\(Puntaje: (\d+)\/100\)/);
-    const queEsMatch = pilarText.match(/\*\*Qué es:\*\* ([^\n]+)/);
-    const porQueImportaMatch = pilarText.match(/\*\*Por qué importa:\*\* ([^\n]+)/);
-
-    const coordenadasBlockMatch = pilarText.match(/\*\*Coordenadas Clave:\*\*([\s\S]*?)\*\*Plan de Acción:\*\*/);
-    const planDeAccionBlockMatch = pilarText.match(/\*\*Plan de Acción:\*([\s\S]*)/);
+    const queEsMatch = pilarText.match(/\**Qué es:\** ([^\n]+)/);
+    const porQueImportaMatch = pilarText.match(/\**Por qué importa:\** ([^\n]+)/);
 
     const coordenadas: Coordenada[] = [];
+    const coordenadasBlockMatch = pilarText.match(/\**Coordenadas Clave:\**([\s\S]*?)(?=## |$)/);
+
     if (coordenadasBlockMatch?.[1]) {
-      const coordenadasText = coordenadasBlockMatch[1].trim().split('- ').filter(Boolean);
-      coordenadasText.forEach(coordText => {
-        const match = coordText.match(/\*\*(.*?):\*\* (\d+)\/100/);
-        if (match) {
-          coordenadas.push({ 
-            titulo: match[1].trim(), 
-            score: getScore(match[2]),
-            // El plan de acción se extrae a nivel de pilar, no de coordenada
-            planDeAccion: { loHagoYo: [], loHaceKapiConMiEquipo: [], loHaceKapi: [] }
-          });
+      const coordItems = coordenadasBlockMatch[1].trim().split('- **').filter(s => s.trim());
+
+      coordItems.forEach(itemText => {
+        const tituloScoreMatch = itemText.match(/(.*?):\** (\d+)\/100/);
+        if (!tituloScoreMatch) return;
+
+        const planDeAccion: PlanDeAccion = { loHagoYo: [], loHaceKapiConMiEquipo: [], loHaceKapi: [] };
+        const planMatch = itemText.match(/\**Plan de Acción:\**([\s\S]*)/);
+        
+        if (planMatch?.[1]) {
+          const planText = planMatch[1];
+
+          const parsePlanItems = (sectionText: string | undefined) => {
+            if (!sectionText) return [];
+            return sectionText.trim().split(/\n\s*- /).filter(Boolean).map(s => s.trim());
+          };
+
+          const loHagoYoMatch = planText.match(/- \**Lo Hago Yo:\**([\s\S]*?)(?=- \**Lo Hace Kapi|$)/);
+          planDeAccion.loHagoYo = parsePlanItems(loHagoYoMatch?.[1]);
+
+          const loHaceKapiConMiEquipoMatch = planText.match(/- \**Lo Hace Kapi con mi Equipo:\**([\s\S]*?)(?=- \**Lo Hace Kapi|$)/);
+          planDeAccion.loHaceKapiConMiEquipo = parsePlanItems(loHaceKapiConMiEquipoMatch?.[1]);
+
+          const loHaceKapiMatch = planText.match(/- \**Lo Hace Kapi:\**([\s\S]*)/);
+          planDeAccion.loHaceKapi = parsePlanItems(loHaceKapiMatch?.[1]);
         }
+
+        coordenadas.push({
+          titulo: tituloScoreMatch[1].trim(),
+          score: getScore(tituloScoreMatch[2]),
+          planDeAccion: planDeAccion,
+        });
       });
     }
-    
-    const planDeAccion: PlanDeAccion = { loHagoYo: [], loHaceKapiConMiEquipo: [], loHaceKapi: [] };
-    if (planDeAccionBlockMatch?.[1]) {
-        const planText = planDeAccionBlockMatch[1];
-        const loHagoYoMatch = planText.match(/- \*\*Lo Hago Yo:\*([\s\S]*?)(?=- \*\*Lo Hace Kapi|$)/);
-        if(loHagoYoMatch) {
-            planDeAccion.loHagoYo = loHagoYoMatch[1].trim().split('\n\s*- ').filter(Boolean).map(s => s.trim());
-        }
-
-        const loHaceKapiConMiEquipoMatch = planText.match(/- \*\*Lo Hace Kapi con mi Equipo:\*([\s\S]*?)(?=- \*\*Lo Hace Kapi|$)/);
-        if(loHaceKapiConMiEquipoMatch) {
-            planDeAccion.loHaceKapiConMiEquipo = loHaceKapiConMiEquipoMatch[1].trim().split('\n\s*- ').filter(Boolean).map(s => s.trim());
-        }
-
-        const loHaceKapiMatch = planText.match(/- \*\*Lo Hace Kapi:\*([\s\S]*)/);
-        if(loHaceKapiMatch) {
-            planDeAccion.loHaceKapi = loHaceKapiMatch[1].trim().split('\n\s*- ').filter(Boolean).map(s => s.trim());
-        }
-    }
-
-    // Asignar el plan de acción completo a cada coordenada (según la nueva estructura)
-    coordenadas.forEach(c => c.planDeAccion = planDeAccion);
 
     return {
       titulo: tituloMatch?.[1]?.trim() || '',

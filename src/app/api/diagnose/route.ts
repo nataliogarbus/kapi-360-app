@@ -10,7 +10,7 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 );
 
-// --- Prompt v2.2 ---
+// --- Prompt v2.2 (Corregido) ---
 const generativePrompt = `
 Actúa como un analista experto en marketing digital y estratega de negocio para PYMES. Genera un informe detallado y accionable en formato Markdown basado en la URL del cliente: \${url}. El tono debe ser profesional, directo y orientado a KPIs. **La estructura del informe DEBE seguir este formato anidado EXACTO, incluyendo todos los títulos, puntajes, subtítulos en negrita y guiones:**
 
@@ -21,28 +21,58 @@ Actúa como un analista experto en marketing digital y estratega de negocio para
 **Por qué importa:** [Explicación del impacto en el negocio]
 **Coordenadas Clave:**
 - **[Nombre de Métrica 1]:** [Puntaje de 0 a 100]/100
+  **Plan de Acción:**
+  - **Lo Hago Yo:**
+    - [Paso 1 a realizar por el usuario]
+    - [Paso 2 a realizar por el usuario]
+  - **Lo Hace Kapi con mi Equipo:**
+    - [Paso 1 en colaboración]
+    - [Paso 2 en colaboración]
+  - **Lo Hace Kapi:**
+    - [Paso 1 que ejecuta Kapi]
+    - [Paso 2 que ejecuta Kapi]
 - **[Nombre de Métrica 2]:** [Puntaje de 0 a 100]/100
+  **Plan de Acción:**
+  - **Lo Hago Yo:**
+    - [Paso 1 a realizar por el usuario]
+    - [Paso 2 a realizar por el usuario]
+  - **Lo Hace Kapi con mi Equipo:**
+    - [Paso 1 en colaboración]
+    - [Paso 2 en colaboración]
+  - **Lo Hace Kapi:**
+    - [Paso 1 que ejecuta Kapi]
+    - [Paso 2 que ejecuta Kapi]
 - **[Nombre de Métrica 3]:** [Puntaje de 0 a 100]/100
+  **Plan de Acción:**
+  - **Lo Hago Yo:**
+    - [Paso 1 a realizar por el usuario]
+    - [Paso 2 a realizar por el usuario]
+  - **Lo Hace Kapi con mi Equipo:**
+    - [Paso 1 en colaboración]
+    - [Paso 2 en colaboración]
+  - **Lo Hace Kapi:**
+    - [Paso 1 que ejecuta Kapi]
+    - [Paso 2 que ejecuta Kapi]
 - **[Nombre de Métrica 4]:** [Puntaje de 0 a 100]/100
-**Plan de Acción:**
-- **Lo Hago Yo:**
-  - [Paso 1 a realizar por el usuario]
-  - [Paso 2 a realizar por el usuario]
-- **Lo Hace Kapi con mi Equipo:**
-  - [Paso 1 en colaboración]
-  - [Paso 2 en colaboración]
-- **Lo Hace Kapi:**
-  - [Paso 1 que ejecuta Kapi]
-  - [Paso 2 que ejecuta Kapi]
+  **Plan de Acción:**
+  - **Lo Hago Yo:**
+    - [Paso 1 a realizar por el usuario]
+    - [Paso 2 a realizar por el usuario]
+  - **Lo Hace Kapi con mi Equipo:**
+    - [Paso 1 en colaboración]
+    - [Paso 2 en colaboración]
+  - **Lo Hace Kapi:**
+    - [Paso 1 que ejecuta Kapi]
+    - [Paso 2 que ejecuta Kapi]
 
 ## Plataforma y UX (Puntaje: [Puntaje de 0 a 100]/100)
-(Repetir la misma estructura anidada que el pilar anterior)
+(Repetir la misma estructura anidada que el pilar anterior, con el Plan de Acción dentro de cada Coordenada Clave)
 
 ## Contenido y Redes (Puntaje: [Puntaje de 0 a 100]/100)
-(Repetir la misma estructura anidada que el pilar anterior)
+(Repetir la misma estructura anidada que el pilar anterior, con el Plan de Acción dentro de cada Coordenada Clave)
 
 ## Crecimiento e IA (Puntaje: [Puntaje de 0 a 100]/100)
-(Repetir la misma estructura anidada que el pilar anterior)
+(Repetir la misma estructura anidada que el pilar anterior, con el Plan de Acción dentro de cada Coordenada Clave)
 
 (Cualquier texto adicional o resumen puede ir aquí, después de los 4 pilares estructurados.)
 `;
