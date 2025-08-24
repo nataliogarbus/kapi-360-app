@@ -2,7 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { HelpCircle, ChevronDown, CheckSquare, Square } from 'lucide-react';
 
-// --- INTERFACES DE DATOS ALINEADAS CON PROMPT MAESTRO ---
+// --- INTERFACES DE DATOS FINALES ---
 type Solucion = {
   id: string;
   texto: string;
@@ -14,6 +14,7 @@ type Coordenada = {
   score: number;
   diagnostico: string;
   loHagoYo: string;
+  loHaceKapiConMiEquipo: string;
   solucionKapi: Solucion | null;
   impacto: string;
 };
@@ -36,7 +37,7 @@ interface ReportSectionProps {
   isLoading: boolean;
 }
 
-// --- PARSER V3 (ROBUSTO) PARA PROMPT MAESTRO ---
+// --- PARSER FINAL Y ROBUSTO ---
 const parseReport = (markdown: string): Reporte => {
   if (!markdown) {
     return { puntajeGeneral: 0, pilares: [] };
@@ -62,16 +63,28 @@ const parseReport = (markdown: string): Reporte => {
       coordenadasText.forEach((coordText, coordIndex) => {
         const coordTituloMatch = coordText.match(/\*\*Coordenada:\s*(.*?)\((\d+)\/100\)\*\*/);
         const diagnosticoMatch = coordText.match(/\*\s*\*Diagnóstico:\*\*\s*([\s\S]*?)(?=\n\s*\*)/);
-        const loHagoYoMatch = coordText.match(/\*\s*\*Lo Hago Yo:\*\*\s*([\s\S]*?)(?=\n\s*\*)/);
-        const solucionKapiMatch = coordText.match(/\*\s*\[ \]\s*\*Solución:\*\s*\*\*(.*?)\*\*\s*-\s*([\s\S]*?)(?=\n\s*\*)/);
         const impactoMatch = coordText.match(/\*\s*\*Impacto en el Negocio:\*\*\s*(.*)/);
-
+        
+        const planDeAccionMatch = coordText.match(/\*\s*\*Plan de Acción:\*\*\s*([\s\S]*)/);
+        let loHagoYo = '';
+        let loHaceKapiConMiEquipo = '';
         let solucion: Solucion | null = null;
-        if (solucionKapiMatch) {
-          solucion = {
-            id: `solucion-${pilarIndex}-${coordIndex}`,
-            texto: `**${getText(solucionKapiMatch, 1)}** - ${getText(solucionKapiMatch, 2)}`,
-          };
+
+        if (planDeAccionMatch) {
+          const planText = planDeAccionMatch[1];
+          const loHagoYoMatch = planText.match(/\*\s*\*Lo Hago Yo:\*\*\s*([\s\S]*?)(?=\n\s*\*)/);
+          loHagoYo = getText(loHagoYoMatch);
+
+          const conEquipoMatch = planText.match(/\*\s*\*Lo Hace Kapi con mi Equipo:\*\*\s*([\s\S]*?)(?=\n\s*\*)/);
+          loHaceKapiConMiEquipo = getText(conEquipoMatch);
+
+          const solucionKapiMatch = planText.match(/\*\s*\[ \]\s*\*Solución:\*\s*\*\*(.*?)\*\*\s*-\s*([\s\S]*?)(?=\n|$)/);
+          if (solucionKapiMatch) {
+            solucion = {
+              id: `solucion-${pilarIndex}-${coordIndex}`,
+              texto: `**${getText(solucionKapiMatch, 1)}** - ${getText(solucionKapiMatch, 2)}`,
+            };
+          }
         }
 
         coordenadas.push({
@@ -79,7 +92,8 @@ const parseReport = (markdown: string): Reporte => {
           titulo: getText(coordTituloMatch, 1),
           score: getScore(coordTituloMatch?.[2]),
           diagnostico: getText(diagnosticoMatch),
-          loHagoYo: getText(loHagoYoMatch),
+          loHagoYo,
+          loHaceKapiConMiEquipo,
           solucionKapi: solucion,
           impacto: getText(impactoMatch),
         });
@@ -99,7 +113,7 @@ const parseReport = (markdown: string): Reporte => {
 };
 
 
-// --- COMPONENTES DE UI RECONSTRUIDOS ---
+// --- COMPONENTES DE UI FINALES ---
 
 const Tooltip: React.FC<{ text: string }> = ({ text }) => (
   <div className="relative group inline-block ml-2">
@@ -110,7 +124,7 @@ const Tooltip: React.FC<{ text: string }> = ({ text }) => (
   </div>
 );
 
-const CoordenadaCard: React.FC <{
+const CoordenadaCard: React.FC<{
   coordenada: Coordenada;
   onSolucionToggle: (solucionId: string, texto: string) => void;
   isSolucionSelected: boolean;
@@ -134,10 +148,14 @@ const CoordenadaCard: React.FC <{
         <div>
           <p className="font-semibold text-slate-200 mb-1">Plan de Acción</p>
           <div className="bg-slate-900/70 p-4 rounded-md space-y-3">
-            <div>
+            {coordenada.loHagoYo && <div>
               <h5 className="font-bold text-white">Lo Hago Yo:</h5>
               <p className="text-sm">{coordenada.loHagoYo}</p>
-            </div>
+            </div>}
+            {coordenada.loHaceKapiConMiEquipo && <div>
+              <h5 className="font-bold text-white">Lo Hace Kapi con mi Equipo:</h5>
+              <p className="text-sm">{coordenada.loHaceKapiConMiEquipo}</p>
+            </div>}
             {coordenada.solucionKapi && (
               <div>
                 <h5 className="font-bold text-white">Lo Hace Kapi:</h5>
@@ -157,7 +175,7 @@ const CoordenadaCard: React.FC <{
   );
 };
 
-const PilarAccordion: React.FC <{
+const PilarAccordion: React.FC<{
   pilar: Pilar;
   onSolucionToggle: (solucionId: string, texto: string) => void;
   selectedSoluciones: { [key: string]: string };
