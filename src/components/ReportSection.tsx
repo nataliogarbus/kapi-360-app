@@ -37,7 +37,7 @@ interface ReportSectionProps {
   isLoading: boolean;
 }
 
-// --- PARSER FINAL V4 (ULTRA-ROBUSTO) ---
+// --- PARSER V5 (LINE-BY-LINE) ---
 const parseReport = (markdown: string): Reporte => {
   if (!markdown) {
     return { puntajeGeneral: 0, pilares: [] };
@@ -55,28 +55,42 @@ const parseReport = (markdown: string): Reporte => {
       if (!pilarText.includes('## ')) return null;
 
       const tituloMatch = pilarText.match(/##\s*(.*?)\(Puntaje:\s*(\d+)\/100\)/);
-      const benchmarkMatch = pilarText.match(/\*\s*\*Benchmark del Sector:\*\*\s*(.*)/);
+      const benchmarkMatch = pilarText.match(/\*\s*\*\*Benchmark del Sector:\*\*\s*(.*)/);
       
       const coordenadas: Coordenada[] = [];
       const coordenadasText = pilarText.split('### ').slice(1);
 
       coordenadasText.forEach((coordText, coordIndex) => {
         const coordTituloMatch = coordText.match(/\*\*Coordenada:\s*(.*?)\((\d+)\/100\)\*\*/);
-        const diagnosticoMatch = coordText.match(/\*\s*\*Diagnóstico:\*\*\s*([\s\S]*?)(?=\n\s*\*)/);
-        const impactoMatch = coordText.match(/\*\s*\*Impacto en el Negocio:\*\*\s*(.*)/);
+        const diagnosticoMatch = coordText.match(/\*\s*\*\*Diagnóstico:\*\*\s*([\s\S]*?)(?=\n\s*\*)/);
+        const impactoMatch = coordText.match(/\*\s*\*\*Impacto en el Negocio:\*\*\s*(.*)/);
         
-        const loHagoYoMatch = coordText.match(/\*\s*\*Lo Hago Yo:\*\*\s*([\s\S]*?)(?=\n\s*\*)/);
-        const conEquipoMatch = coordText.match(/\*\s*\*Lo Hace Kapi con mi Equipo:\*\*\s*([\s\S]*?)(?=\n\s*\*)/);
-        const loHaceKapiBlockMatch = coordText.match(/\*\s*\*Lo Hace Kapi:\*\*\s*([\s\S]*?)(?=\n\s*\*|\n*$)/);
-
+        const planDeAccionMatch = coordText.match(/\*\s*\*\*Plan de Acción:\*\*\s*([\s\S]*)/);
+        let loHagoYo = '';
+        let loHaceKapiConMiEquipo = '';
         let solucion: Solucion | null = null;
-        if (loHaceKapiBlockMatch) {
-          const solucionKapiMatch = loHaceKapiBlockMatch[1].match(/\*\s*\[ \]\s*\*Solución:\*\s*\*\*(.*?)\*\*\s*-\s*(.*)/);
-          if (solucionKapiMatch) {
-            solucion = {
-              id: `solucion-${pilarIndex}-${coordIndex}`,
-              texto: `**${getText(solucionKapiMatch, 1)}** - ${getText(solucionKapiMatch, 2)}`,
-            };
+
+        if (planDeAccionMatch) {
+          const planLines = planDeAccionMatch[1].split('\n').map(l => l.trim());
+          let currentSection = '';
+
+          for (const line of planLines) {
+            if (line.includes('**Lo Hago Yo:**')) {
+              loHagoYo = line.replace(/\*\s*\*\*Lo Hago Yo:\*\*\s*/, '');
+            } else if (line.includes('**Lo Hace Kapi con mi Equipo:**')) {
+              loHaceKapiConMiEquipo = line.replace(/\*\s*\*\*Lo Hace Kapi con mi Equipo:\*\*\s*/, '');
+            } else if (line.includes('**Lo Hace Kapi:**')) {
+              // This line just marks the section, the solution is on the next line
+              continue;
+            } else if (line.includes('**Solución:**')) {
+              const solucionMatch = line.match(/\*\s*\[ \]\s*\*\*Solución:\*\*\s*\*\*(.*?)\*\*\s*-\s*(.*)/);
+              if (solucionMatch) {
+                solucion = {
+                  id: `solucion-${pilarIndex}-${coordIndex}`,
+                  texto: `**${getText(solucionMatch, 1)}** - ${getText(solucionMatch, 2)}`,
+                };
+              }
+            }
           }
         }
 
@@ -85,8 +99,8 @@ const parseReport = (markdown: string): Reporte => {
           titulo: getText(coordTituloMatch, 1),
           score: getScore(coordTituloMatch?.[2]),
           diagnostico: getText(diagnosticoMatch),
-          loHagoYo: getText(loHagoYoMatch),
-          loHaceKapiConMiEquipo: getText(conEquipoMatch),
+          loHagoYo,
+          loHaceKapiConMiEquipo,
           solucionKapi: solucion,
           impacto: getText(impactoMatch),
         });
