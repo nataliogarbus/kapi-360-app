@@ -13,7 +13,6 @@ import CasosExito from "@/components/CasosExito";
 import NewsletterSection from "@/components/NewsletterSection";
 import ContactForm from "@/components/ContactForm";
 
-// Un componente simple para el estado de carga
 const LoadingState = () => (
   <div className="text-center my-10">
     <p className="text-white text-xl mb-4">Nuestros agentes IA están analizando la información. Esto puede tardar hasta 90 segundos.</p>
@@ -60,10 +59,8 @@ export default function Home() {
       <Header />
 
       {report && !isLoading ? (
-        // VISTA DE REPORTE ("Mesa de Estrategia")
         <ReportSection report={report} isLoading={isLoading} />
       ) : (
-        // VISTA DE LOBBY (Formulario y contenido de la página)
         <>
           <HeroSection />
 
