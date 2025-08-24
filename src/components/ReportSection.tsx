@@ -37,7 +37,7 @@ interface ReportSectionProps {
   isLoading: boolean;
 }
 
-// --- PARSER FINAL Y ROBUSTO ---
+// --- PARSER FINAL V4 (ULTRA-ROBUSTO) ---
 const parseReport = (markdown: string): Reporte => {
   if (!markdown) {
     return { puntajeGeneral: 0, pilares: [] };
@@ -65,20 +65,13 @@ const parseReport = (markdown: string): Reporte => {
         const diagnosticoMatch = coordText.match(/\*\s*\*Diagnóstico:\*\*\s*([\s\S]*?)(?=\n\s*\*)/);
         const impactoMatch = coordText.match(/\*\s*\*Impacto en el Negocio:\*\*\s*(.*)/);
         
-        const planDeAccionMatch = coordText.match(/\*\s*\*Plan de Acción:\*\*\s*([\s\S]*)/);
-        let loHagoYo = '';
-        let loHaceKapiConMiEquipo = '';
+        const loHagoYoMatch = coordText.match(/\*\s*\*Lo Hago Yo:\*\*\s*([\s\S]*?)(?=\n\s*\*)/);
+        const conEquipoMatch = coordText.match(/\*\s*\*Lo Hace Kapi con mi Equipo:\*\*\s*([\s\S]*?)(?=\n\s*\*)/);
+        const loHaceKapiBlockMatch = coordText.match(/\*\s*\*Lo Hace Kapi:\*\*\s*([\s\S]*?)(?=\n\s*\*|\n*$)/);
+
         let solucion: Solucion | null = null;
-
-        if (planDeAccionMatch) {
-          const planText = planDeAccionMatch[1];
-          const loHagoYoMatch = planText.match(/\*\s*\*Lo Hago Yo:\*\*\s*([\s\S]*?)(?=\n\s*\*)/);
-          loHagoYo = getText(loHagoYoMatch);
-
-          const conEquipoMatch = planText.match(/\*\s*\*Lo Hace Kapi con mi Equipo:\*\*\s*([\s\S]*?)(?=\n\s*\*)/);
-          loHaceKapiConMiEquipo = getText(conEquipoMatch);
-
-          const solucionKapiMatch = planText.match(/\*\s*\[ \]\s*\*Solución:\*\s*\*\*(.*?)\*\*\s*-\s*([\s\S]*?)(?=\n|$)/);
+        if (loHaceKapiBlockMatch) {
+          const solucionKapiMatch = loHaceKapiBlockMatch[1].match(/\*\s*\[ \]\s*\*Solución:\*\s*\*\*(.*?)\*\*\s*-\s*(.*)/);
           if (solucionKapiMatch) {
             solucion = {
               id: `solucion-${pilarIndex}-${coordIndex}`,
@@ -92,8 +85,8 @@ const parseReport = (markdown: string): Reporte => {
           titulo: getText(coordTituloMatch, 1),
           score: getScore(coordTituloMatch?.[2]),
           diagnostico: getText(diagnosticoMatch),
-          loHagoYo,
-          loHaceKapiConMiEquipo,
+          loHagoYo: getText(loHagoYoMatch),
+          loHaceKapiConMiEquipo: getText(conEquipoMatch),
           solucionKapi: solucion,
           impacto: getText(impactoMatch),
         });
@@ -137,14 +130,15 @@ const CoordenadaCard: React.FC<{
       </div>
       
       <div className="space-y-4 text-slate-300">
-        <div>
+        {coordenada.diagnostico && <div>
           <p className="font-semibold text-slate-200 mb-1">Diagnóstico</p>
           <p>{coordenada.diagnostico}</p>
-        </div>
-        <div>
+        </div>}
+        {coordenada.impacto && <div>
           <p className="font-semibold text-slate-200 mb-1">Impacto en el Negocio</p>
           <p>{coordenada.impacto}</p>
-        </div>
+        </div>}
+        
         <div>
           <p className="font-semibold text-slate-200 mb-1">Plan de Acción</p>
           <div className="bg-slate-900/70 p-4 rounded-md space-y-3">
