@@ -1,45 +1,17 @@
+import './globals.css';
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
-import "./globals.css";
 
-// Se ha eliminado la importación del componente ParticlesBackground para estabilizar la aplicación.
-
-const inter = Inter({ subsets: ["latin"] });
+// ATENCIÓN: Este es un layout de depuración ultra-mínimo.
 
 export const metadata: Metadata = {
-  title: "Kapi 360 - Diagnóstico Digital IA",
-  description: "Obtén un análisis 360° de tu presencia digital impulsado por IA.",
+  title: "Kapi 360 - Debug",
+  description: "Debug session.",
 };
 
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="es">
-      <body className={`${inter.className} bg-[#1a1a1a]`}>
-        {children}
-        {/* El botón de WhatsApp se mantiene igual */}
-        <a
-          href="https://wa.me/541123805651"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="fixed bottom-4 right-4 bg-green-500 text-white p-4 rounded-full shadow-lg hover:bg-green-600 transition-colors duration-300 z-50 flex items-center justify-center"
-          aria-label="Chat on WhatsApp"
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 448 512"
-            className="h-6 w-6"
-            fill="currentColor"
-          >
-            <path
-              d="M380.9 97.1C339.4 55.6 283.9 32 223.9 32c-122.4 0-222 99.6-222 222 0 39.1 10.2 77.3 29.6 111L0 480l117.7-30.9c32.4 17.7 68.9 27 106.1 27h.1c122.3 0 222-99.6 222-222 0-60.3-24.1-115-63.4-156.2zM223.9 444.7h-.1c-33.5 0-66.8-9.3-95.2-26.8L75.8 405.7l-29.1 76 79-20.7c28 15.2 59.4 23.1 91.8 23.1 101.6 0 184-82.4 184-184 0-50.6-20-97.7-55.5-132.2s-81.7-55.5-132.2-55.5c-101.6 0-184 82.4-184 184 0 50.6 20 97.7 55.5 132.2s81.7 55.5 132.2 55.5zM331.1 260.9c-1.6-1.6-4.6-2.5-7.5-2.5-2.9 0-5.8 1-7.5 2.5-1.6 1.6-2.5 4.6-2.5 7.5 0 2.9 1 5.8 2.5 7.5 1.6 1.6 4.6 2.5 7.5 2.5 2.9 0 5.8-1 7.5-2.5 1.6-1.6 2.5-4.6 2.5-7.5 0-2.9-1-5.8-2.5-7.5zm-30.9 30.9c-1.6-1.6-4.6-2.5-7.5-2.5-2.9 0-5.8 1-7.5 2.5-1.6 1.6-2.5 4.6-2.5 7.5 0 2.9 1 5.8 2.5 7.5 1.6 1.6 4.6 2.5 7.5 2.5 2.9 0 5.8-1 7.5-2.5 1.6-1.6 2.5-4.6 2.5-7.5 0-2.9-1-5.8-2.5-7.5zm-30.9 30.9c-1.6-1.6-4.6-2.5-7.5-2.5-2.9 0-5.8 1-7.5 2.5-1.6 1.6-2.5 4.6-2.5 7.5 0 2.9 1 5.8 2.5 7.5 1.6 1.6 4.6 2.5 7.5 2.5 2.9 0 5.8-1 7.5-2.5 1.6-1.6 2.5-4.6 2.5-7.5 0-2.9-1-5.8-2.5-7.5zm-30.9 30.9c-1.6-1.6-4.6-2.5-7.5-2.5-2.9 0-5.8 1-7.5 2.5-1.6 1.6-2.5 4.6-2.5 7.5 0 2.9 1 5.8 2.5 7.5 1.6 1.6 4.6 2.5 7.5 2.5 2.9 0 5.8-1 7.5-2.5 1.6-1.6 2.5-4.6 2.5-7.5 0-2.9-1-5.8-2.5-7.5zm-30.9 30.9c-1.6-1.6-4.6-2.5-7.5-2.5-2.9 0-5.8 1-7.5 2.5-1.6 1.6-2.5 4.6-2.5 7.5 0 2.9 1 5.8 2.5 7.5 1.6 1.6 4.6 2.5 7.5 2.5 2.9 0 5.8-1 7.5-2.5 1.6-1.6 2.5-4.6 2.5-7.5 0-2.9-1-5.8-2.5-7.5z"
-            />
-          </svg>
-        </a>
-      </body>
+    <html>
+      <body>{children}</body>
     </html>
   );
 }
