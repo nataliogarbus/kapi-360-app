@@ -238,6 +238,10 @@ const ReportSection: React.FC<ReportSectionProps> = ({ report, isLoading }) => {
 
   return (
     <section id="report-section" className="mt-10 w-full max-w-5xl mx-auto px-4">
+      <div className="bg-yellow-200 text-black p-4 rounded-lg mb-6">
+        <h3 className="font-bold">DEBUG: Raw Markdown Output</h3>
+        <pre className="whitespace-pre-wrap text-xs">{report}</pre>
+      </div>
       <div className="text-center mb-12">
         <h2 className="text-4xl sm:text-5xl font-extrabold mb-2 text-white">Informe Estratégico Avanzado</h2>
         <div className="mt-6 inline-block bg-slate-800 border border-slate-700 p-4 rounded-xl">
