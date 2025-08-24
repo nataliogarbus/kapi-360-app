@@ -62,7 +62,7 @@ export default function Home() {
 
       {report && !isLoading ? (
         // VISTA DE REPORTE ("Mesa de Estrategia")
-        <ReportSection report={report} />
+        <ReportSection report={report} isLoading={isLoading} />
       ) : (
         // VISTA DE LOBBY (Formulario y contenido de la página)
         <>
