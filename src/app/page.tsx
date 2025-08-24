@@ -61,37 +61,39 @@ export default function Home() {
     <main className="flex min-h-screen flex-col items-center p-4 sm:p-8">
       <Header />
 
-      {report && !isLoading ? (
-        // VISTA DE REPORTE ("Mesa de Estrategia")
-        <ReportSection report={report} isLoading={isLoading} />
-      ) : (
-        // VISTA DE LOBBY (Formulario y contenido de la página)
-        <>
-          <HeroSection />
+      <Header />
 
-          {isLoading ? (
-            <LoadingState />
-          ) : (
-            <DiagnosticForm onSubmit={handleDiagnose} isLoading={isLoading} />
-          )}
+      {/* DEBUG: Forzando la vista de Lobby para poder generar logs */}
+      <>
+        <HeroSection />
 
-          {error && (
-            <div className="mt-6 w-full max-w-3xl">
-              <div className="p-4 text-red-400 bg-red-900/20 border border-red-600 rounded-md">
-                <p className="font-bold">Error</p>
-                <p>{error}</p>
-              </div>
+        {isLoading ? (
+          <LoadingState />
+        ) : (
+          <DiagnosticForm onSubmit={handleDiagnose} isLoading={isLoading} />
+        )}
+
+        {error && (
+          <div className="mt-6 w-full max-w-3xl">
+            <div className="p-4 text-red-400 bg-red-900/20 border border-red-600 rounded-md">
+              <p className="font-bold">Error</p>
+              <p>{error}</p>
             </div>
-          )}
+          </div>
+        )}
 
-          <ComoFunciona />
-          <Servicios />
-          <CasosExito />
-          <Faq />
-          <NewsletterSection />
-          <ContactForm />
-        </>
-      )}
+        {/* Mostramos el reporte aquí abajo si existe, para no perder la vista */}
+        {report && !isLoading && <ReportSection report={report} isLoading={isLoading} />}
+
+        <ComoFunciona />
+        <Servicios />
+        <CasosExito />
+        <Faq />
+        <NewsletterSection />
+        <ContactForm />
+      </>
+
+      <Footer />
 
       <Footer />
     </main>
