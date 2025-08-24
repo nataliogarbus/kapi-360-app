@@ -36,7 +36,7 @@ interface ReportSectionProps {
   isLoading: boolean;
 }
 
-// --- PARSER AVANZADO PARA PROMPT MAESTRO ---
+// --- PARSER V3 (ROBUSTO) PARA PROMPT MAESTRO ---
 const parseReport = (markdown: string): Reporte => {
   if (!markdown) {
     return { puntajeGeneral: 0, pilares: [] };
@@ -45,55 +45,59 @@ const parseReport = (markdown: string): Reporte => {
   const getScore = (text: string | undefined) => text ? parseInt(text, 10) : 0;
   const getText = (match: RegExpMatchArray | null, index = 1) => match?.[index]?.trim() || '';
 
-  const puntajeGeneralMatch = markdown.match(/\**Puntaje General de Madurez Digital:\** \[(\d+)\]\/100/);
+  const puntajeGeneralMatch = markdown.match(/\*\*Puntaje General de Madurez Digital:\*\*\s*(\d+)\/100/);
   const puntajeGeneral = getScore(puntajeGeneralMatch?.[1]);
 
-  const pilaresText = markdown.split('---\n\n## ').slice(1);
-  const pilares: Pilar[] = pilaresText.map((pilarText, pilarIndex) => {
-    const tituloMatch = pilarText.match(/(.*?)\(Puntaje: \[(\d+)\]\/100\)/);
-    const benchmarkMatch = pilarText.match(/\* \*Benchmark del Sector:\* (.*)/);
+  const pilaresText = markdown.split(/\n---\n/);
+  const pilares: Pilar[] = pilaresText
+    .map((pilarText, pilarIndex) => {
+      if (!pilarText.includes('## ')) return null;
 
-    const coordenadas: Coordenada[] = [];
-    const coordenadasText = pilarText.split('### ').slice(1);
-
-    coordenadasText.forEach((coordText, coordIndex) => {
-      const coordTituloMatch = coordText.match(/\**Coordenada: (.*?)\((\[\d+\]\/100)\)\*\*/);
-      const scoreMatch = coordText.match(/\((\[(\d+)\]\/100)\)/);
-      const diagnosticoMatch = coordText.match(/\* \*Diagnóstico:\* (.*)/);
-      const loHagoYoMatch = coordText.match(/\* \*Lo Hago Yo:\* (.*)/);
-      const solucionKapiMatch = coordText.match(/\* \[ \] \* *Solución:\* \*\*(.*?)\*\* - (.*)/);
-      const impactoMatch = coordText.match(/\* \*Impacto en el Negocio:\* (.*)/);
+      const tituloMatch = pilarText.match(/##\s*(.*?)\(Puntaje:\s*(\d+)\/100\)/);
+      const benchmarkMatch = pilarText.match(/\*\s*\*Benchmark del Sector:\*\*\s*(.*)/);
       
-      let solucion: Solucion | null = null;
-      if (solucionKapiMatch) {
-        solucion = {
-          id: `solucion-${pilarIndex}-${coordIndex}`,
-          texto: `**${solucionKapiMatch[1].trim()}** - ${solucionKapiMatch[2].trim()}`
-        };
-      }
+      const coordenadas: Coordenada[] = [];
+      const coordenadasText = pilarText.split('### ').slice(1);
 
-      coordenadas.push({
-        id: `coordenada-${pilarIndex}-${coordIndex}`,
-        titulo: getText(coordTituloMatch, 1),
-        score: getScore(scoreMatch?.[2]),
-        diagnostico: getText(diagnosticoMatch),
-        loHagoYo: getText(loHagoYoMatch),
-        solucionKapi: solucion,
-        impacto: getText(impactoMatch),
+      coordenadasText.forEach((coordText, coordIndex) => {
+        const coordTituloMatch = coordText.match(/\*\*Coordenada:\s*(.*?)\((\d+)\/100\)\*\*/);
+        const diagnosticoMatch = coordText.match(/\*\s*\*Diagnóstico:\*\*\s*([\s\S]*?)(?=\n\s*\*)/);
+        const loHagoYoMatch = coordText.match(/\*\s*\*Lo Hago Yo:\*\*\s*([\s\S]*?)(?=\n\s*\*)/);
+        const solucionKapiMatch = coordText.match(/\*\s*\[ \]\s*\*Solución:\*\s*\*\*(.*?)\*\*\s*-\s*([\s\S]*?)(?=\n\s*\*)/);
+        const impactoMatch = coordText.match(/\*\s*\*Impacto en el Negocio:\*\*\s*(.*)/);
+
+        let solucion: Solucion | null = null;
+        if (solucionKapiMatch) {
+          solucion = {
+            id: `solucion-${pilarIndex}-${coordIndex}`,
+            texto: `**${getText(solucionKapiMatch, 1)}** - ${getText(solucionKapiMatch, 2)}`,
+          };
+        }
+
+        coordenadas.push({
+          id: `coordenada-${pilarIndex}-${coordIndex}`,
+          titulo: getText(coordTituloMatch, 1),
+          score: getScore(coordTituloMatch?.[2]),
+          diagnostico: getText(diagnosticoMatch),
+          loHagoYo: getText(loHagoYoMatch),
+          solucionKapi: solucion,
+          impacto: getText(impactoMatch),
+        });
       });
-    });
 
-    return {
-      id: `pilar-${pilarIndex}`,
-      titulo: getText(tituloMatch, 1),
-      score: getScore(tituloMatch?.[2]),
-      benchmark: getText(benchmarkMatch),
-      coordenadas,
-    };
-  });
+      return {
+        id: `pilar-${pilarIndex}`,
+        titulo: getText(tituloMatch, 1),
+        score: getScore(tituloMatch?.[2]),
+        benchmark: getText(benchmarkMatch),
+        coordenadas,
+      };
+    })
+    .filter((p): p is Pilar => p !== null && p.titulo !== '');
 
   return { puntajeGeneral, pilares };
 };
+
 
 // --- COMPONENTES DE UI RECONSTRUIDOS ---
 
@@ -106,7 +110,7 @@ const Tooltip: React.FC<{ text: string }> = ({ text }) => (
   </div>
 );
 
-const CoordenadaCard: React.FC<{ 
+const CoordenadaCard: React.FC <{
   coordenada: Coordenada;
   onSolucionToggle: (solucionId: string, texto: string) => void;
   isSolucionSelected: boolean;
@@ -153,7 +157,7 @@ const CoordenadaCard: React.FC<{
   );
 };
 
-const PilarAccordion: React.FC<{ 
+const PilarAccordion: React.FC <{
   pilar: Pilar;
   onSolucionToggle: (solucionId: string, texto: string) => void;
   selectedSoluciones: { [key: string]: string };
@@ -238,10 +242,6 @@ const ReportSection: React.FC<ReportSectionProps> = ({ report, isLoading }) => {
 
   return (
     <section id="report-section" className="mt-10 w-full max-w-5xl mx-auto px-4">
-      <div className="bg-yellow-200 text-black p-4 rounded-lg mb-6">
-        <h3 className="font-bold">DEBUG: Raw Markdown Output</h3>
-        <pre className="whitespace-pre-wrap text-xs">{report}</pre>
-      </div>
       <div className="text-center mb-12">
         <h2 className="text-4xl sm:text-5xl font-extrabold mb-2 text-white">Informe Estratégico Avanzado</h2>
         <div className="mt-6 inline-block bg-slate-800 border border-slate-700 p-4 rounded-xl">
