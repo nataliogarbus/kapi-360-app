@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import Header from "@/components/Header";
 import HeroSection from "@/components/HeroSection";
-import DiagnosticForm from "@/components/DiagnosticForm";
+import DiagnosticForm from "@/components/KapiDiagnosticForm";
 import ReportSection from "@/components/ReportSection";
 import Faq from "@/components/Faq";
 import Footer from "@/components/Footer";
