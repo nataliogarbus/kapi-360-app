@@ -45,3 +45,10 @@ next-env.d.ts
 
 # Temp files
 .tmp.driveupload
+
+# Archivos de Test y Logs
+test.html
+*.log
+
+# Carpeta de desarrollo temporal
+_dev_temp/
