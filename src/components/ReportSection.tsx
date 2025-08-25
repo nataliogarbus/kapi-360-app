@@ -37,6 +37,77 @@ interface ReportSectionProps {
   isLoading: boolean;
 }
 
+// --- PARSER v7.1 (Corrección final de Pasos) ---
+const parseReport = (markdown: string): Reporte => {
+  if (!markdown) {
+    return { puntajeGeneral: 0, pilares: [] };
+  }
+
+  const getScore = (text: string | undefined) => text ? parseInt(text, 10) : 0;
+  const getText = (match: RegExpMatchArray | null, index = 1) => match?.[index]?.trim() || '';
+
+  const puntajeGeneralMatch = markdown.match(/\**Puntaje General:\**\s*(\d+)\/100/);
+  const puntajeGeneral = getScore(puntajeGeneralMatch?.[1]);
+
+  const pilares: Pilar[] = [];
+  const pilarBlocks = markdown.split(/\n##\s/).slice(1);
+
+  pilarBlocks.forEach((pilarBlock, pilarIndex) => {
+    const pilarTituloMatch = pilarBlock.match(/(.*?)\(Puntaje:\s*(\d+)\/100\)/);
+    const queEsMatch = pilarBlock.match(/\**Qué es:\**\s*([\s\S]*?)(?=\n\**Por qué importa:\**)/);
+    const porQueImportaMatch = pilarBlock.match(/\**Por qué importa:\**\s*([\s\S]*?)(?=\n\**Coordenadas Clave:\**)/);
+
+    const coordenadas: Coordenada[] = [];
+    const coordSectionMatch = pilarBlock.match(/\**Coordenadas Clave:\**([\s\S]*)/);
+    
+    if (coordSectionMatch) {
+      const coordBlocks = coordSectionMatch[1].split(/\n-\s(?=\*\*)/).filter(b => b.trim() !== '' && b.includes(':'));
+
+      coordBlocks.forEach((coordBlock, coordIndex) => {
+        const tituloMatch = coordBlock.match(/\**(.*?)\**:\s*(\d+)\/100/);
+        if (!tituloMatch) return;
+
+        const diagnosticoMatch = coordBlock.match(/\**Diagnóstico:\**\s*([\s\S]*?)(?=\n\s*-\s\**Plan de Acción:\**|$)/);
+        const planDeAccionMatch = coordBlock.match(/\**Plan de Acción:\**\s*([\s\S]*)/);
+        
+        const planes: Plan[] = [];
+        if (planDeAccionMatch) {
+          const planItems = planDeAccionMatch[1].split(/\n\s{2,}-\s(?=\*\*)/).filter(p => p.trim());
+          planItems.forEach(planItem => {
+            const planTitleMatch = planItem.match(/\**(.*?)\**:/);
+            if (planTitleMatch) {
+              const titulo = planTitleMatch[1].trim();
+              // CORRECCIÓN FINAL: Usar el ancla `^` con el flag `m` para buscar al inicio de cada línea.
+              const pasos = Array.from(planItem.matchAll(/^\s{4,}-\s(.*?)$/gm)).map(match => match[1].trim());
+              planes.push({ titulo, pasos });
+            }
+          });
+        }
+
+        coordenadas.push({
+          id: `pilar-${pilarIndex}-coordenada-${coordIndex}`,
+          titulo: getText(tituloMatch, 1),
+          score: getScore(tituloMatch?.[2]),
+          diagnostico: getText(diagnosticoMatch),
+          planDeAccion: planes,
+        });
+      });
+    }
+
+    pilares.push({
+      id: `pilar-${pilarIndex}`,
+      titulo: getText(pilarTituloMatch, 1),
+      score: getScore(pilarTituloMatch?.[2]),
+      queEs: getText(queEsMatch),
+      porQueImporta: getText(porQueImportaMatch),
+      coordenadas,
+    });
+  });
+
+  return { puntajeGeneral, pilares };
+};
+
+
 // --- COMPONENTES DE UI v6.2 (CON SAFETY CHECKS) ---
 
 const Tooltip: React.FC<{ text: string; children: React.ReactNode }> = ({ text, children }) => (
@@ -65,7 +136,6 @@ const PlanAccordion: React.FC<{ plan: Plan }> = ({ plan }) => {
             className="overflow-hidden"
           >
             <ul className="list-disc list-inside p-4 pl-6 text-slate-300 text-sm space-y-2">
-              {/* SAFETY CHECK AÑADIDO */}
               {plan.pasos && plan.pasos.map((paso, i) => <li key={i}>{paso}</li>)}
             </ul>
           </motion.div>
@@ -88,7 +158,6 @@ const CoordenadaCard: React.FC<{ coordenada: Coordenada }> = ({ coordenada }) =>
           <p className="text-sm">{coordenada.diagnostico}</p>
         </div>}
         
-        {/* SAFETY CHECK MEJORADO */}
         {coordenada.planDeAccion && coordenada.planDeAccion.length > 0 ? (
           <div>
             <p className="font-semibold text-slate-200 mt-4 mb-2">Plan de Acción Sugerido</p>
@@ -138,7 +207,6 @@ const PilarAccordion: React.FC<{ pilar: Pilar }> = ({ pilar }) => {
                 <p className="text-slate-300 text-sm">{pilar.queEs}</p>
               </div>}
               <h4 className="text-lg font-bold text-white mb-3">Coordenadas Clave</h4>
-              {/* SAFETY CHECK AÑADIDO */}
               {pilar.coordenadas && pilar.coordenadas.map((coord, i) => (
                 <CoordenadaCard key={coord.id || `coord-${i}`} coordenada={coord} />
               ))}
@@ -151,7 +219,6 @@ const PilarAccordion: React.FC<{ pilar: Pilar }> = ({ pilar }) => {
 };
 
 const ReportSection: React.FC<ReportSectionProps> = ({ report, isLoading }) => {
-  // El parseo ahora ocurre en la página principal, aquí solo recibimos el objeto
   const reporteData = report;
 
   if (isLoading) {
@@ -180,7 +247,6 @@ const ReportSection: React.FC<ReportSectionProps> = ({ report, isLoading }) => {
         </div>
       </div>
 
-      {/* SAFETY CHECK AÑADIDO */}
       {reporteData.pilares && reporteData.pilares.map((pilar, i) => (
         <PilarAccordion key={pilar.id || `pilar-${i}`} pilar={pilar} />
       ))}
