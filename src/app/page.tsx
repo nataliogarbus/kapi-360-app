@@ -32,8 +32,6 @@ export default function Home() {
   const [report, setReport] = useState<Reporte | null>(null);
   const [currentMode, setCurrentMode] = useState('auto');
 
-  // CORRECCIÓN: El efecto ahora solo depende del modo.
-  // Limpia el informe solo cuando el usuario cambia de modo.
   useEffect(() => {
     setReport(null);
   }, [currentMode]);
@@ -57,9 +55,9 @@ export default function Home() {
       if (!response.ok) {
         throw new Error(result.error || 'Error del servidor');
       }
-
-      const finalReportObject = JSON.parse(result.analysis);
-      setReport(finalReportObject);
+      
+      // ¡Ya no se necesita JSON.parse! El objeto ya viene listo.
+      setReport(result.analysis);
 
     } catch (err: any) {
       setError(err.message || 'Ocurrió un error al generar el informe. Por favor, inténtalo de nuevo.');

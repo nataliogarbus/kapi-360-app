@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 
-// --- Iconos y Data (sin cambios) ---
 const SeoIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.72"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.72-1.72"/></svg>;
 const UxIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><path d="M7 12h10M7 7h10M7 17h5"/></svg>;
 const ConversionIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>;
@@ -28,27 +27,33 @@ const modeDescriptions: { [key: string]: string } = {
   consulta: 'Envíanos tu inquietud directamente. Un estratega de nuestro equipo se pondrá en contacto contigo.',
 };
 
-// --- PROPS CORREGIDAS ---
 interface DiagnosticFormProps {
   onSubmit: (url: string, mode: string, context?: string) => void;
   isLoading: boolean;
-  onModeChange: (mode: string) => void; // Nueva prop para notificar el cambio
+  onModeChange: (mode: string) => void;
 }
 
-// --- COMPONENTE CORREGIDO ---
-const DiagnosticForm: React.FC<DiagnosticFormProps> = ({ onSubmit, isLoading, onModeChange }) => {
+const KapiDiagnosticForm: React.FC<DiagnosticFormProps> = ({ onSubmit, isLoading, onModeChange }) => {
   const [mode, setMode] = useState('auto');
   const [url, setUrl] = useState('');
   const [context, setContext] = useState('');
+  const [selectedPillars, setSelectedPillars] = useState<string[]>([]);
 
   const handleModeChange = (newMode: string) => {
     setMode(newMode);
-    onModeChange(newMode); // Notificamos al padre que el modo cambió
+    onModeChange(newMode);
+  };
+
+  const handleCheckboxChange = (value: string) => {
+    setSelectedPillars(prev => 
+        prev.includes(value) ? prev.filter(p => p !== value) : [...prev, value]
+    );
   };
 
   const handleFormSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    onSubmit(url, mode, context);
+    const submissionContext = mode === 'custom' ? selectedPillars.join(', ') : context;
+    onSubmit(url, mode, submissionContext);
   };
 
   return (
@@ -62,12 +67,8 @@ const DiagnosticForm: React.FC<DiagnosticFormProps> = ({ onSubmit, isLoading, on
             </div>
           ))}
         </div>
-
-        <div className="text-center text-gray-400 text-sm mb-6 min-h-[40px]">
-          <p>{modeDescriptions[mode]}</p>
-        </div>
-
-        {/* URL Input (para auto y custom) */}
+        <div className="text-center text-gray-400 text-sm mb-6 min-h-[40px]"><p>{modeDescriptions[mode]}</p></div>
+        
         {(mode === 'auto' || mode === 'custom') && (
           <div className="flex flex-col sm:flex-row items-center bg-white/5 border border-white/20 rounded-lg p-2 gap-2 shadow-lg">
              <div className="relative flex-grow w-full">
@@ -78,12 +79,20 @@ const DiagnosticForm: React.FC<DiagnosticFormProps> = ({ onSubmit, isLoading, on
            </div>
         )}
 
-        {/* Opciones para modo Custom */}
         {mode === 'custom' && (
           <div className="my-4 grid grid-cols-2 sm:grid-cols-4 gap-4 text-left">
             {customOptions.map(option => (
               <div key={option.id}>
-                <input type="checkbox" id={option.id} name="enfoques" value={option.value} className="hidden peer" disabled={isLoading} />
+                <input 
+                  type="checkbox" 
+                  id={option.id} 
+                  name="enfoques" 
+                  value={option.value} 
+                  className="hidden peer" 
+                  disabled={isLoading} 
+                  onChange={() => handleCheckboxChange(option.value)}
+                  checked={selectedPillars.includes(option.value)}
+                />
                 <label htmlFor={option.id} className="bg-slate-800/50 border border-slate-700 rounded-lg p-4 flex flex-col items-center text-center cursor-pointer h-full hover:border-cyan-400 peer-checked:border-green-400 peer-checked:ring-2 peer-checked:ring-green-400/50 transition-all duration-300">
                   <div className="text-cyan-400 mb-2">{getIconForTitle(option.title)}</div>
                   <span className="font-semibold text-white text-sm">{option.title}</span>
@@ -93,7 +102,6 @@ const DiagnosticForm: React.FC<DiagnosticFormProps> = ({ onSubmit, isLoading, on
           </div>
         )}
 
-        {/* Textarea para modo Manual */}
         {mode === 'manual' && (
           <div className="flex flex-col gap-4">
             <textarea value={context} onChange={(e) => setContext(e.target.value)} className="w-full bg-white/5 border border-white/20 rounded-lg p-4 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-cyan-500" rows={5} placeholder="Describe tu problema o el área que más te preocupa..." required disabled={isLoading}></textarea>
@@ -101,7 +109,6 @@ const DiagnosticForm: React.FC<DiagnosticFormProps> = ({ onSubmit, isLoading, on
           </div>
         )}
 
-        {/* Formulario para modo Consulta */}
         {mode === 'consulta' && (
           <div className="flex flex-col gap-4">
             <textarea value={context} onChange={(e) => setContext(e.target.value)} className="w-full bg-white/5 border border-white/20 rounded-lg p-4 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-cyan-500" rows={5} placeholder="Escribe aquí tu consulta para nuestro equipo..." required disabled={isLoading}></textarea>
@@ -117,4 +124,4 @@ const DiagnosticForm: React.FC<DiagnosticFormProps> = ({ onSubmit, isLoading, on
   );
 };
 
-export default DiagnosticForm;
+export default KapiDiagnosticForm;
