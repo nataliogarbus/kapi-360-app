@@ -36,7 +36,7 @@ interface ReportSectionProps {
   isLoading: boolean;
 }
 
-// --- PARSER v2.2 ---
+// --- PARSER v2.3 (CORREGIDO) ---
 const parseReport = (markdown: string): Reporte => {
   if (!markdown) {
     return { puntajeGeneral: 0, pilares: [] };
@@ -58,7 +58,7 @@ const parseReport = (markdown: string): Reporte => {
       const coordenadas: Coordenada[] = [];
       const coordenadasMatch = pilarText.match(/\*\*Coordenadas Clave:\*\*\s*([\s\S]*?)(?=\n\*\*Plan de Acción:\*\*)/);
       if (coordenadasMatch) {
-        const coordItems = coordenadasMatch[1].split(/\n-\s*\*\*/).slice(1);
+        const coordItems = coordenadasMatch[1].split(/\n\s*-\s*\*\*/).filter(item => item.trim() !== '' );
         coordItems.forEach((item, coordIndex) => {
           const coordMatch = item.match(/(.*?):\*\*\s*(\d+)\/100/);
           coordenadas.push({
@@ -73,21 +73,27 @@ const parseReport = (markdown: string): Reporte => {
       const planes: Plan[] = [];
       const planDeAccionMatch = pilarText.match(/\*\*Plan de Acción:\*\*\s*([\s\S]*)/);
       if (planDeAccionMatch) {
-        const planesText = planDeAccionMatch[1].split(/\n-\s*\*\*/).slice(1);
+        const planesText = planDeAccionMatch[1].split(/\n\s*-\s*\*\*/).filter(item => item.trim() !== '' );
         planesText.forEach(planBlock => {
           const planTitleMatch = planBlock.match(/(.*?):\*\*\s*([\s\S]*)/);
           if (planTitleMatch) {
             const titulo = planTitleMatch[1].trim();
-            const pasosText = planTitleMatch[2];
+            const pasosText = planTitleMatch[2] || '';
             const pasos = pasosText.split(/\n\s*-\s/).filter(p => p.trim() !== '').map(p => p.trim().replace(/^-/, '').trim());
             planes.push({ titulo, pasos });
           }
         });
       }
       
-      coordenadas.forEach(coord => {
-        coord.planDeAccion = planes;
-      });
+      if (coordenadas.length > 0) {
+        coordenadas.forEach(coord => {
+            coord.planDeAccion = JSON.parse(JSON.stringify(planes));
+        });
+      } else {
+        // Si no hay coordenadas, quizás el plan de acción es para el pilar entero
+        // En ese caso, podríamos querer manejarlo de forma diferente.
+        // Por ahora, lo dejamos así.
+      }
 
       return {
         id: `pilar-${pilarIndex}`,
