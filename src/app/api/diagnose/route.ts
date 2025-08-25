@@ -10,47 +10,11 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 );
 
-// --- Prompt Clave para Gemini (v2.3 - Diagnóstico por Coordenada) ---
-const createGenerativePrompt = (url: string | undefined) => `Actúa como un analista experto en marketing digital y estratega de negocio para PYMES. Genera un informe detallado y accionable en formato Markdown basado en la URL del cliente: ${url || 'No proporcionada'}. El tono debe ser profesional, directo y orientado a KPIs. **La estructura del informe DEBE seguir este formato anidado EXACTO, incluyendo todos los títulos, puntajes, subtítulos en negrita y guiones:**
-
-**Puntaje General:** [Puntaje de 0 a 100]/100
-
-## Mercado y Competencia (Puntaje: [Puntaje de 0 a 100]/100)
-**Qué es:** [Explicación concisa del pilar]
-**Por qué importa:** [Explicación del impacto en el negocio]
-**Coordenadas Clave:**
-- **[Nombre de Métrica 1]:** [Puntaje de 0 a 100]/100
-  - **Diagnóstico:** [Análisis detallado y específico para la URL del cliente sobre esta métrica.]
-  - **Plan de Acción:**
-    - **Lo Hago Yo:**
-      - [Paso 1 a realizar por el usuario]
-      - [Paso 2 a realizar por el usuario]
-    - **Lo hago yo con Kapi:**
-      - [Paso 1 en colaboración]
-      - [Paso 2 en colaboración]
-    - **Lo Hace Kapi:**
-      - [Paso 1 que ejecuta Kapi]
-      - [Paso 2 que ejecuta Kapi]
-- **[Nombre de Métrica 2]:** [Puntaje de 0 a 100]/100
-  - **Diagnóstico:** [Análisis detallado y específico para la URL del cliente sobre esta métrica.]
-  - **Plan de Acción:**
-    - **Lo Hago Yo:**
-      - [Paso 1 a realizar por el usuario]
-    - **Lo hago yo con Kapi:**
-      - [Paso 1 en colaboración]
-    - **Lo Hace Kapi:**
-      - [Paso 1 que ejecuta Kapi]
-
-## Plataforma y UX (Puntaje: [Puntaje de 0 a 100]/100)
-(Repetir la misma estructura anidada que el pilar anterior, con sus propias coordenadas, diagnósticos y planes de acción)
-
-## Contenido y Redes (Puntaje: [Puntaje de 0 a 100]/100)
-(Repetir la misma estructura anidada que el pilar anterior, con sus propias coordenadas, diagnósticos y planes de acción)
-
-## Crecimiento e IA (Puntaje: [Puntaje de 0 a 100]/100)
-(Repetir la misma estructura anidada que el pilar anterior, con sus propias coordenadas, diagnósticos y planes de acción)
-
-(Cualquier texto adicional o resumen puede ir aquí, después de los 4 pilares estructurados.)
+// --- Prompt Base (Markdown) ---
+const createGenerativePrompt = (url: string | undefined) => `
+Actúa como un analista experto en marketing digital y estratega de negocio para PYMES. 
+Analiza la URL de un cliente (${url || 'No proporcionada'}) y genera un informe detallado en formato Markdown.
+El informe debe estar bien estructurado, con títulos, listas y negritas.
 `;
 
 export async function POST(req: NextRequest) {
@@ -61,8 +25,6 @@ export async function POST(req: NextRequest) {
     if (!mode) {
       return NextResponse.json({ error: 'El modo es requerido' }, { status: 400 });
     }
-
-    console.log(`[API /api/diagnose] Iniciando diagnóstico con Gemini para:`, { url, mode });
 
     let finalPrompt;
 
@@ -77,10 +39,9 @@ export async function POST(req: NextRequest) {
         break;
 
       case 'consulta':
-        finalPrompt = `El usuario está solicitando una consulta directa. Genera una respuesta amable que confirme la recepción de su interés y explique que el equipo de Kapi se pondrá en contacto en breve. No realices ningún tipo de análisis.`;
-        break;
+        return NextResponse.json({ analysis: "# Consulta Solicitada\n\nGracias por tu interés. Nos pondremos en contacto contigo a la brevedad." }, { status: 200 });
       
-      default:
+default:
         return NextResponse.json({ error: 'Modo no válido' }, { status: 400 });
     }
     
@@ -93,8 +54,6 @@ export async function POST(req: NextRequest) {
     ]).then(({ error }) => {
       if (error) {
         console.error('[API /api/diagnose] Error saving to Supabase:', error);
-      } else {
-        console.log(`[API /api/diagnose] Report for ${url || 'consulta/manual'} saved to Supabase.`);
       }
     });
 
@@ -102,6 +61,6 @@ export async function POST(req: NextRequest) {
 
   } catch (error) {
     console.error('[API /api/diagnose] Error llamando a la API de Gemini:', error);
-    return NextResponse.json({ error: 'Error al contactar el servicio de IA. Por favor, verifica la clave de API y vuelve a intentarlo.' }, { status: 500 });
+    return NextResponse.json({ error: 'Error al contactar el servicio de IA.' }, { status: 500 });
   }
 }
