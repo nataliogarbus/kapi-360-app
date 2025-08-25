@@ -14,16 +14,31 @@ import NewsletterSection from "@/components/NewsletterSection";
 import ContactForm from "@/components/ContactForm";
 import HeroSection from "@/components/HeroSection";
 
-// Tipos de datos para el informe
 interface Reporte {
   puntajeGeneral: number;
   pilares: any[];
 }
 
-// --- FUNCIÓN DE FUSIÓN Y VALIDACIÓN (CORREGIDA Y ROBUSTA) ---
+// --- FUNCIÓN DE FUSIÓN Y VALIDACIÓN (CORREGIDA SEGÚN ANÁLISIS) ---
 const mergeWithStructure = (aiResponse: any): Reporte => {
-  if (!aiResponse || !aiResponse.pilares) {
-    return { puntajeGeneral: 0, pilares: [] };
+  // Si la respuesta de la IA es inválida o no tiene pilares, devolvemos una estructura por defecto.
+  if (!aiResponse || !Array.isArray(aiResponse.pilares)) {
+    console.warn("Respuesta de la IA inválida o sin pilares. Usando estructura por defecto.");
+    return {
+        puntajeGeneral: 0,
+        pilares: REPORT_STRUCTURE.pilares.map(pilarTemplate => ({
+            ...pilarTemplate,
+            score: 0,
+            queEs: "Información no disponible.",
+            porQueImporta: "Información no disponible.",
+            coordenadas: pilarTemplate.coordenadas.map(coordTemplate => ({
+                ...coordTemplate,
+                score: 0,
+                diagnostico: "Análisis no disponible.",
+                planDeAccion: [],
+            }))
+        }))
+    };
   }
 
   const finalReport: Reporte = {
@@ -31,45 +46,31 @@ const mergeWithStructure = (aiResponse: any): Reporte => {
     pilares: REPORT_STRUCTURE.pilares.map(pilarTemplate => {
       const aiPilar = aiResponse.pilares.find((p: any) => p.id === pilarTemplate.id || p.titulo === pilarTemplate.titulo);
 
-      // Si no se encuentra el pilar en la respuesta de la IA, se devuelve la plantilla con valores por defecto.
-      if (!aiPilar) {
-        return {
-          ...pilarTemplate,
-          score: 0,
-          queEs: "Información no disponible.",
-          porQueImporta: "Información no disponible.",
-          coordenadas: pilarTemplate.coordenadas.map(coordTemplate => ({
+      // Fusión explícita y segura para el pilar
+      const pilarResult = {
+        ...pilarTemplate,
+        score: 0,
+        queEs: "Información no proporcionada.",
+        porQueImporta: "Información no proporcionada.",
+        ...aiPilar, // El pilar de la IA sobreescribe los defaults si existe
+        coordenadas: pilarTemplate.coordenadas.map(coordTemplate => {
+          const aiCoordenada = aiPilar?.coordenadas?.find((c: any) => c.id === coordTemplate.id || c.titulo === coordTemplate.titulo);
+          
+          // Patrón de fusión corregido para la coordenada
+          return {
             ...coordTemplate,
             score: 0,
             diagnostico: "Análisis no disponible.",
             planDeAccion: [],
-          }))
-        };
-      }
-
-      // Fusión explícita y segura
-      return {
-        ...pilarTemplate,
-        score: aiPilar.score || 0,
-        queEs: aiPilar.queEs || "Información no proporcionada.",
-        porQueImporta: aiPilar.porQueImporta || "Información no proporcionada.",
-        coordenadas: pilarTemplate.coordenadas.map(coordTemplate => {
-          const aiCoordenada = aiPilar.coordenadas?.find((c: any) => c.id === coordTemplate.id || c.titulo === coordTemplate.titulo);
-          return {
-            ...coordTemplate,
-            score: aiCoordenada?.score || 0,
-            diagnostico: aiCoordenada?.diagnostico || "Análisis no disponible.",
-            planDeAccion: aiCoordenada?.planDeAccion || [],
+            ...aiCoordenada, // La coordenada de la IA sobreescribe los defaults si existe
           };
         })
       };
+      return pilarResult;
     })
   };
 
-  // Filtro final para asegurar que solo se muestren los pilares que vinieron en la respuesta
-  finalReport.pilares = finalReport.pilares.filter(p => 
-    aiResponse.pilares.some((ap: any) => ap.id === p.id || ap.titulo === p.titulo)
-  );
+  // El filtro redundante ha sido eliminado.
 
   return finalReport;
 }
