@@ -5,26 +5,15 @@ import Header from "@/components/Header";
 import HeroSection from "@/components/HeroSection";
 import DiagnosticForm from "@/components/KapiDiagnosticForm";
 import ReportSection from "@/components/ReportSection";
-import Faq from "@/components/Faq";
-import Footer from "@/components/Footer";
-import ComoFunciona from "@/components/ComoFunciona";
-import Servicios from "@/components/Servicios";
-import CasosExito from "@/components/CasosExito";
-import NewsletterSection from "@/components/NewsletterSection";
-import ContactForm from "@/components/ContactForm";
+import { REPORT_STRUCTURE } from '@/app/report-structure'; // Importamos la estructura
+// ... (otros imports)
 
-// Definimos el tipo Reporte aquí también para usarlo en el estado
 interface Reporte {
   puntajeGeneral: number;
-  pilares: any[]; // Usamos any[] para simplicidad aquí
+  pilares: any[];
 }
 
-const LoadingState = () => (
-  <div className="text-center my-10">
-    <p className="text-white text-xl mb-4">Nuestros agentes IA están analizando la información. Esto puede tardar hasta 90 segundos.</p>
-    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white mx-auto"></div>
-  </div>
-);
+const LoadingState = () => ( <div className="text-center my-10"> <p className="text-white text-xl mb-4">Nuestros agentes IA están analizando la información. Esto puede tardar hasta 90 segundos.</p> <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white mx-auto"></div> </div> );
 
 export default function Home() {
   const [isLoading, setIsLoading] = useState(false);
@@ -44,9 +33,7 @@ export default function Home() {
     try {
       const response = await fetch('/api/diagnose', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ url, mode, context }),
       });
 
@@ -55,12 +42,12 @@ export default function Home() {
       if (!response.ok) {
         throw new Error(result.error || 'Error del servidor');
       }
-      
-      // ¡Ya no se necesita JSON.parse! El objeto ya viene listo.
+
+      // AHORA EL FRONTEND RECIBE EL OBJETO LISTO
       setReport(result.analysis);
 
     } catch (err: any) {
-      setError(err.message || 'Ocurrió un error al generar el informe. Por favor, inténtalo de nuevo.');
+      setError(err.message || 'Ocurrió un error al generar el informe.');
       console.error(err);
     } finally {
       setIsLoading(false);
@@ -70,19 +57,16 @@ export default function Home() {
   return (
     <main className="flex min-h-screen flex-col items-center p-4 sm:p-8">
       <Header />
-
       {report && !isLoading ? (
         <ReportSection report={report} isLoading={isLoading} />
       ) : (
         <>
           <HeroSection />
-
           {isLoading ? (
             <LoadingState />
           ) : (
             <DiagnosticForm onSubmit={handleDiagnose} isLoading={isLoading} onModeChange={setCurrentMode} />
           )}
-
           {error && (
             <div className="mt-6 w-full max-w-3xl">
               <div className="p-4 text-red-400 bg-red-900/20 border border-red-600 rounded-md">
@@ -91,16 +75,9 @@ export default function Home() {
               </div>
             </div>
           )}
-
-          <ComoFunciona />
-          <Servicios />
-          <CasosExito />
-          <Faq />
-          <NewsletterSection />
-          <ContactForm />
+          {/* ... (resto de los componentes de la home) */}
         </>
       )}
-
       <Footer />
     </main>
   );
