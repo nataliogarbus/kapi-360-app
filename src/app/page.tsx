@@ -32,12 +32,11 @@ export default function Home() {
   const [report, setReport] = useState<Reporte | null>(null);
   const [currentMode, setCurrentMode] = useState('auto');
 
-  // Efecto para limpiar el reporte si el modo cambia y no estamos cargando
+  // CORRECCIÓN: El efecto ahora solo depende del modo.
+  // Limpia el informe solo cuando el usuario cambia de modo.
   useEffect(() => {
-    if (!isLoading) {
-      setReport(null);
-    }
-  }, [currentMode, isLoading]);
+    setReport(null);
+  }, [currentMode]);
 
   const handleDiagnose = async (url: string, mode: string, context?: string) => {
     setIsLoading(true);
