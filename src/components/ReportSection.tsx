@@ -33,11 +33,11 @@ type Reporte = {
 };
 
 interface ReportSectionProps {
-  report: Reporte | null; // AHORA ACEPTA EL OBJETO DIRECTAMENTE
+  report: Reporte | null;
   isLoading: boolean;
 }
 
-// --- COMPONENTES DE UI v6.0 (FINAL) ---
+// --- COMPONENTES DE UI v6.1 (CON FALLBACK) ---
 
 const Tooltip: React.FC<{ text: string; children: React.ReactNode }> = ({ text, children }) => (
   <div className="relative group inline-block">
@@ -87,10 +87,17 @@ const CoordenadaCard: React.FC<{ coordenada: Coordenada }> = ({ coordenada }) =>
           <p className="text-sm">{coordenada.diagnostico}</p>
         </div>}
         
-        {coordenada.planDeAccion && coordenada.planDeAccion.length > 0 && <div>
-          <p className="font-semibold text-slate-200 mt-4 mb-2">Plan de Acción Sugerido</p>
-          {coordenada.planDeAccion.map((plan, i) => <PlanAccordion key={i} plan={plan} />)}
-        </div>}
+        {coordenada.planDeAccion && coordenada.planDeAccion.length > 0 ? (
+          <div>
+            <p className="font-semibold text-slate-200 mt-4 mb-2">Plan de Acción Sugerido</p>
+            {coordenada.planDeAccion.map((plan, i) => <PlanAccordion key={i} plan={plan} />)}
+          </div>
+        ) : (
+            <div className="mt-4 p-3 bg-amber-900/30 rounded-md text-amber-300 text-sm">
+                <p className="font-semibold">Plan de Acción no disponible</p>
+                <p>La IA no pudo generar un plan de acción para esta coordenada. Por favor, intente un nuevo análisis o contacte a soporte.</p>
+            </div>
+        )}
       </div>
     </div>
   );
@@ -145,7 +152,6 @@ const PilarAccordion: React.FC<{ pilar: Pilar }> = ({ pilar }) => {
 };
 
 const ReportSection: React.FC<ReportSectionProps> = ({ report, isLoading }) => {
-  // EL PARSER YA NO ES NECESARIO AQUÍ
   const reporteData = report;
 
   if (isLoading) {
