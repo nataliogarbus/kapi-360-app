@@ -10,18 +10,25 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 );
 
+// --- Lógica de PageSpeed Insights ---
 const getPageSpeedScore = async (url: string): Promise<number | null> => {
   const apiKey = process.env.PAGESPEED_API_KEY;
   if (!apiKey) {
     console.warn("No se proporcionó la clave de API de PageSpeed. Omitiendo análisis de velocidad.");
     return null;
   }
-  const api_url = `https://www.googleapis.com/pagespeedonline/v5/runPagespeed?url=${encodeURIComponent(url)}&key=${apiKey}&strategy=MOBILE`;
+
+  // CORRECCIÓN: Asegurar que la URL tenga el protocolo http/https
+  let fullUrl = url;
+  if (!fullUrl.startsWith('http://') && !fullUrl.startsWith('https://')) {
+    fullUrl = `https://${fullUrl}`;
+  }
+
+  const api_url = `https://www.googleapis.com/pagespeedonline/v5/runPagespeed?url=${encodeURIComponent(fullUrl)}&key=${apiKey}&strategy=MOBILE`;
 
   try {
     const response = await fetch(api_url);
     if (!response.ok) {
-      // Devolvemos el error de la API de Google para más claridad
       const errorBody = await response.text();
       throw new Error(`Error en API de PageSpeed: ${response.status} ${response.statusText} - ${errorBody}`);
     }
@@ -30,7 +37,6 @@ const getPageSpeedScore = async (url: string): Promise<number | null> => {
     return Math.round(score);
   } catch (error) {
     console.error("Error al obtener datos de PageSpeed:", error);
-    // Re-lanzamos el error para que sea capturado por el manejador principal
     throw error;
   }
 };
@@ -51,10 +57,8 @@ const createGenerativePrompt = (url: string | undefined, pageSpeedScore: number 
         realDataCtx = `\nDATOS REALES OBTENIDOS DE APIS:\n- Google PageSpeed Score (Móvil): ${pageSpeedScore}/100\n`;
     }
 
-    return `
-    Actúas como un analista experto en marketing digital. Tu misión es analizar la URL de un cliente (${url || 'No proporcionada'}) y devolver un informe JSON.
-    ${realDataCtx}
-    REGLAS OBLIGATORIAS:
+    return `\n    Actúas como un analista experto en marketing digital. Tu misión es analizar la URL de un cliente (${url || 'No proporcionada'}) y devolver un informe JSON.
+    ${realDataCtx}\n    REGLAS OBLIGATORIAS:
     1. Tu respuesta DEBE ser un único bloque de código JSON válido.
     2. DEBES rellenar TODOS los campos de la estructura, basando tu análisis en los datos reales proporcionados cuando sea posible.
 
