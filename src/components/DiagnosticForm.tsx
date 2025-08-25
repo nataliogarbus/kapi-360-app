@@ -31,19 +31,23 @@ const modeDescriptions: { [key: string]: string } = {
 // --- PROPS CORREGIDAS ---
 interface DiagnosticFormProps {
   onSubmit: (url: string, mode: string, context?: string) => void;
-  isLoading: boolean; // isLoading ahora es una prop
+  isLoading: boolean;
+  onModeChange: (mode: string) => void; // Nueva prop para notificar el cambio
 }
 
 // --- COMPONENTE CORREGIDO ---
-const DiagnosticForm: React.FC<DiagnosticFormProps> = ({ onSubmit, isLoading }) => {
+const DiagnosticForm: React.FC<DiagnosticFormProps> = ({ onSubmit, isLoading, onModeChange }) => {
   const [mode, setMode] = useState('auto');
   const [url, setUrl] = useState('');
   const [context, setContext] = useState('');
-  // El estado de carga local ha sido eliminado.
+
+  const handleModeChange = (newMode: string) => {
+    setMode(newMode);
+    onModeChange(newMode); // Notificamos al padre que el modo cambió
+  };
 
   const handleFormSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    // Ya no se gestiona setIsLoading aquí. Se pasa directamente a onSubmit.
     onSubmit(url, mode, context);
   };
 
@@ -53,7 +57,7 @@ const DiagnosticForm: React.FC<DiagnosticFormProps> = ({ onSubmit, isLoading }) 
         <div className="flex justify-center items-center mb-4 bg-gray-900/60 border border-slate-700 rounded-full p-1 backdrop-blur-sm">
           {Object.keys(modeDescriptions).map(key => (
             <div key={key}>
-              <input type="radio" name="analysis_mode" id={`mode-${key}`} value={key} className="hidden peer" checked={mode === key} onChange={() => setMode(key)} disabled={isLoading} />
+              <input type="radio" name="analysis_mode" id={`mode-${key}`} value={key} className="hidden peer" checked={mode === key} onChange={() => handleModeChange(key)} disabled={isLoading} />
               <label htmlFor={`mode-${key}`} className="px-4 py-2 text-sm font-semibold rounded-full cursor-pointer transition-colors duration-300 text-gray-300 hover:bg-slate-700/50 peer-checked:bg-cyan-500 peer-checked:text-white peer-checked:shadow-lg capitalize">{key}</label>
             </div>
           ))}
