@@ -2,10 +2,11 @@ import React, { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { HelpCircle, ChevronDown, CheckSquare, Square } from 'lucide-react';
 
-// --- INTERFACES DE DATOS FINALES ---
+// --- INTERFACES DE DATOS v3 (TODO SELECCIONABLE) ---
 type Solucion = {
   id: string;
   texto: string;
+  prefijo: string;
 };
 
 type Coordenada = {
@@ -13,10 +14,8 @@ type Coordenada = {
   titulo: string;
   score: number;
   diagnostico: string;
-  loHagoYo: string;
-  loHaceKapiConMiEquipo: string;
-  solucionKapi: Solucion | null;
   impacto: string;
+  soluciones: Solucion[];
 };
 
 type Pilar = {
@@ -37,7 +36,7 @@ interface ReportSectionProps {
   isLoading: boolean;
 }
 
-// --- PARSER V5 (LINE-BY-LINE) ---
+// --- PARSER v6 (FINAL) ---
 const parseReport = (markdown: string): Reporte => {
   if (!markdown) {
     return { puntajeGeneral: 0, pilares: [] };
@@ -55,43 +54,29 @@ const parseReport = (markdown: string): Reporte => {
       if (!pilarText.includes('## ')) return null;
 
       const tituloMatch = pilarText.match(/##\s*(.*?)\(Puntaje:\s*(\d+)\/100\)/);
-      const benchmarkMatch = pilarText.match(/\*\s*\*\*Benchmark del Sector:\*\*\s*(.*)/);
+      const benchmarkMatch = pilarText.match(/\*\s*\*Benchmark del Sector:\*\*\s*(.*)/);
       
       const coordenadas: Coordenada[] = [];
       const coordenadasText = pilarText.split('### ').slice(1);
 
       coordenadasText.forEach((coordText, coordIndex) => {
         const coordTituloMatch = coordText.match(/\*\*Coordenada:\s*(.*?)\((\d+)\/100\)\*\*/);
-        const diagnosticoMatch = coordText.match(/\*\s*\*\*Diagnóstico:\*\*\s*([\s\S]*?)(?=\n\s*\*)/);
-        const impactoMatch = coordText.match(/\*\s*\*\*Impacto en el Negocio:\*\*\s*(.*)/);
+        const diagnosticoMatch = coordText.match(/\*\s*\*Diagnóstico:\*\*\s*([\s\S]*?)(?=\n\s*\*)/);
+        const impactoMatch = coordText.match(/\*\s*\*Impacto en el Negocio:\*\*\s*(.*)/);
         
-        const planDeAccionMatch = coordText.match(/\*\s*\*\*Plan de Acción:\*\*\s*([\s\S]*)/);
-        let loHagoYo = '';
-        let loHaceKapiConMiEquipo = '';
-        let solucion: Solucion | null = null;
-
+        const soluciones: Solucion[] = [];
+        const planDeAccionMatch = coordText.match(/\*\s*\*Plan de Acción:\*\*\s*([\s\S]*)/);
         if (planDeAccionMatch) {
-          const planLines = planDeAccionMatch[1].split('\n').map(l => l.trim());
-          let currentSection = '';
-
-          for (const line of planLines) {
-            if (line.includes('**Lo Hago Yo:**')) {
-              loHagoYo = line.replace(/\*\s*\*\*Lo Hago Yo:\*\*\s*/, '');
-            } else if (line.includes('**Lo Hace Kapi con mi Equipo:**')) {
-              loHaceKapiConMiEquipo = line.replace(/\*\s*\*\*Lo Hace Kapi con mi Equipo:\*\*\s*/, '');
-            } else if (line.includes('**Lo Hace Kapi:**')) {
-              // This line just marks the section, the solution is on the next line
-              continue;
-            } else if (line.includes('**Solución:**')) {
-              const solucionMatch = line.match(/\*\s*\[ \]\s*\*\*Solución:\*\*\s*\*\*(.*?)\*\*\s*-\s*(.*)/);
-              if (solucionMatch) {
-                solucion = {
-                  id: `solucion-${pilarIndex}-${coordIndex}`,
-                  texto: `**${getText(solucionMatch, 1)}** - ${getText(solucionMatch, 2)}`,
-                };
-              }
-            }
-          }
+          const planText = planDeAccionMatch[1];
+          const solucionMatches = Array.from(planText.matchAll(/\*\s*\[ \]\s*\*\*(.*?):\*\*\s*([\s\S]*?)(?=\n\s*\*|$)/g));
+          
+          solucionMatches.forEach((match, solIndex) => {
+            soluciones.push({
+              id: `solucion-${pilarIndex}-${coordIndex}-${solIndex}`,
+              prefijo: getText(match, 1),
+              texto: getText(match, 2),
+            });
+          });
         }
 
         coordenadas.push({
@@ -99,10 +84,8 @@ const parseReport = (markdown: string): Reporte => {
           titulo: getText(coordTituloMatch, 1),
           score: getScore(coordTituloMatch?.[2]),
           diagnostico: getText(diagnosticoMatch),
-          loHagoYo,
-          loHaceKapiConMiEquipo,
-          solucionKapi: solucion,
           impacto: getText(impactoMatch),
+          soluciones,
         });
       });
 
@@ -131,11 +114,31 @@ const Tooltip: React.FC<{ text: string }> = ({ text }) => (
   </div>
 );
 
-const CoordenadaCard: React.FC<{
+const SolucionItem: React.FC<{ 
+  solucion: Solucion;
+  onToggle: (solucionId: string, texto: string) => void;
+  isSelected: boolean;
+}> = ({ solucion, onToggle, isSelected }) => {
+  const textoCompleto = `${solucion.prefijo}: ${solucion.texto}`;
+  return (
+    <div>
+      <h5 className="font-bold text-white">{solucion.prefijo}:</h5>
+      <div 
+        className="flex items-start space-x-3 mt-2 p-3 bg-sky-900/50 rounded-lg cursor-pointer hover:bg-sky-900/80 transition-colors"
+        onClick={() => onToggle(solucion.id, textoCompleto)}
+      >
+        {isSelected ? <CheckSquare className="text-cyan-400 h-5 w-5 mt-1 flex-shrink-0" /> : <Square className="text-slate-500 h-5 w-5 mt-1 flex-shrink-0" />}
+        <p className="text-sm text-slate-200">{solucion.texto}</p>
+      </div>
+    </div>
+  );
+};
+
+const CoordenadaCard: React.FC<{ 
   coordenada: Coordenada;
   onSolucionToggle: (solucionId: string, texto: string) => void;
-  isSolucionSelected: boolean;
-}> = ({ coordenada, onSolucionToggle, isSolucionSelected }) => {
+  selectedSoluciones: { [key: string]: string };
+}> = ({ coordenada, onSolucionToggle, selectedSoluciones }) => {
   return (
     <div className="bg-slate-800/50 border border-slate-700 rounded-lg p-5 mb-6">
       <div className="flex justify-between items-start mb-3">
@@ -153,37 +156,25 @@ const CoordenadaCard: React.FC<{
           <p>{coordenada.impacto}</p>
         </div>}
         
-        <div>
+        {coordenada.soluciones.length > 0 && <div>
           <p className="font-semibold text-slate-200 mb-1">Plan de Acción</p>
           <div className="bg-slate-900/70 p-4 rounded-md space-y-3">
-            {coordenada.loHagoYo && <div>
-              <h5 className="font-bold text-white">Lo Hago Yo:</h5>
-              <p className="text-sm">{coordenada.loHagoYo}</p>
-            </div>}
-            {coordenada.loHaceKapiConMiEquipo && <div>
-              <h5 className="font-bold text-white">Lo Hace Kapi con mi Equipo:</h5>
-              <p className="text-sm">{coordenada.loHaceKapiConMiEquipo}</p>
-            </div>}
-            {coordenada.solucionKapi && (
-              <div>
-                <h5 className="font-bold text-white">Lo Hace Kapi:</h5>
-                <div 
-                  className="flex items-start space-x-3 mt-2 p-3 bg-sky-900/50 rounded-lg cursor-pointer hover:bg-sky-900/80 transition-colors"
-                  onClick={() => onSolucionToggle(coordenada.solucionKapi!.id, coordenada.solucionKapi!.texto)}
-                >
-                  {isSolucionSelected ? <CheckSquare className="text-cyan-400 h-5 w-5 mt-1 flex-shrink-0" /> : <Square className="text-slate-500 h-5 w-5 mt-1 flex-shrink-0" />}
-                  <p className="text-sm text-slate-200" dangerouslySetInnerHTML={{ __html: coordenada.solucionKapi.texto.replace(/\*\*/g, '') }}></p>
-                </div>
-              </div>
-            )}
+            {coordenada.soluciones.map(sol => (
+              <SolucionItem 
+                key={sol.id} 
+                solucion={sol} 
+                onToggle={onSolucionToggle} 
+                isSelected={!!selectedSoluciones[sol.id]}
+              />
+            ))}
           </div>
-        </div>
+        </div>}
       </div>
     </div>
   );
 };
 
-const PilarAccordion: React.FC<{
+const PilarAccordion: React.FC<{ 
   pilar: Pilar;
   onSolucionToggle: (solucionId: string, texto: string) => void;
   selectedSoluciones: { [key: string]: string };
@@ -222,7 +213,7 @@ const PilarAccordion: React.FC<{
                   key={coord.id} 
                   coordenada={coord} 
                   onSolucionToggle={onSolucionToggle} 
-                  isSolucionSelected={!!selectedSoluciones[coord.solucionKapi?.id || '']} 
+                  selectedSoluciones={selectedSoluciones} 
                 />
               ))}
             </div>
@@ -290,7 +281,7 @@ const ReportSection: React.FC<ReportSectionProps> = ({ report, isLoading }) => {
           <h3 className="text-2xl font-bold text-white mb-4">Resumen de Soluciones Seleccionadas</h3>
           <ul className="list-disc list-inside space-y-2 text-slate-200">
             {solucionesSeleccionadas.map((solucion, i) => (
-              <li key={i} dangerouslySetInnerHTML={{ __html: solucion.replace(/\*\*/g, '') }}></li>
+              <li key={i}>{solucion}</li>
             ))}
           </ul>
           <div className="mt-6 text-center">
