@@ -10,7 +10,6 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 );
 
-// --- Lógica de PageSpeed Insights ---
 const getPageSpeedScore = async (url: string): Promise<number | null> => {
   const apiKey = process.env.PAGESPEED_API_KEY;
   if (!apiKey) {
@@ -22,15 +21,17 @@ const getPageSpeedScore = async (url: string): Promise<number | null> => {
   try {
     const response = await fetch(api_url);
     if (!response.ok) {
-      console.error(`Error al llamar a PageSpeed API: ${response.statusText}`);
-      return null;
+      // Devolvemos el error de la API de Google para más claridad
+      const errorBody = await response.text();
+      throw new Error(`Error en API de PageSpeed: ${response.status} ${response.statusText} - ${errorBody}`);
     }
     const data = await response.json();
     const score = data.lighthouseResult.categories.performance.score * 100;
     return Math.round(score);
   } catch (error) {
     console.error("Error al obtener datos de PageSpeed:", error);
-    return null;
+    // Re-lanzamos el error para que sea capturado por el manejador principal
+    throw error;
   }
 };
 
@@ -116,8 +117,8 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ analysis: finalReportObject }, { status: 200 });
 
   } catch (error) {
-    console.error('[API /api/diagnose] Error en la ruta:', error);
-    const errorResponse = { error: (error as Error).message || 'Ocurrió un error desconocido.' }
-    return NextResponse.json(errorResponse, { status: 500 });
+    const errorMessage = error instanceof Error ? error.message : "Un error desconocido ocurrió.";
+    console.error('[API /api/diagnose] Error en la ruta:', errorMessage);
+    return NextResponse.json({ error: `Error en el servidor: ${errorMessage}` }, { status: 500 });
   }
 }
