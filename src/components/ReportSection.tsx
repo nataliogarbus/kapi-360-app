@@ -2,7 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { HelpCircle, ChevronDown } from 'lucide-react';
 
-// --- INTERFACES DE DATOS v2.2 (ESTRUCTURA ANIDADA) ---
+// --- INTERFACES DE DATOS v2.3 (Diagnóstico por Coordenada) ---
 type PlanPaso = string;
 
 type Plan = {
@@ -14,6 +14,7 @@ type Coordenada = {
   id: string;
   titulo: string;
   score: number;
+  diagnostico: string;
   planDeAccion: Plan[];
 };
 
@@ -36,7 +37,7 @@ interface ReportSectionProps {
   isLoading: boolean;
 }
 
-// --- PARSER v2.3 (CORREGIDO) ---
+// --- PARSER v2.4 (Diagnóstico por Coordenada) ---
 const parseReport = (markdown: string): Reporte => {
   if (!markdown) {
     return { puntajeGeneral: 0, pilares: [] };
@@ -49,68 +50,58 @@ const parseReport = (markdown: string): Reporte => {
   const puntajeGeneral = getScore(puntajeGeneralMatch?.[1]);
 
   const pilaresText = markdown.split(/\n##\s/).slice(1);
-  const pilares: Pilar[] = pilaresText
-    .map((pilarText, pilarIndex) => {
-      const tituloMatch = pilarText.match(/(.*?)\(Puntaje:\s*(\d+)\/100\)/);
-      const queEsMatch = pilarText.match(/\*\*Qué es:\*\*\s*([\s\S]*?)(?=\n\*\*Por qué importa:\*\*)/);
-      const porQueImportaMatch = pilarText.match(/\*\*Por qué importa:\*\*\s*([\s\S]*?)(?=\n\*\*Coordenadas Clave:\*\*)/);
+  const pilares: Pilar[] = pilaresText.map((pilarText, pilarIndex) => {
+    const tituloMatch = pilarText.match(/(.*?)\(Puntaje:\s*(\d+)\/100\)/);
+    const queEsMatch = pilarText.match(/\*\*Qué es:\*\*\s*([\s\S]*?)(?=\n\*\*Por qué importa:\*\*)/);
+    const porQueImportaMatch = pilarText.match(/\*\*Por qué importa:\*\*\s*([\s\S]*?)(?=\n\*\*Coordenadas Clave:\*\*)/);
 
-      const coordenadas: Coordenada[] = [];
-      const coordenadasMatch = pilarText.match(/\*\*Coordenadas Clave:\*\*\s*([\s\S]*?)(?=\n\*\*Plan de Acción:\*\*)/);
-      if (coordenadasMatch) {
-        const coordItems = coordenadasMatch[1].split(/\n\s*-\s*\*\*/).filter(item => item.trim() !== '' );
-        coordItems.forEach((item, coordIndex) => {
-          const coordMatch = item.match(/(.*?):\*\*\s*(\d+)\/100/);
-          coordenadas.push({
-            id: `pilar-${pilarIndex}-coordenada-${coordIndex}`,
-            titulo: getText(coordMatch, 1),
-            score: getScore(coordMatch?.[2]),
-            planDeAccion: [], // Se llenará después
-          });
-        });
-      }
+    const coordenadas: Coordenada[] = [];
+    const coordBlocks = pilarText.split(/\n-\s\*\*/).slice(1);
+
+    coordBlocks.forEach((block, coordIndex) => {
+      const tituloMatch = block.match(/\*\*(.*?)\*\*:\s*(\d+)\/100/);
+      if (!tituloMatch) return;
+
+      const diagnosticoMatch = block.match(/\*\*Diagnóstico:\*\*\s*([\s\S]*?)(?=\n\s*-\s\*\*Plan de Acción:\*\*)/);
+      const planDeAccionMatch = block.match(/\*\*Plan de Acción:\*\*\s*([\s\S]*)/);
 
       const planes: Plan[] = [];
-      const planDeAccionMatch = pilarText.match(/\*\*Plan de Acción:\*\*\s*([\s\S]*)/);
       if (planDeAccionMatch) {
-        const planesText = planDeAccionMatch[1].split(/\n\s*-\s*\*\*/).filter(item => item.trim() !== '' );
+        const planesText = planDeAccionMatch[1].split(/\n\s*-\s\*\*/).filter(p => p.trim());
         planesText.forEach(planBlock => {
-          const planTitleMatch = planBlock.match(/(.*?):\*\*\s*([\s\S]*)/);
+          const planTitleMatch = planBlock.match(/\*\*\s*(.*?)\*\*:/);
           if (planTitleMatch) {
             const titulo = planTitleMatch[1].trim();
-            const pasosText = planTitleMatch[2] || '';
-            const pasos = pasosText.split(/\n\s*-\s/).filter(p => p.trim() !== '').map(p => p.trim().replace(/^-/, '').trim());
+            const pasos = planBlock.split(/\n\s{2,}-\s/).slice(1).map(p => p.trim());
             planes.push({ titulo, pasos });
           }
         });
       }
-      
-      if (coordenadas.length > 0) {
-        coordenadas.forEach(coord => {
-            coord.planDeAccion = JSON.parse(JSON.stringify(planes));
-        });
-      } else {
-        // Si no hay coordenadas, quizás el plan de acción es para el pilar entero
-        // En ese caso, podríamos querer manejarlo de forma diferente.
-        // Por ahora, lo dejamos así.
-      }
 
-      return {
-        id: `pilar-${pilarIndex}`,
+      coordenadas.push({
+        id: `pilar-${pilarIndex}-coordenada-${coordIndex}`,
         titulo: getText(tituloMatch, 1),
         score: getScore(tituloMatch?.[2]),
-        queEs: getText(queEsMatch),
-        porQueImporta: getText(porQueImportaMatch),
-        coordenadas,
-      };
-    })
-    .filter((p): p is Pilar => p !== null && !!p.titulo);
+        diagnostico: getText(diagnosticoMatch),
+        planDeAccion: planes,
+      });
+    });
+
+    return {
+      id: `pilar-${pilarIndex}`,
+      titulo: getText(tituloMatch, 1),
+      score: getScore(tituloMatch?.[2]),
+      queEs: getText(queEsMatch),
+      porQueImporta: getText(porQueImportaMatch),
+      coordenadas,
+    };
+  }).filter((p): p is Pilar => p !== null && !!p.titulo);
 
   return { puntajeGeneral, pilares };
 };
 
 
-// --- COMPONENTES DE UI v2.2 ---
+// --- COMPONENTES DE UI v2.3 ---
 
 const Tooltip: React.FC<{ text: string; children: React.ReactNode }> = ({ text, children }) => (
   <div className="relative group inline-block">
@@ -154,9 +145,16 @@ const CoordenadaCard: React.FC<{ coordenada: Coordenada }> = ({ coordenada }) =>
         <h4 className="text-xl font-bold text-white">{coordenada.titulo}</h4>
         <span className="text-2xl font-bold text-cyan-400">{coordenada.score}/100</span>
       </div>
-      <div>
-        <p className="font-semibold text-slate-200 mb-2">Plan de Acción Sugerido</p>
-        {coordenada.planDeAccion.map((plan, i) => <PlanAccordion key={i} plan={plan} />)}
+      <div className="space-y-4 text-slate-300">
+        {coordenada.diagnostico && <div className="bg-sky-900/30 p-3 rounded-md">
+          <p className="font-semibold text-slate-200 mb-1">Diagnóstico</p>
+          <p className="text-sm">{coordenada.diagnostico}</p>
+        </div>}
+        
+        <div>
+          <p className="font-semibold text-slate-200 mb-2">Plan de Acción Sugerido</p>
+          {coordenada.planDeAccion.map((plan, i) => <PlanAccordion key={i} plan={plan} />)}
+        </div>
       </div>
     </div>
   );
