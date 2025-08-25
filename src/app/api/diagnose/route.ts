@@ -16,7 +16,7 @@ Actúas como un analista experto en marketing digital y estratega de negocio par
 Tu MISIÓN es analizar la URL de un cliente (${url || 'No proporcionada'}) y devolver un informe ESTRUCTURADO.
 
 REGLAS DE SALIDA:
-- Tu respuesta DEBE ser un único bloque de código JSON, sin texto introductorio, ni explicaciones, ni la palabra 
+- Tu respuesta DEBE ser un único bloque de código JSON, sin texto introductorio, ni explicaciones, ni 
 - El JSON debe ser válido.
 - La estructura del JSON debe ser la siguiente:
 {
@@ -91,9 +91,15 @@ export async function POST(req: NextRequest) {
     const response = await result.response;
     let analysisText = response.text();
 
-    // Limpieza para asegurar que la respuesta sea solo el JSON
-    analysisText = analysisText.replace(/^```json\n/, '').replace(/\n```$/, '').trim();
-    analysisText = analysisText.replace(/Apollo\.io/g, '').trim();
+    // --- Lógica de Limpieza Robusta ---
+    const startIndex = analysisText.indexOf('{');
+    const endIndex = analysisText.lastIndexOf('}');
+
+    if (startIndex !== -1 && endIndex !== -1) {
+      analysisText = analysisText.substring(startIndex, endIndex + 1);
+    } else {
+      throw new Error("La respuesta de la IA no contenía un JSON válido.");
+    }
 
     supabase.from('diagnostics').insert([
       { url: url, mode: mode, report_content: analysisText, context: context },
@@ -106,7 +112,11 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ analysis: analysisText }, { status: 200 });
 
   } catch (error) {
-    console.error('[API /api/diagnose] Error llamando a la API de Gemini:', error);
-    return NextResponse.json({ error: 'Error al contactar el servicio de IA.' }, { status: 500 });
+    console.error('[API /api/diagnose] Error en la ruta:', error);
+    // Devolvemos el error en un formato JSON que el frontend puede manejar
+    const errorResponse = {
+      error: (error as Error).message || 'Ocurrió un error desconocido en el servidor.'
+    }
+    return NextResponse.json(errorResponse, { status: 500 });
   }
 }
