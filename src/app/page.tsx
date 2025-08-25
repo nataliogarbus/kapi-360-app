@@ -2,9 +2,9 @@
 
 import { useState, useEffect } from 'react';
 import Header from "@/components/Header";
-import HeroSection from "@/components/HeroSection";
 import DiagnosticForm from "@/components/KapiDiagnosticForm";
 import ReportSection from "@/components/ReportSection";
+import { REPORT_STRUCTURE } from '@/app/report-structure';
 import Faq from "@/components/Faq";
 import Footer from "@/components/Footer";
 import ComoFunciona from "@/components/ComoFunciona";
@@ -12,7 +12,7 @@ import Servicios from "@/components/Servicios";
 import CasosExito from "@/components/CasosExito";
 import NewsletterSection from "@/components/NewsletterSection";
 import ContactForm from "@/components/ContactForm";
-import { REPORT_STRUCTURE } from '@/app/report-structure';
+import HeroSection from "@/components/HeroSection";
 
 // Tipos de datos para el informe
 interface Reporte {
@@ -20,20 +20,41 @@ interface Reporte {
   pilares: any[];
 }
 
-// --- FUNCIÓN DE FUSIÓN Y VALIDACIÓN ---
+// --- FUNCIÓN DE FUSIÓN Y VALIDACIÓN (CORREGIDA Y ROBUSTA) ---
 const mergeWithStructure = (aiResponse: any): Reporte => {
+  if (!aiResponse || !aiResponse.pilares) {
+    return { puntajeGeneral: 0, pilares: [] };
+  }
+
   const finalReport: Reporte = {
     puntajeGeneral: aiResponse.puntajeGeneral || 0,
     pilares: REPORT_STRUCTURE.pilares.map(pilarTemplate => {
-      const aiPilar = aiResponse.pilares?.find((p: any) => p.id === pilarTemplate.id || p.titulo === pilarTemplate.titulo);
-      
+      const aiPilar = aiResponse.pilares.find((p: any) => p.id === pilarTemplate.id || p.titulo === pilarTemplate.titulo);
+
+      // Si no se encuentra el pilar en la respuesta de la IA, se devuelve la plantilla con valores por defecto.
+      if (!aiPilar) {
+        return {
+          ...pilarTemplate,
+          score: 0,
+          queEs: "Información no disponible.",
+          porQueImporta: "Información no disponible.",
+          coordenadas: pilarTemplate.coordenadas.map(coordTemplate => ({
+            ...coordTemplate,
+            score: 0,
+            diagnostico: "Análisis no disponible.",
+            planDeAccion: [],
+          }))
+        };
+      }
+
+      // Fusión explícita y segura
       return {
         ...pilarTemplate,
-        score: aiPilar?.score || 0,
-        queEs: aiPilar?.queEs || "Información no proporcionada.",
-        porQueImporta: aiPilar?.porQueImporta || "Información no proporcionada.",
+        score: aiPilar.score || 0,
+        queEs: aiPilar.queEs || "Información no proporcionada.",
+        porQueImporta: aiPilar.porQueImporta || "Información no proporcionada.",
         coordenadas: pilarTemplate.coordenadas.map(coordTemplate => {
-          const aiCoordenada = aiPilar?.coordenadas?.find((c: any) => c.id === coordTemplate.id || c.titulo === coordTemplate.titulo);
+          const aiCoordenada = aiPilar.coordenadas?.find((c: any) => c.id === coordTemplate.id || c.titulo === coordTemplate.titulo);
           return {
             ...coordTemplate,
             score: aiCoordenada?.score || 0,
@@ -45,15 +66,15 @@ const mergeWithStructure = (aiResponse: any): Reporte => {
     })
   };
 
-  // Filtrar pilares que no estaban en la respuesta de la IA si es una respuesta parcial
+  // Filtro final para asegurar que solo se muestren los pilares que vinieron en la respuesta
   finalReport.pilares = finalReport.pilares.filter(p => 
-    aiResponse.pilares?.some((ap: any) => ap.id === p.id || ap.titulo === p.titulo)
+    aiResponse.pilares.some((ap: any) => ap.id === p.id || ap.titulo === p.titulo)
   );
 
   return finalReport;
 }
 
-const LoadingState = () => ( <div className="text-center my-10"> <p className="text-white text-xl mb-4">Nuestros agentes IA están analizando la información. Esto puede tardar hasta 90 segundos.</p> <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white mx-auto"></div> </div> );
+const LoadingState = () => ( <div className="text-center my-10"> <p className="text-white text-xl mb-4">Nuestros agentes IA están analizando la información...</p> <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white mx-auto"></div> </div> );
 
 export default function Home() {
   const [isLoading, setIsLoading] = useState(false);
@@ -79,11 +100,8 @@ export default function Home() {
 
       const result = await response.json();
 
-      if (!response.ok) {
-        throw new Error(result.error || 'Error del servidor');
-      }
+      if (!response.ok) { throw new Error(result.error || 'Error del servidor'); }
 
-      // FUSIONAMOS LA RESPUESTA DE LA IA CON NUESTRA ESTRUCTURA LOCAL
       const finalReportObject = mergeWithStructure(result.analysis);
       setReport(finalReportObject);
 
@@ -103,11 +121,7 @@ export default function Home() {
       ) : (
         <>
           <HeroSection />
-          {isLoading ? (
-            <LoadingState />
-          ) : (
-            <DiagnosticForm onSubmit={handleDiagnose} isLoading={isLoading} onModeChange={setCurrentMode} />
-          )}
+          {isLoading ? <LoadingState /> : <DiagnosticForm onSubmit={handleDiagnose} isLoading={isLoading} onModeChange={setCurrentMode} />}
           {error && (
             <div className="mt-6 w-full max-w-3xl">
               <div className="p-4 text-red-400 bg-red-900/20 border border-red-600 rounded-md">
