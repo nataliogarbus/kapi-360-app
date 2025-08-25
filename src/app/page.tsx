@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Header from "@/components/Header";
 import HeroSection from "@/components/HeroSection";
 import DiagnosticForm from "@/components/DiagnosticForm";
@@ -29,7 +29,15 @@ const LoadingState = () => (
 export default function Home() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [report, setReport] = useState<Reporte | null>(null); // Estado con el tipo correcto
+  const [report, setReport] = useState<Reporte | null>(null);
+  const [currentMode, setCurrentMode] = useState('auto');
+
+  // Efecto para limpiar el reporte si el modo cambia y no estamos cargando
+  useEffect(() => {
+    if (!isLoading) {
+      setReport(null);
+    }
+  }, [currentMode, isLoading]);
 
   const handleDiagnose = async (url: string, mode: string, context?: string) => {
     setIsLoading(true);
@@ -51,10 +59,6 @@ export default function Home() {
         throw new Error(result.error || 'Error del servidor');
       }
 
-      // LA CORRECCIÓN CLAVE:
-      // El backend devuelve { analysis: "{...}" }.
-      // 1. Extraemos el string `result.analysis`.
-      // 2. Lo parseamos para convertirlo en un objeto JavaScript.
       const finalReportObject = JSON.parse(result.analysis);
       setReport(finalReportObject);
 
@@ -79,7 +83,7 @@ export default function Home() {
           {isLoading ? (
             <LoadingState />
           ) : (
-            <DiagnosticForm onSubmit={handleDiagnose} isLoading={isLoading} />
+            <DiagnosticForm onSubmit={handleDiagnose} isLoading={isLoading} onModeChange={setCurrentMode} />
           )}
 
           {error && (
