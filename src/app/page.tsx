@@ -5,15 +5,26 @@ import Header from "@/components/Header";
 import HeroSection from "@/components/HeroSection";
 import DiagnosticForm from "@/components/KapiDiagnosticForm";
 import ReportSection from "@/components/ReportSection";
-import { REPORT_STRUCTURE } from '@/app/report-structure'; // Importamos la estructura
-// ... (otros imports)
+import Faq from "@/components/Faq";
+import Footer from "@/components/Footer";
+import ComoFunciona from "@/components/ComoFunciona";
+import Servicios from "@/components/Servicios";
+import CasosExito from "@/components/CasosExito";
+import NewsletterSection from "@/components/NewsletterSection";
+import ContactForm from "@/components/ContactForm";
+import { REPORT_STRUCTURE } from '@/app/report-structure';
 
 interface Reporte {
   puntajeGeneral: number;
   pilares: any[];
 }
 
-const LoadingState = () => ( <div className="text-center my-10"> <p className="text-white text-xl mb-4">Nuestros agentes IA están analizando la información. Esto puede tardar hasta 90 segundos.</p> <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white mx-auto"></div> </div> );
+const LoadingState = () => (
+  <div className="text-center my-10">
+    <p className="text-white text-xl mb-4">Nuestros agentes IA están analizando la información. Esto puede tardar hasta 90 segundos.</p>
+    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white mx-auto"></div>
+  </div>
+);
 
 export default function Home() {
   const [isLoading, setIsLoading] = useState(false);
@@ -43,7 +54,6 @@ export default function Home() {
         throw new Error(result.error || 'Error del servidor');
       }
 
-      // AHORA EL FRONTEND RECIBE EL OBJETO LISTO
       setReport(result.analysis);
 
     } catch (err: any) {
@@ -75,7 +85,12 @@ export default function Home() {
               </div>
             </div>
           )}
-          {/* ... (resto de los componentes de la home) */}
+          <ComoFunciona />
+          <Servicios />
+          <CasosExito />
+          <Faq />
+          <NewsletterSection />
+          <ContactForm />
         </>
       )}
       <Footer />
