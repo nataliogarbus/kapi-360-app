@@ -52,3 +52,6 @@ test.html
 
 # Carpeta de desarrollo temporal
 _dev_temp/
+
+# Documentación del Proyecto (No subir)
+KAPI_HOJA_DE_RUTA.md

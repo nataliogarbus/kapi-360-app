@@ -10,7 +10,32 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 );
 
-const createGenerativePrompt = (url: string | undefined, context?: string) => {
+// --- Lógica de PageSpeed Insights ---
+const getPageSpeedScore = async (url: string): Promise<number | null> => {
+  const apiKey = process.env.PAGESPEED_API_KEY;
+  if (!apiKey) {
+    console.warn("No se proporcionó la clave de API de PageSpeed. Omitiendo análisis de velocidad.");
+    return null;
+  }
+  const api_url = `https://www.googleapis.com/pagespeedonline/v5/runPagespeed?url=${encodeURIComponent(url)}&key=${apiKey}&strategy=MOBILE`;
+
+  try {
+    const response = await fetch(api_url);
+    if (!response.ok) {
+      console.error(`Error al llamar a PageSpeed API: ${response.statusText}`);
+      return null;
+    }
+    const data = await response.json();
+    const score = data.lighthouseResult.categories.performance.score * 100;
+    return Math.round(score);
+  } catch (error) {
+    console.error("Error al obtener datos de PageSpeed:", error);
+    return null;
+  }
+};
+
+
+const createGenerativePrompt = (url: string | undefined, pageSpeedScore: number | null, context?: string) => {
     let structureToAnalyze = REPORT_STRUCTURE;
     if (context && context.trim() !== '') {
         const selectedPillars = context.split(', ');
@@ -20,14 +45,17 @@ const createGenerativePrompt = (url: string | undefined, context?: string) => {
         };
     }
 
+    let realDataCtx = "";
+    if (pageSpeedScore !== null) {
+        realDataCtx = `\nDATOS REALES OBTENIDOS DE APIS:\n- Google PageSpeed Score (Móvil): ${pageSpeedScore}/100\n`;
+    }
+
     return `
-    Actúas como un analista experto en marketing digital. Tu misión es analizar la URL de un cliente (${url || 'No proporcionada'}) y devolver un informe en formato JSON.
-    
+    Actúas como un analista experto en marketing digital. Tu misión es analizar la URL de un cliente (${url || 'No proporcionada'}) y devolver un informe JSON.
+    ${realDataCtx}
     REGLAS OBLIGATORIAS:
-    1.  Tu respuesta DEBE ser un único bloque de código JSON válido, sin texto antes o después.
-    2.  DEBES rellenar TODOS los campos de la estructura que te proporciono: 
-        score, queEs, porQueImporta, diagnostico y el array planDeAccion completo para CADA coordenada.
-    3.  No cambies los id ni los titulo que te doy.
+    1. Tu respuesta DEBE ser un único bloque de código JSON válido.
+    2. DEBES rellenar TODOS los campos de la estructura, basando tu análisis en los datos reales proporcionados cuando sea posible.
 
     ESTRUCTURA A RELLENAR:
     ${JSON.stringify(structureToAnalyze, null, 2)}
@@ -48,26 +76,17 @@ export async function POST(req: NextRequest) {
     let finalReportObject;
 
     if (mode === 'consulta') {
-        finalReportObject = {
-            puntajeGeneral: 0,
-            pilares: [{
-                id: "pilar-consulta",
-                titulo: "Consulta Solicitada",
-                score: 100,
-                queEs: "Has solicitado una consulta directa con nuestro equipo.",
-                porQueImporta: "Nos pondremos en contacto contigo a la brevedad para entender tus necesidades y ofrecerte una solución a medida.",
-                coordenadas: []
-            }]
-        }
+        finalReportObject = { puntajeGeneral: 0, pilares: [{ id: "pilar-consulta", titulo: "Consulta Solicitada", score: 100, queEs: "Has solicitado una consulta directa.", porQueImporta: "Nos pondremos en contacto contigo.", coordenadas: [] }] }
     } else {
         let finalPrompt;
         if (mode === 'auto' || mode === 'custom') {
-            finalPrompt = createGenerativePrompt(url, context);
+            const pageSpeedScore = await getPageSpeedScore(url);
+            finalPrompt = createGenerativePrompt(url, pageSpeedScore, context);
         } else { // manual
-            finalPrompt = `Actúa como un consultor experto en marketing digital. Un cliente te ha descrito el siguiente problema: "${context}". Por favor, genera un plan de acción detallado en formato JSON, con una estructura similar a: { "diagnostico": "...", "planDeAccion": [{ "titulo": "Recomendación 1", "pasos": ["..."] }] }`;
+            finalPrompt = `Actúa como un consultor experto. Un cliente describe un problema: \"${context}\". Genera un plan de acción en JSON: { \"diagnostico\": \"...\", \"planDeAccion\": [{ \"titulo\": \"...\", \"pasos\": [\"...\"] }] }`;
         }
 
-        const result = await model.generateContent(finalPrompt);
+        const result = await model.generateContent(finalPrompt!); 
         const response = await result.response;
         let analysisText = response.text();
 
@@ -80,23 +99,7 @@ export async function POST(req: NextRequest) {
         const iaReport = JSON.parse(analysisText);
 
         if (mode === 'manual') {
-            finalReportObject = {
-                puntajeGeneral: 0,
-                pilares: [{
-                    id: "pilar-manual",
-                    titulo: "Plan de Acción Manual",
-                    score: 100,
-                    queEs: `Análisis basado en tu descripción: "${context}"`, 
-                    porQueImporta: "Este es un plan generado específicamente para resolver el problema que describiste.",
-                    coordenadas: [{
-                        id: "coord-manual-1",
-                        titulo: "Diagnóstico y Plan",
-                        score: 100,
-                        diagnostico: iaReport.diagnostico || "Análisis generado por IA.",
-                        planDeAccion: iaReport.planDeAccion || []
-                    }]
-                }]
-            };
+            finalReportObject = { puntajeGeneral: 0, pilares: [{ id: "pilar-manual", titulo: "Plan de Acción Manual", score: 100, queEs: `Análisis basado en: \"${context}\"`, porQueImporta: "Plan generado para resolver tu problema.", coordenadas: [{ id: "coord-manual-1", titulo: "Diagnóstico y Plan", score: 100, diagnostico: iaReport.diagnostico || "Análisis generado.", planDeAccion: iaReport.planDeAccion || [] }] }] };
         } else {
             finalReportObject = iaReport;
         }
@@ -114,9 +117,7 @@ export async function POST(req: NextRequest) {
 
   } catch (error) {
     console.error('[API /api/diagnose] Error en la ruta:', error);
-    const errorResponse = {
-      error: (error as Error).message || 'Ocurrió un error desconocido en el servidor.'
-    }
+    const errorResponse = { error: (error as Error).message || 'Ocurrió un error desconocido.' }
     return NextResponse.json(errorResponse, { status: 500 });
   }
 }
