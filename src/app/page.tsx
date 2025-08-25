@@ -13,6 +13,12 @@ import CasosExito from "@/components/CasosExito";
 import NewsletterSection from "@/components/NewsletterSection";
 import ContactForm from "@/components/ContactForm";
 
+// Definimos el tipo Reporte aquí también para usarlo en el estado
+interface Reporte {
+  puntajeGeneral: number;
+  pilares: any[]; // Usamos any[] para simplicidad aquí
+}
+
 const LoadingState = () => (
   <div className="text-center my-10">
     <p className="text-white text-xl mb-4">Nuestros agentes IA están analizando la información. Esto puede tardar hasta 90 segundos.</p>
@@ -23,11 +29,12 @@ const LoadingState = () => (
 export default function Home() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [report, setReport] = useState<any | null>(null);
+  const [report, setReport] = useState<Reporte | null>(null); // Estado con el tipo correcto
 
   const handleDiagnose = async (url: string, mode: string, context?: string) => {
     setIsLoading(true);
     setError(null);
+    setReport(null);
 
     try {
       const response = await fetch('/api/diagnose', {
@@ -44,7 +51,12 @@ export default function Home() {
         throw new Error(result.error || 'Error del servidor');
       }
 
-      setReport(result.analysis);
+      // LA CORRECCIÓN CLAVE:
+      // El backend devuelve { analysis: "{...}" }.
+      // 1. Extraemos el string `result.analysis`.
+      // 2. Lo parseamos para convertirlo en un objeto JavaScript.
+      const finalReportObject = JSON.parse(result.analysis);
+      setReport(finalReportObject);
 
     } catch (err: any) {
       setError(err.message || 'Ocurrió un error al generar el informe. Por favor, inténtalo de nuevo.');
