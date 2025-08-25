@@ -37,7 +37,7 @@ interface ReportSectionProps {
   isLoading: boolean;
 }
 
-// --- COMPONENTES DE UI v6.1 (CON FALLBACK) ---
+// --- COMPONENTES DE UI v6.2 (CON SAFETY CHECKS) ---
 
 const Tooltip: React.FC<{ text: string; children: React.ReactNode }> = ({ text, children }) => (
   <div className="relative group inline-block">
@@ -65,7 +65,8 @@ const PlanAccordion: React.FC<{ plan: Plan }> = ({ plan }) => {
             className="overflow-hidden"
           >
             <ul className="list-disc list-inside p-4 pl-6 text-slate-300 text-sm space-y-2">
-              {plan.pasos.map((paso, i) => <li key={i}>{paso}</li>)}
+              {/* SAFETY CHECK AÑADIDO */}
+              {plan.pasos && plan.pasos.map((paso, i) => <li key={i}>{paso}</li>)}
             </ul>
           </motion.div>
         )}
@@ -87,6 +88,7 @@ const CoordenadaCard: React.FC<{ coordenada: Coordenada }> = ({ coordenada }) =>
           <p className="text-sm">{coordenada.diagnostico}</p>
         </div>}
         
+        {/* SAFETY CHECK MEJORADO */}
         {coordenada.planDeAccion && coordenada.planDeAccion.length > 0 ? (
           <div>
             <p className="font-semibold text-slate-200 mt-4 mb-2">Plan de Acción Sugerido</p>
@@ -95,7 +97,7 @@ const CoordenadaCard: React.FC<{ coordenada: Coordenada }> = ({ coordenada }) =>
         ) : (
             <div className="mt-4 p-3 bg-amber-900/30 rounded-md text-amber-300 text-sm">
                 <p className="font-semibold">Plan de Acción no disponible</p>
-                <p>La IA no pudo generar un plan de acción para esta coordenada. Por favor, intente un nuevo análisis o contacte a soporte.</p>
+                <p>La IA no pudo generar un plan de acción para esta coordenada.</p>
             </div>
         )}
       </div>
@@ -114,15 +116,11 @@ const PilarAccordion: React.FC<{ pilar: Pilar }> = ({ pilar }) => {
       >
         <h3 className="text-2xl font-bold text-white flex items-center">
           {pilar.titulo}
-          <Tooltip text={pilar.porQueImporta}>
-            <HelpCircle size={16} className="text-gray-400 cursor-pointer ml-2" />
-          </Tooltip>
+          {pilar.porQueImporta && <Tooltip text={pilar.porQueImporta}><HelpCircle size={16} className="text-gray-400 cursor-pointer ml-2" /></Tooltip>}
         </h3>
         <div className="flex items-center gap-4">
           <span className="text-3xl font-bold text-white">{pilar.score}/100</span>
-          <motion.div animate={{ rotate: isOpen ? 180 : 0 }} transition={{ duration: 0.3 }}>
-            <ChevronDown size={28} className="text-white" />
-          </motion.div>
+          <motion.div animate={{ rotate: isOpen ? 180 : 0 }} transition={{ duration: 0.3 }}><ChevronDown size={28} className="text-white" /></motion.div>
         </div>
       </button>
       <AnimatePresence>
@@ -135,11 +133,12 @@ const PilarAccordion: React.FC<{ pilar: Pilar }> = ({ pilar }) => {
             className="overflow-hidden"
           >
             <div className="p-5 border-t border-slate-800">
-              <div className="bg-gray-800/70 p-4 rounded-lg mb-6">
+              {pilar.queEs && <div className="bg-gray-800/70 p-4 rounded-lg mb-6">
                 <p className="font-semibold text-slate-200 mb-1">¿Qué es?</p>
                 <p className="text-slate-300 text-sm">{pilar.queEs}</p>
-              </div>
+              </div>}
               <h4 className="text-lg font-bold text-white mb-3">Coordenadas Clave</h4>
+              {/* SAFETY CHECK AÑADIDO */}
               {pilar.coordenadas && pilar.coordenadas.map((coord, i) => (
                 <CoordenadaCard key={coord.id || `coord-${i}`} coordenada={coord} />
               ))}
@@ -152,6 +151,7 @@ const PilarAccordion: React.FC<{ pilar: Pilar }> = ({ pilar }) => {
 };
 
 const ReportSection: React.FC<ReportSectionProps> = ({ report, isLoading }) => {
+  // El parseo ahora ocurre en la página principal, aquí solo recibimos el objeto
   const reporteData = report;
 
   if (isLoading) {
@@ -180,7 +180,8 @@ const ReportSection: React.FC<ReportSectionProps> = ({ report, isLoading }) => {
         </div>
       </div>
 
-      {reporteData.pilares.map((pilar, i) => (
+      {/* SAFETY CHECK AÑADIDO */}
+      {reporteData.pilares && reporteData.pilares.map((pilar, i) => (
         <PilarAccordion key={pilar.id || `pilar-${i}`} pilar={pilar} />
       ))}
 
