@@ -14,17 +14,46 @@ import NewsletterSection from "@/components/NewsletterSection";
 import ContactForm from "@/components/ContactForm";
 import { REPORT_STRUCTURE } from '@/app/report-structure';
 
+// Tipos de datos para el informe
 interface Reporte {
   puntajeGeneral: number;
   pilares: any[];
 }
 
-const LoadingState = () => (
-  <div className="text-center my-10">
-    <p className="text-white text-xl mb-4">Nuestros agentes IA están analizando la información. Esto puede tardar hasta 90 segundos.</p>
-    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white mx-auto"></div>
-  </div>
-);
+// --- FUNCIÓN DE FUSIÓN Y VALIDACIÓN ---
+const mergeWithStructure = (aiResponse: any): Reporte => {
+  const finalReport: Reporte = {
+    puntajeGeneral: aiResponse.puntajeGeneral || 0,
+    pilares: REPORT_STRUCTURE.pilares.map(pilarTemplate => {
+      const aiPilar = aiResponse.pilares?.find((p: any) => p.id === pilarTemplate.id || p.titulo === pilarTemplate.titulo);
+      
+      return {
+        ...pilarTemplate,
+        score: aiPilar?.score || 0,
+        queEs: aiPilar?.queEs || "Información no proporcionada.",
+        porQueImporta: aiPilar?.porQueImporta || "Información no proporcionada.",
+        coordenadas: pilarTemplate.coordenadas.map(coordTemplate => {
+          const aiCoordenada = aiPilar?.coordenadas?.find((c: any) => c.id === coordTemplate.id || c.titulo === coordTemplate.titulo);
+          return {
+            ...coordTemplate,
+            score: aiCoordenada?.score || 0,
+            diagnostico: aiCoordenada?.diagnostico || "Análisis no disponible.",
+            planDeAccion: aiCoordenada?.planDeAccion || [],
+          };
+        })
+      };
+    })
+  };
+
+  // Filtrar pilares que no estaban en la respuesta de la IA si es una respuesta parcial
+  finalReport.pilares = finalReport.pilares.filter(p => 
+    aiResponse.pilares?.some((ap: any) => ap.id === p.id || ap.titulo === p.titulo)
+  );
+
+  return finalReport;
+}
+
+const LoadingState = () => ( <div className="text-center my-10"> <p className="text-white text-xl mb-4">Nuestros agentes IA están analizando la información. Esto puede tardar hasta 90 segundos.</p> <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white mx-auto"></div> </div> );
 
 export default function Home() {
   const [isLoading, setIsLoading] = useState(false);
@@ -54,7 +83,9 @@ export default function Home() {
         throw new Error(result.error || 'Error del servidor');
       }
 
-      setReport(result.analysis);
+      // FUSIONAMOS LA RESPUESTA DE LA IA CON NUESTRA ESTRUCTURA LOCAL
+      const finalReportObject = mergeWithStructure(result.analysis);
+      setReport(finalReportObject);
 
     } catch (err: any) {
       setError(err.message || 'Ocurrió un error al generar el informe.');
