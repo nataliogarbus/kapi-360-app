@@ -10,20 +10,16 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 );
 
-// --- Lógica de PageSpeed Insights ---
 const getPageSpeedScore = async (url: string): Promise<number | null> => {
   const apiKey = process.env.PAGESPEED_API_KEY;
   if (!apiKey) {
     console.warn("No se proporcionó la clave de API de PageSpeed. Omitiendo análisis de velocidad.");
     return null;
   }
-
-  // CORRECCIÓN: Asegurar que la URL tenga el protocolo http/https
   let fullUrl = url;
   if (!fullUrl.startsWith('http://') && !fullUrl.startsWith('https://')) {
     fullUrl = `https://${fullUrl}`;
   }
-
   const api_url = `https://www.googleapis.com/pagespeedonline/v5/runPagespeed?url=${encodeURIComponent(fullUrl)}&key=${apiKey}&strategy=MOBILE`;
 
   try {
@@ -41,7 +37,6 @@ const getPageSpeedScore = async (url: string): Promise<number | null> => {
   }
 };
 
-
 const createGenerativePrompt = (url: string | undefined, pageSpeedScore: number | null, context?: string) => {
     let structureToAnalyze = REPORT_STRUCTURE;
     if (context && context.trim() !== '') {
@@ -51,14 +46,17 @@ const createGenerativePrompt = (url: string | undefined, pageSpeedScore: number 
             pilares: REPORT_STRUCTURE.pilares.filter(p => selectedPillars.includes(p.titulo))
         };
     }
-
     let realDataCtx = "";
     if (pageSpeedScore !== null) {
-        realDataCtx = `\nDATOS REALES OBTENIDOS DE APIS:\n- Google PageSpeed Score (Móvil): ${pageSpeedScore}/100\n`;
+        realDataCtx = `
+DATOS REALES OBTENIDOS DE APIS:
+- Google PageSpeed Score (Móvil): ${pageSpeedScore}/100
+`;
     }
-
-    return `\n    Actúas como un analista experto en marketing digital. Tu misión es analizar la URL de un cliente (${url || 'No proporcionada'}) y devolver un informe JSON.
-    ${realDataCtx}\n    REGLAS OBLIGATORIAS:
+    return `
+    Actúas como un analista experto en marketing digital. Tu misión es analizar la URL de un cliente (${url || 'No proporcionada'}) y devolver un informe JSON.
+    ${realDataCtx}
+    REGLAS OBLIGATORIAS:
     1. Tu respuesta DEBE ser un único bloque de código JSON válido.
     2. DEBES rellenar TODOS los campos de la estructura, basando tu análisis en los datos reales proporcionados cuando sea posible.
 
@@ -78,47 +76,24 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'El modo es requerido' }, { status: 400 });
     }
 
-    let finalReportObject;
-
     if (mode === 'consulta') {
-        finalReportObject = { puntajeGeneral: 0, pilares: [{ id: "pilar-consulta", titulo: "Consulta Solicitada", score: 100, queEs: "Has solicitado una consulta directa.", porQueImporta: "Nos pondremos en contacto contigo.", coordenadas: [] }] }
-    } else {
-        let finalPrompt;
-        if (mode === 'auto' || mode === 'custom') {
-            const pageSpeedScore = await getPageSpeedScore(url);
-            finalPrompt = createGenerativePrompt(url, pageSpeedScore, context);
-        } else { // manual
-            finalPrompt = `Actúa como un consultor experto. Un cliente describe un problema: \"${context}\". Genera un plan de acción en JSON: { \"diagnostico\": \"...\", \"planDeAccion\": [{ \"titulo\": \"...\", \"pasos\": [\"...\"] }] }`;
-        }
-
-        const result = await model.generateContent(finalPrompt!); 
-        const response = await result.response;
-        let analysisText = response.text();
-
-        const startIndex = analysisText.indexOf('{');
-        const endIndex = analysisText.lastIndexOf('}');
-        if (startIndex === -1 || endIndex === -1) {
-            throw new Error("La IA no devolvió un JSON válido.");
-        }
-        analysisText = analysisText.substring(startIndex, endIndex + 1);
-        const iaReport = JSON.parse(analysisText);
-
-        if (mode === 'manual') {
-            finalReportObject = { puntajeGeneral: 0, pilares: [{ id: "pilar-manual", titulo: "Plan de Acción Manual", score: 100, queEs: `Análisis basado en: \"${context}\"`, porQueImporta: "Plan generado para resolver tu problema.", coordenadas: [{ id: "coord-manual-1", titulo: "Diagnóstico y Plan", score: 100, diagnostico: iaReport.diagnostico || "Análisis generado.", planDeAccion: iaReport.planDeAccion || [] }] }] };
-        } else {
-            finalReportObject = iaReport;
-        }
+        return NextResponse.json({ analysis: JSON.stringify({ puntajeGeneral: 0, pilares: [{ id: "pilar-consulta", titulo: "Consulta Solicitada", score: 100, queEs: "Has solicitado una consulta directa.", porQueImporta: "Nos pondremos en contacto contigo.", coordenadas: [] }] }) }, { status: 200 });
     }
 
-    supabase.from('diagnostics').insert([
-      { url: url, mode: mode, report_content: JSON.stringify(finalReportObject), context: context },
-    ]).then(({ error }) => {
-      if (error) {
-        console.error('[API /api/diagnose] Error saving to Supabase:', error);
-      }
-    });
+    let finalPrompt;
+    if (mode === 'auto' || mode === 'custom') {
+        const pageSpeedScore = await getPageSpeedScore(url);
+        finalPrompt = createGenerativePrompt(url, pageSpeedScore, context);
+    } else { // manual
+        finalPrompt = `Actúa como un consultor experto. Un cliente describe un problema: \"${context}\". Genera un plan de acción en JSON: { \"diagnostico\": \"...\", \"planDeAccion\": [{ \"titulo\": \"...\", \"pasos\": [\"...\"] }] }`;
+    }
 
-    return NextResponse.json({ analysis: finalReportObject }, { status: 200 });
+    const result = await model.generateContent(finalPrompt!); 
+    const response = await result.response;
+    const analysisText = response.text();
+
+    // MODO DEBUG: Devolvemos el texto crudo de la IA
+    return NextResponse.json({ analysis: analysisText }, { status: 200 });
 
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : "Un error desconocido ocurrió.";
