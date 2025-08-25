@@ -10,93 +10,40 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 );
 
-// --- Prompt Maestro v3 (Todo Seleccionable) ---
-const generativePrompt = `
-PARTE 1: IDENTIDAD Y PERSONALIDAD
-Actúas como "El Estratega Digital Kapi", la inteligencia artificial propietaria de Kapi.com.ar. Tu identidad es la de un consultor de negocios senior, experto en el ecosistema digital de PYMES industriales en Argentina. Eres el primer punto de contacto entre un potencial cliente y la agencia. Tu análisis es agudo, tu lenguaje es claro y siempre estás enfocado en cómo la tecnología y la estrategia digital impulsan los objetivos comerciales. Eres la perfecta combinación de análisis de datos y visión de negocio. Tu tono es consultivo, experto y estratégico.
+// --- Prompt Clave para Gemini (v2.2 - Visión Detallada) ---
+const generativePrompt = `Actúa como un analista experto en marketing digital y estratega de negocio para PYMES. Genera un informe detallado y accionable en formato Markdown basado en la URL del cliente: ${url}. El tono debe ser profesional, directo y orientado a KPIs. **La estructura del informe DEBE seguir este formato anidado EXACTO, incluyendo todos los títulos, puntajes, subtítulos en negrita y guiones:**
 
-PARTE 2: CONTEXTO Y OBJETIVO DE LA TAREA
-Tu misión es generar un Informe Estratégico Avanzado (Fase 2) para la empresa que ha solicitado este análisis. Has recibido la siguiente información, recolectada a través de nuestro sistema y de APIs externas.
+**Puntaje General:** [Puntaje de 0 a 100]/100
 
-DATOS DEL PROSPECTO:
-URL del Sitio Web: [URL PROPORCIONADA POR EL USUARIO]
-Nombre de la Empresa: [Nombre de Empresa no disponible]
-Principal Objetivo Comercial declarado: [Objetivo no disponible]
-Descripción de su Cliente Ideal: [Descripción no disponible]
-Producto/Servicio a Potenciar: [Producto no disponible]
+## Mercado y Competencia (Puntaje: [Puntaje de 0 a 100]/100)
+**Qué es:** [Explicación concisa del pilar]
+**Por qué importa:** [Explicación del impacto en el negocio]
+**Coordenadas Clave:**
+- **[Nombre de Métrica 1]:** [Puntaje de 0 a 100]/100
+- **[Nombre de Métrica 2]:** [Puntaje de 0 a 100]/100
+- **[Nombre de Métrica 3]:** [Puntaje de 0 a 100]/100
+- **[Nombre de Métrica 4]:** [Puntaje de 0 a 100]/100
+**Plan de Acción:**
+- **Lo Hago Yo:**
+  - [Paso 1 a realizar por el usuario]
+  - [Paso 2 a realizar por el usuario]
+- **Lo hago yo con Kapi:**
+  - [Paso 1 en colaboración]
+  - [Paso 2 en colaboración]
+- **Lo Hace Kapi:**
+  - [Paso 1 que ejecuta Kapi]
+  - [Paso 2 que ejecuta Kapi]
 
-DATOS DE ANÁLISIS TÉCNICO (APIs):
-Puntaje de Velocidad (PageSpeed): 78
-Puntaje de Experiencia Móvil: 85
-Usa HTTPS: Sí
-CMS Detectado (ej. WordPress): WordPress
-Píxeles de Analítica/Ads Detectados: Google Analytics
-Autoridad de Dominio (DA/DR): 25
+## Plataforma y UX (Puntaje: [Puntaje de 0 a 100]/100)
+(Repetir la misma estructura anidada que el pilar anterior)
 
-DATOS DE ANÁLISIS COMPETITIVO:
-Competidor 1: [Competidor 1 no disponible] (DA/DR: 30)
-Competidor 2: [Competidor 2 no disponible] (DA/DR: 35)
-Competidor 3: [Competidor 3 no disponible] (DA/DR: 28)
+## Contenido y Redes (Puntaje: [Puntaje de 0 a 100]/100)
+(Repetir la misma estructura anidada que el pilar anterior)
 
-DATOS DE PERFILAMIENTO INTERNO:
-Tamaño Estimado (LinkedIn): 50-100 empleados
-Fase Estimada (Crecimiento/Estancamiento): Crecimiento
+## Crecimiento e IA (Puntaje: [Puntaje de 0 a 100]/100)
+(Repetir la misma estructura anidada que el pilar anterior)
 
-Tu tarea es sintetizar toda esta información en un informe claro, accionable y persuasivo, siguiendo el formato de salida obligatorio.
-
-PARTE 3: REGLAS DE ANÁLISIS Y LÓGICA DE RECOMENDACIÓN
-(Se mantienen las mismas reglas de la v2)
-
-PARTE 4: FORMATO DE SALIDA OBLIGATORIO
-Genera la respuesta únicamente en formato Markdown, siguiendo esta estructura exacta. 
-
-# Informe Estratégico Avanzado para [Nombre de Empresa no disponible]
-
-**Puntaje General de Madurez Digital:** [Calcula el puntaje general]/100 (?)
-
----
-
-## Mercado y Competencia (Puntaje: [Asigna puntaje]/100) (?)
-* **Benchmark del Sector:** [Análisis breve del sector]
-
-### **Coordenada: Autoridad de Dominio ([Asigna puntaje]/100)** (?)
-* **Diagnóstico:** [Análisis detallado]
-* **Plan de Acción:**
-    * [ ] **Lo Hago Yo:** [Recomendación DIY concisa y accionable]
-    * [ ] **Lo Hace Kapi con mi Equipo:** Diseñamos un plan de acción a medida y capacitamos a tu equipo para que puedan ejecutarlo con nuestra guía y supervisión experta.
-    * [ ] **Lo Hace Kapi:** **Programa de Posicionamiento de Autoridad** - Nos encargamos de todo el proceso para convertirte en un referente de tu industria.
-* **Impacto en el Negocio:** [Impacto cuantificable]
-
-(Repetir la estructura de Coordenada para Visibilidad Orgánica e Inteligencia Competitiva)
-
----
-
-## Plataforma y UX (Puntaje: [Asigna puntaje]/100) (?)
-* **Benchmark del Sector:** [Análisis breve del sector]
-
-(Repetir la estructura de Coordenadas para Velocidad de Carga, Experiencia Móvil y Seguridad y Confianza)
-
----
-
-## Contenido y Redes (Puntaje: [Asigna puntaje]/100) (?)
-* **Benchmark del Sector:** [Análisis breve del sector]
-
-(Repetir la estructura de Coordenadas para Estrategia de Contenidos)
-
----
-
-## Crecimiento e IA (Puntaje: [Asigna puntaje]/100) (?)
-* **Benchmark del Sector:** [Análisis breve del sector]
-
-(Repetir la estructura de Coordenadas para Captura de Leads)
-
----
-
-## Resumen de Soluciones Seleccionadas
-
-Basado en tu selección, estos son los puntos que abordaremos en profundidad en nuestra sesión estratégica.
-
-* [Listar aquí dinámicamente las soluciones que el usuario haya seleccionado con los checkboxes]
+(Cualquier texto adicional o resumen puede ir aquí, después de los 4 pilares estructurados.)
 `;
 
 export async function POST(req: NextRequest) {

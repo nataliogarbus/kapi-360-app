@@ -1,28 +1,28 @@
 import React, { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { HelpCircle, ChevronDown, CheckSquare, Square } from 'lucide-react';
+import { HelpCircle, ChevronDown } from 'lucide-react';
 
-// --- INTERFACES DE DATOS v3 (TODO SELECCIONABLE) ---
-type Solucion = {
-  id: string;
-  texto: string;
-  prefijo: string;
+// --- INTERFACES DE DATOS v2.2 (ESTRUCTURA ANIDADA) ---
+type PlanPaso = string;
+
+type Plan = {
+  titulo: string;
+  pasos: PlanPaso[];
 };
 
 type Coordenada = {
   id: string;
   titulo: string;
   score: number;
-  diagnostico: string;
-  impacto: string;
-  soluciones: Solucion[];
+  planDeAccion: Plan[];
 };
 
 type Pilar = {
   id: string;
   titulo: string;
   score: number;
-  benchmark: string;
+  queEs: string;
+  porQueImporta: string;
   coordenadas: Coordenada[];
 };
 
@@ -36,7 +36,7 @@ interface ReportSectionProps {
   isLoading: boolean;
 }
 
-// --- PARSER v6 (FINAL) ---
+// --- PARSER v2.2 ---
 const parseReport = (markdown: string): Reporte => {
   if (!markdown) {
     return { puntajeGeneral: 0, pilares: [] };
@@ -45,149 +45,132 @@ const parseReport = (markdown: string): Reporte => {
   const getScore = (text: string | undefined) => text ? parseInt(text, 10) : 0;
   const getText = (match: RegExpMatchArray | null, index = 1) => match?.[index]?.trim() || '';
 
-  const puntajeGeneralMatch = markdown.match(/\*\*Puntaje General de Madurez Digital:\*\*\s*(\d+)\/100/);
+  const puntajeGeneralMatch = markdown.match(/\*\*Puntaje General:\*\*\s*(\d+)\/100/);
   const puntajeGeneral = getScore(puntajeGeneralMatch?.[1]);
 
-  const pilaresText = markdown.split(/\n---\n/);
+  const pilaresText = markdown.split(/\n##\s/).slice(1);
   const pilares: Pilar[] = pilaresText
     .map((pilarText, pilarIndex) => {
-      if (!pilarText.includes('## ')) return null;
+      const tituloMatch = pilarText.match(/(.*?)\(Puntaje:\s*(\d+)\/100\)/);
+      const queEsMatch = pilarText.match(/\*\*Qué es:\*\*\s*([\s\S]*?)(?=\n\*\*Por qué importa:\*\*)/);
+      const porQueImportaMatch = pilarText.match(/\*\*Por qué importa:\*\*\s*([\s\S]*?)(?=\n\*\*Coordenadas Clave:\*\*)/);
 
-      const tituloMatch = pilarText.match(/##\s*(.*?)\(Puntaje:\s*(\d+)\/100\)/);
-      const benchmarkMatch = pilarText.match(/\*\s*\*Benchmark del Sector:\*\*\s*(.*)/);
-      
       const coordenadas: Coordenada[] = [];
-      const coordenadasText = pilarText.split('### ').slice(1);
-
-      coordenadasText.forEach((coordText, coordIndex) => {
-        const coordTituloMatch = coordText.match(/\*\*Coordenada:\s*(.*?)\((\d+)\/100\)\*\*/);
-        const diagnosticoMatch = coordText.match(/\*\s*\*Diagnóstico:\*\*\s*([\s\S]*?)(?=\n\s*\*)/);
-        const impactoMatch = coordText.match(/\*\s*\*Impacto en el Negocio:\*\*\s*(.*)/);
-        
-        const soluciones: Solucion[] = [];
-        const planDeAccionMatch = coordText.match(/\*\s*\*Plan de Acción:\*\*\s*([\s\S]*)/);
-        if (planDeAccionMatch) {
-          const planText = planDeAccionMatch[1];
-          const solucionMatches = Array.from(planText.matchAll(/\*\s*\[ \]\s*\*\*(.*?):\*\*\s*([\s\S]*?)(?=\n\s*\*|$)/g));
-          
-          solucionMatches.forEach((match, solIndex) => {
-            soluciones.push({
-              id: `solucion-${pilarIndex}-${coordIndex}-${solIndex}`,
-              prefijo: getText(match, 1),
-              texto: getText(match, 2),
-            });
+      const coordenadasMatch = pilarText.match(/\*\*Coordenadas Clave:\*\*\s*([\s\S]*?)(?=\n\*\*Plan de Acción:\*\*)/);
+      if (coordenadasMatch) {
+        const coordItems = coordenadasMatch[1].split(/\n-\s*\*\*/).slice(1);
+        coordItems.forEach((item, coordIndex) => {
+          const coordMatch = item.match(/(.*?):\*\*\s*(\d+)\/100/);
+          coordenadas.push({
+            id: `pilar-${pilarIndex}-coordenada-${coordIndex}`,
+            titulo: getText(coordMatch, 1),
+            score: getScore(coordMatch?.[2]),
+            planDeAccion: [], // Se llenará después
           });
-        }
-
-        coordenadas.push({
-          id: `coordenada-${pilarIndex}-${coordIndex}`,
-          titulo: getText(coordTituloMatch, 1),
-          score: getScore(coordTituloMatch?.[2]),
-          diagnostico: getText(diagnosticoMatch),
-          impacto: getText(impactoMatch),
-          soluciones,
         });
+      }
+
+      const planes: Plan[] = [];
+      const planDeAccionMatch = pilarText.match(/\*\*Plan de Acción:\*\*\s*([\s\S]*)/);
+      if (planDeAccionMatch) {
+        const planesText = planDeAccionMatch[1].split(/\n-\s*\*\*/).slice(1);
+        planesText.forEach(planBlock => {
+          const planTitleMatch = planBlock.match(/(.*?):\*\*\s*([\s\S]*)/);
+          if (planTitleMatch) {
+            const titulo = planTitleMatch[1].trim();
+            const pasosText = planTitleMatch[2];
+            const pasos = pasosText.split(/\n\s*-\s/).filter(p => p.trim() !== '').map(p => p.trim().replace(/^-/, '').trim());
+            planes.push({ titulo, pasos });
+          }
+        });
+      }
+      
+      coordenadas.forEach(coord => {
+        coord.planDeAccion = planes;
       });
 
       return {
         id: `pilar-${pilarIndex}`,
         titulo: getText(tituloMatch, 1),
         score: getScore(tituloMatch?.[2]),
-        benchmark: getText(benchmarkMatch),
+        queEs: getText(queEsMatch),
+        porQueImporta: getText(porQueImportaMatch),
         coordenadas,
       };
     })
-    .filter((p): p is Pilar => p !== null && p.titulo !== '');
+    .filter((p): p is Pilar => p !== null && !!p.titulo);
 
   return { puntajeGeneral, pilares };
 };
 
 
-// --- COMPONENTES DE UI FINALES ---
+// --- COMPONENTES DE UI v2.2 ---
 
-const Tooltip: React.FC<{ text: string }> = ({ text }) => (
-  <div className="relative group inline-block ml-2">
-    <HelpCircle size={16} className="text-gray-400 cursor-pointer" />
+const Tooltip: React.FC<{ text: string; children: React.ReactNode }> = ({ text, children }) => (
+  <div className="relative group inline-block">
+    {children}
     <div className="absolute bottom-full mb-2 w-72 bg-gray-800 text-white text-xs rounded py-2 px-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10 shadow-lg">
       {text}
     </div>
   </div>
 );
 
-const SolucionItem: React.FC<{ 
-  solucion: Solucion;
-  onToggle: (solucionId: string, texto: string) => void;
-  isSelected: boolean;
-}> = ({ solucion, onToggle, isSelected }) => {
-  const textoCompleto = `${solucion.prefijo}: ${solucion.texto}`;
+const PlanAccordion: React.FC<{ plan: Plan }> = ({ plan }) => {
+  const [isOpen, setIsOpen] = useState(false);
   return (
-    <div>
-      <h5 className="font-bold text-white">{solucion.prefijo}:</h5>
-      <div 
-        className="flex items-start space-x-3 mt-2 p-3 bg-sky-900/50 rounded-lg cursor-pointer hover:bg-sky-900/80 transition-colors"
-        onClick={() => onToggle(solucion.id, textoCompleto)}
-      >
-        {isSelected ? <CheckSquare className="text-cyan-400 h-5 w-5 mt-1 flex-shrink-0" /> : <Square className="text-slate-500 h-5 w-5 mt-1 flex-shrink-0" />}
-        <p className="text-sm text-slate-200">{solucion.texto}</p>
-      </div>
+    <div className="bg-slate-900/70 rounded-md mb-3">
+      <button onClick={() => setIsOpen(!isOpen)} className="w-full flex justify-between items-center p-3 hover:bg-slate-800/60 transition-colors">
+        <span className="font-bold text-white">{plan.titulo}</span>
+        <motion.div animate={{ rotate: isOpen ? 180 : 0 }}><ChevronDown size={20} className="text-slate-400" /></motion.div>
+      </button>
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: 'auto', opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            className="overflow-hidden"
+          >
+            <ul className="list-disc list-inside p-4 pl-6 text-slate-300 text-sm space-y-2">
+              {plan.pasos.map((paso, i) => <li key={i}>{paso}</li>)}
+            </ul>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
-  );
-};
+  )
+}
 
-const CoordenadaCard: React.FC<{ 
-  coordenada: Coordenada;
-  onSolucionToggle: (solucionId: string, texto: string) => void;
-  selectedSoluciones: { [key: string]: string };
-}> = ({ coordenada, onSolucionToggle, selectedSoluciones }) => {
+const CoordenadaCard: React.FC<{ coordenada: Coordenada }> = ({ coordenada }) => {
   return (
     <div className="bg-slate-800/50 border border-slate-700 rounded-lg p-5 mb-6">
-      <div className="flex justify-between items-start mb-3">
+      <div className="flex justify-between items-start mb-4">
         <h4 className="text-xl font-bold text-white">{coordenada.titulo}</h4>
         <span className="text-2xl font-bold text-cyan-400">{coordenada.score}/100</span>
       </div>
-      
-      <div className="space-y-4 text-slate-300">
-        {coordenada.diagnostico && <div>
-          <p className="font-semibold text-slate-200 mb-1">Diagnóstico</p>
-          <p>{coordenada.diagnostico}</p>
-        </div>}
-        {coordenada.impacto && <div>
-          <p className="font-semibold text-slate-200 mb-1">Impacto en el Negocio</p>
-          <p>{coordenada.impacto}</p>
-        </div>}
-        
-        {coordenada.soluciones.length > 0 && <div>
-          <p className="font-semibold text-slate-200 mb-1">Plan de Acción</p>
-          <div className="bg-slate-900/70 p-4 rounded-md space-y-3">
-            {coordenada.soluciones.map(sol => (
-              <SolucionItem 
-                key={sol.id} 
-                solucion={sol} 
-                onToggle={onSolucionToggle} 
-                isSelected={!!selectedSoluciones[sol.id]}
-              />
-            ))}
-          </div>
-        </div>}
+      <div>
+        <p className="font-semibold text-slate-200 mb-2">Plan de Acción Sugerido</p>
+        {coordenada.planDeAccion.map((plan, i) => <PlanAccordion key={i} plan={plan} />)}
       </div>
     </div>
   );
 };
 
-const PilarAccordion: React.FC<{ 
-  pilar: Pilar;
-  onSolucionToggle: (solucionId: string, texto: string) => void;
-  selectedSoluciones: { [key: string]: string };
-}> = ({ pilar, onSolucionToggle, selectedSoluciones }) => {
+const PilarAccordion: React.FC<{ pilar: Pilar }> = ({ pilar }) => {
   const [isOpen, setIsOpen] = useState(true);
 
   return (
     <div className="border-2 border-slate-800 rounded-xl mb-6 bg-slate-900/50 backdrop-blur-sm">
       <button 
         onClick={() => setIsOpen(!isOpen)} 
-        className="w-full p-5 hover:bg-slate-800/60 transition-colors flex justify-between items-center"
+        className="w-full p-5 hover:bg-slate-800/60 transition-colors flex justify-between items-center text-left"
       >
-        <h3 className="text-2xl font-bold text-white flex items-center">{pilar.titulo} <Tooltip text="Explicación del pilar..." /></h3>
+        <h3 className="text-2xl font-bold text-white flex items-center">
+          {pilar.titulo}
+          <Tooltip text={pilar.porQueImporta}>
+            <HelpCircle size={16} className="text-gray-400 cursor-pointer ml-2" />
+          </Tooltip>
+        </h3>
         <div className="flex items-center gap-4">
           <span className="text-3xl font-bold text-white">{pilar.score}/100</span>
           <motion.div animate={{ rotate: isOpen ? 180 : 0 }} transition={{ duration: 0.3 }}>
@@ -202,19 +185,16 @@ const PilarAccordion: React.FC<{
             animate={{ height: 'auto', opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
             transition={{ duration: 0.4, ease: 'easeInOut' }}
+            className="overflow-hidden"
           >
             <div className="p-5 border-t border-slate-800">
               <div className="bg-slate-800/70 p-4 rounded-lg mb-6">
-                <p className="font-semibold text-slate-200 mb-1">Benchmark del Sector</p>
-                <p className="text-slate-300 text-sm">{pilar.benchmark}</p>
+                <p className="font-semibold text-slate-200 mb-1">¿Qué es?</p>
+                <p className="text-slate-300 text-sm">{pilar.queEs}</p>
               </div>
+              <h4 className="text-lg font-bold text-white mb-3">Coordenadas Clave</h4>
               {pilar.coordenadas.map((coord) => (
-                <CoordenadaCard 
-                  key={coord.id} 
-                  coordenada={coord} 
-                  onSolucionToggle={onSolucionToggle} 
-                  selectedSoluciones={selectedSoluciones} 
-                />
+                <CoordenadaCard key={coord.id} coordenada={coord} />
               ))}
             </div>
           </motion.div>
@@ -225,21 +205,7 @@ const PilarAccordion: React.FC<{
 };
 
 const ReportSection: React.FC<ReportSectionProps> = ({ report, isLoading }) => {
-  const [selectedSoluciones, setSelectedSoluciones] = useState<{ [key: string]: string }>({});
-
   const reporteData = useMemo(() => parseReport(report), [report]);
-
-  const handleSolucionToggle = (solucionId: string, texto: string) => {
-    setSelectedSoluciones(prev => {
-      const newSelected = { ...prev };
-      if (newSelected[solucionId]) {
-        delete newSelected[solucionId];
-      } else {
-        newSelected[solucionId] = texto;
-      }
-      return newSelected;
-    });
-  };
 
   if (isLoading) {
     return (
@@ -253,9 +219,7 @@ const ReportSection: React.FC<ReportSectionProps> = ({ report, isLoading }) => {
     );
   }
 
-  if (!report) return null;
-
-  const solucionesSeleccionadas = Object.values(selectedSoluciones);
+  if (!report || !reporteData || reporteData.pilares.length === 0) return null;
 
   return (
     <section id="report-section" className="mt-10 w-full max-w-5xl mx-auto px-4">
@@ -268,27 +232,9 @@ const ReportSection: React.FC<ReportSectionProps> = ({ report, isLoading }) => {
       </div>
 
       {reporteData.pilares.map((pilar) => (
-        <PilarAccordion 
-          key={pilar.id} 
-          pilar={pilar} 
-          onSolucionToggle={handleSolucionToggle} 
-          selectedSoluciones={selectedSoluciones} 
-        />
+        <PilarAccordion key={pilar.id} pilar={pilar} />
       ))}
 
-      {solucionesSeleccionadas.length > 0 && (
-        <div className="mt-12 p-6 bg-slate-800 border-2 border-cyan-500 rounded-xl shadow-2xl">
-          <h3 className="text-2xl font-bold text-white mb-4">Resumen de Soluciones Seleccionadas</h3>
-          <ul className="list-disc list-inside space-y-2 text-slate-200">
-            {solucionesSeleccionadas.map((solucion, i) => (
-              <li key={i}>{solucion}</li>
-            ))}
-          </ul>
-          <div className="mt-6 text-center">
-            <button className="bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-8 rounded-lg transition-colors">Contactar para Implementar</button>
-          </div>
-        </div>
-      )}
     </section>
   );
 };
