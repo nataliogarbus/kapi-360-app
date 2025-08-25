@@ -11,7 +11,7 @@ const supabase = createClient(
 );
 
 // --- Prompt Clave para Gemini (v2.2 - Visión Detallada) ---
-const generativePrompt = `Actúa como un analista experto en marketing digital y estratega de negocio para PYMES. Genera un informe detallado y accionable en formato Markdown basado en la URL del cliente: ${url}. El tono debe ser profesional, directo y orientado a KPIs. **La estructura del informe DEBE seguir este formato anidado EXACTO, incluyendo todos los títulos, puntajes, subtítulos en negrita y guiones:**
+const createGenerativePrompt = (url: string | undefined) => `Actúa como un analista experto en marketing digital y estratega de negocio para PYMES. Genera un informe detallado y accionable en formato Markdown basado en la URL del cliente: ${url || 'No proporcionada'}. El tono debe ser profesional, directo y orientado a KPIs. **La estructura del informe DEBE seguir este formato anidado EXACTO, incluyendo todos los títulos, puntajes, subtítulos en negrita y guiones:**
 
 **Puntaje General:** [Puntaje de 0 a 100]/100
 
@@ -62,7 +62,7 @@ export async function POST(req: NextRequest) {
     switch (mode) {
       case 'auto':
       case 'custom':
-        finalPrompt = generativePrompt;
+        finalPrompt = createGenerativePrompt(url);
         break;
 
       case 'manual':
