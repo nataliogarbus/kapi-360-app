@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { REPORT_STRUCTURE } from '@/app/report-structure';
 import { useGoogleReCaptcha } from 'react-google-recaptcha-v3';
 
@@ -9,11 +9,11 @@ const DefaultIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" hei
 
 const getIconForTitle = (title: string) => {
   const lowerTitle = title.toLowerCase();
-  if (lowerTitle.includes('mercado')) return <SeoIcon />;
-  if (lowerTitle.includes('plataforma')) return <UxIcon />;
-  if (lowerTitle.includes('contenido')) return <ConversionIcon />;
-  if (lowerTitle.includes('crecimiento')) return <DefaultIcon />;
-  return <DefaultIcon />;
+  if (lowerTitle.includes('mercado')) return <SeoIcon />
+  if (lowerTitle.includes('plataforma')) return <UxIcon />
+  if (lowerTitle.includes('contenido')) return <ConversionIcon />
+  if (lowerTitle.includes('crecimiento')) return <DefaultIcon />
+  return <DefaultIcon />
 };
 
 const customOptions = REPORT_STRUCTURE.pilares.map(pilar => ({ id: pilar.id, value: pilar.titulo, title: pilar.titulo }));
@@ -38,10 +38,6 @@ const KapiDiagnosticForm: React.FC<DiagnosticFormProps> = ({ onSubmit, isLoading
   const [selectedPillars, setSelectedPillars] = useState<string[]>([]);
   const { executeRecaptcha } = useGoogleReCaptcha();
 
-  useEffect(() => {
-    console.log('DEBUG: Hook de reCAPTCHA listo:', !!executeRecaptcha);
-  }, [executeRecaptcha]);
-
   const handleModeChange = (newMode: string) => {
     setMode(newMode);
     onModeChange(newMode);
@@ -56,16 +52,13 @@ const KapiDiagnosticForm: React.FC<DiagnosticFormProps> = ({ onSubmit, isLoading
   const handleFormSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (!executeRecaptcha) {
-      console.error("DEBUG: executeRecaptcha no está disponible al hacer submit.");
+      console.error("Componente reCAPTCHA aún no está listo.");
       return;
     }
 
-    console.log("DEBUG: Solicitando token de reCAPTCHA...");
     const token = await executeRecaptcha('diagnoseAction');
-    console.log("DEBUG: Token obtenido:", token);
-
     if (!token) {
-        console.error("DEBUG: No se pudo obtener el token de reCAPTCHA.");
+        console.error("No se pudo obtener el token de reCAPTCHA.");
         return;
     }
 

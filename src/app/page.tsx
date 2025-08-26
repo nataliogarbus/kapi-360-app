@@ -95,6 +95,10 @@ export default function Home() {
       if (!response.ok) { throw new Error(result.error || 'Error del servidor'); }
 
       const finalReportObject = mergeWithStructure(result.analysis);
+      
+      // --- PUNTO DE CONTROL PARA DEBUG ---
+      console.log("DEBUG: Objeto de informe final antes de renderizar:", finalReportObject);
+
       setReport(finalReportObject);
 
     } catch (err: any) {
