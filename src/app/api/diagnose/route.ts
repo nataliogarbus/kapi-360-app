@@ -83,24 +83,14 @@ export async function POST(req: NextRequest) {
     let finalPrompt;
     if (mode === 'auto' || mode === 'custom') {
         const pageSpeedScore = await getPageSpeedScore(url);
-
-        // --- PUNTO DE CONTROL 1: VERIFICAR EL PUNTAJE OBTENIDO ---
-        console.log("Puntaje de PageSpeed obtenido:", pageSpeedScore);
-
         finalPrompt = createGenerativePrompt(url, pageSpeedScore, context);
     } else { // manual
-        finalPrompt = `Actúa como un consultor experto. Un cliente describe un problema: \"${context}\". Genera un plan de acción en JSON: { \"diagnostico\": \"...\", \"planDeAccion\": [{ \"titulo\": \"...\", \"pasos\": [\"...\"] }] }`;
+        finalPrompt = `Actúa como un consultor experto. Un cliente describe un problema: "${context}". Genera un plan de acción en JSON: { "diagnostico": "...", "planDeAccion": [{ "titulo": "...", "pasos": ["..."] }] }`;
     }
-
-    // --- PUNTO DE CONTROL 2: VERIFICAR EL PROMPT FINAL ---
-    console.log("Enviando siguiente prompt a Gemini:", finalPrompt);
 
     const result = await model.generateContent(finalPrompt!); 
     const response = await result.response;
     const analysisText = response.text();
-
-    // --- PUNTO DE CONTROL 3: VERIFICAR LA RESPUESTA CRUDA DE GEMINI ---
-    console.log("Respuesta cruda recibida de Gemini:", analysisText);
 
     // --- PROCESAMIENTO Y VALIDACIÓN DE LA RESPUESTA DE LA IA ---
     // 1. Limpiar el texto de bloques de código Markdown
