@@ -2,7 +2,11 @@ import { NextRequest, NextResponse } from 'next/server';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { createClient } from '@supabase/supabase-js';
 import { REPORT_STRUCTURE } from '@/app/report-structure';
+import { Ratelimit } from '@upstash/ratelimit';
+import { kv } from '@vercel/kv';
+import { ipAddress } from '@vercel/edge';
 
+// --- CONFIGURACIÓN DE SERVICIOS ---
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
 const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 const supabase = createClient(
@@ -10,6 +14,16 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 );
 
+// --- CONFIGURACIÓN DE RATE LIMITER ---
+const ratelimit = new Ratelimit({
+  redis: kv,
+  limiter: Ratelimit.slidingWindow(5, '60 s'), // 5 solicitudes por 60 segundos
+  analytics: true,
+  prefix: '@kapi/ratelimit',
+});
+
+
+// --- FUNCIONES HELPERS ---
 const getPageSpeedScore = async (url: string): Promise<number | null> => {
   const apiKey = process.env.PAGESPEED_API_KEY;
   if (!apiKey) {
@@ -67,8 +81,24 @@ DATOS REALES OBTENIDOS DE APIS:
     `;
 }
 
+// --- RUTA PRINCIPAL DE LA API ---
 export async function POST(req: NextRequest) {
   try {
+    // --- CHEQUEO DE RATE LIMIT ---
+    const ip = ipAddress(req) || '127.0.0.1';
+    const { success, limit, remaining, reset } = await ratelimit.limit(ip);
+
+    if (!success) {
+      return new NextResponse('Too many requests.', {
+        status: 429,
+        headers: {
+          'X-RateLimit-Limit': limit.toString(),
+          'X-RateLimit-Remaining': remaining.toString(),
+          'X-RateLimit-Reset': new Date(reset).toUTCString(),
+        },
+      });
+    }
+
     const body = await req.json();
     const { url, mode, context } = body;
 
@@ -111,20 +141,16 @@ export async function POST(req: NextRequest) {
     const analysisText = response.text();
 
     // --- PROCESAMIENTO Y VALIDACIÓN DE LA RESPUESTA DE LA IA ---
-    // 1. Limpiar el texto de bloques de código Markdown
     const cleanedText = analysisText.replace(/```json\n|```/g, '').trim();
 
-    // 2. Parsear el texto a JSON
     let analysisObject;
     try {
         analysisObject = JSON.parse(cleanedText);
     } catch (parseError) {
         console.error("Error al parsear JSON de la IA:", parseError);
-        // Si falla el parseo, devolvemos un error claro al frontend
         return NextResponse.json({ error: "La respuesta de la IA no es un JSON válido." }, { status: 500 });
     }
 
-    // 3. Devolver el objeto JSON parseado
     return NextResponse.json({ analysis: analysisObject }, { status: 200 });
 
   } catch (error) {
