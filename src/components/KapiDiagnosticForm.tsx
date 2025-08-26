@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { REPORT_STRUCTURE } from '@/app/report-structure';
 import { useGoogleReCaptcha } from 'react-google-recaptcha-v3';
 
@@ -38,6 +38,10 @@ const KapiDiagnosticForm: React.FC<DiagnosticFormProps> = ({ onSubmit, isLoading
   const [selectedPillars, setSelectedPillars] = useState<string[]>([]);
   const { executeRecaptcha } = useGoogleReCaptcha();
 
+  useEffect(() => {
+    console.log('DEBUG: Hook de reCAPTCHA listo:', !!executeRecaptcha);
+  }, [executeRecaptcha]);
+
   const handleModeChange = (newMode: string) => {
     setMode(newMode);
     onModeChange(newMode);
@@ -52,14 +56,16 @@ const KapiDiagnosticForm: React.FC<DiagnosticFormProps> = ({ onSubmit, isLoading
   const handleFormSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (!executeRecaptcha) {
-      console.error("Componente reCAPTCHA aún no está listo.");
-      // Podríamos notificar al usuario aquí si quisiéramos.
+      console.error("DEBUG: executeRecaptcha no está disponible al hacer submit.");
       return;
     }
 
+    console.log("DEBUG: Solicitando token de reCAPTCHA...");
     const token = await executeRecaptcha('diagnoseAction');
+    console.log("DEBUG: Token obtenido:", token);
+
     if (!token) {
-        console.error("No se pudo obtener el token de reCAPTCHA.");
+        console.error("DEBUG: No se pudo obtener el token de reCAPTCHA.");
         return;
     }
 
