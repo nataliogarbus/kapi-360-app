@@ -72,6 +72,24 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
     const { url, mode, context } = body;
 
+    // --- VALIDACIÓN DE ENTRADA ---
+    if (mode === 'auto' || mode === 'custom') {
+        if (!url || typeof url !== 'string' || url.trim() === '') {
+            return NextResponse.json({ error: 'La URL es requerida y no puede estar vacía.' }, { status: 400 });
+        }
+        
+        let fullUrl = url;
+        if (!fullUrl.startsWith('http://') && !fullUrl.startsWith('https://')) {
+            fullUrl = `https://${fullUrl}`;
+        }
+
+        try {
+            new URL(fullUrl);
+        } catch (e) {
+            return NextResponse.json({ error: 'El formato de la URL proporcionada no es válido.' }, { status: 400 });
+        }
+    }
+
     if (!mode) {
       return NextResponse.json({ error: 'El modo es requerido' }, { status: 400 });
     }
