@@ -5,6 +5,7 @@ import { REPORT_STRUCTURE } from '@/app/report-structure';
 import { Ratelimit } from '@upstash/ratelimit';
 import { kv } from '@vercel/kv';
 import { ipAddress } from '@vercel/edge';
+import sanitizeHtml from 'sanitize-html';
 
 // --- CONFIGURACIÓN DE SERVICIOS ---
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
@@ -100,7 +101,10 @@ export async function POST(req: NextRequest) {
     }
 
     const body = await req.json();
-    const { url, mode, context } = body;
+    const { mode } = body;
+    // Sanitize user inputs to prevent injection attacks
+    const url = body.url ? sanitizeHtml(body.url, { allowedTags: [], allowedAttributes: {} }).trim() : undefined;
+    const context = body.context ? sanitizeHtml(body.context, { allowedTags: [], allowedAttributes: {} }).trim() : undefined;
 
     // --- VALIDACIÓN DE ENTRADA ---
     if (mode === 'auto' || mode === 'custom') {
@@ -130,7 +134,7 @@ export async function POST(req: NextRequest) {
 
     let finalPrompt;
     if (mode === 'auto' || mode === 'custom') {
-        const pageSpeedScore = await getPageSpeedScore(url);
+        const pageSpeedScore = await getPageSpeedScore(url!);
         finalPrompt = createGenerativePrompt(url, pageSpeedScore, context);
     } else { // manual
         finalPrompt = `Actúa como un consultor experto. Un cliente describe un problema: "${context}". Genera un plan de acción en JSON: { "diagnostico": "...", "planDeAccion": [{ "titulo": "...", "pasos": ["..."] }] }`;
