@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { GoogleReCaptchaProvider } from 'react-google-recaptcha-v3';
 import Header from "@/components/Header";
 import DiagnosticForm from "@/components/KapiDiagnosticForm";
 import ReportSection from "@/components/ReportSection";
@@ -69,7 +68,7 @@ const mergeWithStructure = (aiResponse: any): Reporte => {
 
 const LoadingState = () => ( <div className="text-center my-10"> <p className="text-white text-xl mb-4">Nuestros agentes IA están analizando la información...</p> <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white mx-auto"></div> </div> );
 
-function KapiApp() {
+export default function Home() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [report, setReport] = useState<Reporte | null>(null);
@@ -133,23 +132,5 @@ function KapiApp() {
       )}
       <Footer />
     </main>
-  );
-}
-
-export default function Home() {
-  const recaptchaSiteKey = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY;
-
-  if (!recaptchaSiteKey) {
-    return (
-        <div className="bg-red-900 text-white p-4 text-center">
-            Error: La clave de sitio de reCAPTCHA no está configurada. La aplicación no puede cargarse.
-        </div>
-    );
-  }
-
-  return (
-    <GoogleReCaptchaProvider reCaptchaKey={recaptchaSiteKey}>
-      <KapiApp />
-    </GoogleReCaptchaProvider>
   );
 }

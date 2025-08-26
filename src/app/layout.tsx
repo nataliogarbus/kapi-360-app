@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
+import CaptchaProvider from "@/components/CaptchaProvider";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -17,7 +18,9 @@ export default function RootLayout({
   return (
     <html lang="es">
       <body className={`${inter.className} bg-[#1a1a1a]`}>
-        {children}
+        <CaptchaProvider>
+          {children}
+        </CaptchaProvider>
         <a
           href="https://wa.me/541123805651"
           target="_blank"
