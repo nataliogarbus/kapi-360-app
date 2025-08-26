@@ -120,11 +120,12 @@ export async function POST(req: NextRequest) {
     if (!success) {
       return new NextResponse('Too many requests.', {
         status: 429,
-        headers: {
-          'X-RateLimit-Limit': limit.toString(),
-          'X-RateLimit-Remaining': remaining.toString(),
-          'X-RateLimit-Reset': new Date(reset).toUTCString(),
-        },
+        headers:
+          {
+            'X-RateLimit-Limit': limit.toString(),
+            'X-RateLimit-Remaining': remaining.toString(),
+            'X-RateLimit-Reset': new Date(reset).toUTCString(),
+          },
       });
     }
 
