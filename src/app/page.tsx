@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { GoogleReCaptchaProvider } from 'react-google-recaptcha-v3';
 import Header from "@/components/Header";
 import DiagnosticForm from "@/components/KapiDiagnosticForm";
 import ReportSection from "@/components/ReportSection";
@@ -13,7 +14,6 @@ import CasosExito from "@/components/CasosExito";
 import NewsletterSection from "@/components/NewsletterSection";
 import ContactForm from "@/components/ContactForm";
 import HeroSection from "@/components/HeroSection";
-import { GoogleReCaptchaProvider } from 'react-google-recaptcha-v3';
 
 interface Reporte {
   puntajeGeneral: number;
@@ -69,7 +69,7 @@ const mergeWithStructure = (aiResponse: any): Reporte => {
 
 const LoadingState = () => ( <div className="text-center my-10"> <p className="text-white text-xl mb-4">Nuestros agentes IA están analizando la información...</p> <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white mx-auto"></div> </div> );
 
-const KapiApp = () => {
+function KapiApp() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [report, setReport] = useState<Reporte | null>(null);
