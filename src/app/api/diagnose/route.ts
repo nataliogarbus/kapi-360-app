@@ -184,6 +184,9 @@ export async function POST(req: NextRequest) {
         finalPrompt = createGenerativePrompt(undefined, null, null, context);
     }
 
+    // --- PUNTO DE CONTROL PARA DEBUG ---
+    console.log("DEBUG: Enviando siguiente prompt a Gemini:", finalPrompt);
+
     const result = await model.generateContent(finalPrompt!); 
     const response = await result.response;
     const analysisText = response.text();
