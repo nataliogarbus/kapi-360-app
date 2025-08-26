@@ -24,11 +24,11 @@ const ratelimit = new Ratelimit({
 });
 
 
-// --- FUNCIONES HELPERS ---
+// --- FUNCIONES HELPERS DE OBTENCIÓN DE DATOS ---
 const getPageSpeedScore = async (url: string): Promise<number | null> => {
   const apiKey = process.env.PAGESPEED_API_KEY;
   if (!apiKey) {
-    console.warn("No se proporcionó la clave de API de PageSpeed. Omitiendo análisis de velocidad.");
+    console.warn("Omitiendo análisis de PageSpeed: Clave de API no encontrada.");
     return null;
   }
   let fullUrl = url;
@@ -40,19 +40,45 @@ const getPageSpeedScore = async (url: string): Promise<number | null> => {
   try {
     const response = await fetch(api_url);
     if (!response.ok) {
-      const errorBody = await response.text();
-      throw new Error(`Error en API de PageSpeed: ${response.status} ${response.statusText} - ${errorBody}`);
+      throw new Error(`Respuesta no exitosa de la API de PageSpeed: ${response.status}`);
     }
     const data = await response.json();
-    const score = data.lighthouseResult.categories.performance.score * 100;
-    return Math.round(score);
+    return Math.round(data.lighthouseResult.categories.performance.score * 100);
   } catch (error) {
     console.error("Error al obtener datos de PageSpeed:", error);
-    throw error;
+    return null;
   }
 };
 
-const createGenerativePrompt = (url: string | undefined, pageSpeedScore: number | null, scrapedHtml: string | null, context?: string) => {
+const getApolloData = async (domain: string): Promise<any | null> => {
+  const apiKey = process.env.APOLLO_API_KEY;
+  if (!apiKey) {
+    console.warn("Omitiendo enriquecimiento de Apollo: Clave de API no encontrada.");
+    return null;
+  }
+  
+  const cleanDomain = domain.replace(/^www\./, '');
+  const api_url = `https://api.apollo.io/v1/organizations/enrich?api_key=${apiKey}&domain=${cleanDomain}`;
+
+  try {
+    const response = await fetch(api_url, {
+      headers: {
+        'Content-Type': 'application/json',
+        'Cache-Control': 'no-cache',
+      },
+    });
+    if (!response.ok) {
+      throw new Error(`Respuesta no exitosa de la API de Apollo.io: ${response.status}`);
+    }
+    const data = await response.json();
+    return data.organization || null;
+  } catch (error) {
+    console.error("Error al obtener datos de Apollo.io:", error);
+    return null;
+  }
+};
+
+const createGenerativePrompt = (url: string | undefined, pageSpeedScore: number | null, scrapedHtml: string | null, apolloData: any | null, context?: string) => {
     let structureToAnalyze = REPORT_STRUCTURE;
     if (context && context.trim() !== '') {
         const selectedPillars = context.split(', ');
@@ -67,9 +93,24 @@ const createGenerativePrompt = (url: string | undefined, pageSpeedScore: number 
         realDataCtx += `
 - Google PageSpeed Score (Móvil): ${pageSpeedScore}/100`;
     }
+    if (apolloData) {
+        realDataCtx += `
+- Datos de la empresa (de Apollo.io):`;
+        if (apolloData.industry) realDataCtx += `
+  - Industria: ${apolloData.industry}`
+        if (apolloData.estimated_num_employees) realDataCtx += `
+  - Empleados (Estimado): ${apolloData.estimated_num_employees}`
+        if (apolloData.city && apolloData.country) realDataCtx += `
+  - Ubicación: ${apolloData.city}, ${apolloData.country}`
+        if (apolloData.keywords && apolloData.keywords.length > 0) realDataCtx += `
+  - Palabras Clave del Negocio: ${apolloData.keywords.join(', ')}`
+        if (apolloData.current_technologies && apolloData.current_technologies.length > 0) {
+            realDataCtx += `
+  - Tecnologías Detectadas: ${apolloData.current_technologies.map((tech: any) => tech.name).join(', ')}`
+        }
+    }
     if (scrapedHtml) {
-        // Truncamos el HTML para no exceder el límite de tokens del prompt
-        const truncatedHtml = scrapedHtml.substring(0, 20000);
+        const truncatedHtml = scrapedHtml.substring(0, 15000);
         realDataCtx += `
 - Contenido HTML del sitio:
 
@@ -95,37 +136,41 @@ ${truncatedHtml}
 // --- RUTA PRINCIPAL DE LA API ---
 export async function POST(req: NextRequest) {
   try {
-    // --- VERIFICACIÓN DE RECAPTCHA ---
+    const ip = ipAddress(req) || '127.0.0.1';
     const body = await req.json();
     const { recaptchaToken } = body;
+
+    // --- VERIFICACIÓN DE RECAPTCHA ---
     const recaptchaSecret = process.env.RECAPTCHA_SECRET_KEY;
-    if (!recaptchaSecret) {
-        console.error("La clave secreta de reCAPTCHA no está configurada.");
-        return NextResponse.json({ error: 'Error de configuración del servidor.' }, { status: 500 });
-    }
-    const recaptchaResponse = await fetch('https://www.google.com/recaptcha/api/siteverify', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: `secret=${recaptchaSecret}&response=${recaptchaToken}`,
-    });
-    const recaptchaData = await recaptchaResponse.json();
-    if (!recaptchaData.success || recaptchaData.score < 0.5) {
-        console.warn('Verificación de reCAPTCHA fallida o puntaje bajo:', recaptchaData);
-        return NextResponse.json({ error: 'Verificación de humanidad fallida.' }, { status: 403 });
+    if (recaptchaSecret) {
+      const params = new URLSearchParams();
+      params.append('secret', recaptchaSecret);
+      params.append('response', recaptchaToken);
+      params.append('remoteip', ip);
+      const recaptchaResponse = await fetch('https://www.google.com/recaptcha/api/siteverify', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          body: params.toString(),
+      });
+      const recaptchaData = await recaptchaResponse.json();
+      if (!recaptchaData.success || recaptchaData.score < 0.5) {
+          console.warn('Verificación de reCAPTCHA fallida o puntaje bajo:', recaptchaData);
+          return NextResponse.json({ error: 'Verificación de humanidad fallida.' }, { status: 403 });
+      }
+    } else {
+      console.warn("Clave secreta de reCAPTCHA no configurada. Omitiendo verificación.");
     }
 
     // --- CHEQUEO DE RATE LIMIT ---
-    const ip = ipAddress(req) || '127.0.0.1';
     const { success, limit, remaining, reset } = await ratelimit.limit(ip);
     if (!success) {
       return new NextResponse('Too many requests.', {
         status: 429,
-        headers:
-          {
-            'X-RateLimit-Limit': limit.toString(),
-            'X-RateLimit-Remaining': remaining.toString(),
-            'X-RateLimit-Reset': new Date(reset).toUTCString(),
-          },
+        headers: {
+          'X-RateLimit-Limit': limit.toString(),
+          'X-RateLimit-Remaining': remaining.toString(),
+          'X-RateLimit-Reset': new Date(reset).toUTCString(),
+        },
       });
     }
 
@@ -138,12 +183,8 @@ export async function POST(req: NextRequest) {
         if (!url) {
             return NextResponse.json({ error: 'La URL es requerida y no puede estar vacía.' }, { status: 400 });
         }
-        let fullUrl = url;
-        if (!fullUrl.startsWith('http://') && !fullUrl.startsWith('https://')) {
-            fullUrl = `https://${fullUrl}`;
-        }
         try {
-            new URL(fullUrl);
+            new URL(url.startsWith('http') ? url : `https://${url}`);
         } catch (e) {
             return NextResponse.json({ error: 'El formato de la URL proporcionada no es válido.' }, { status: 400 });
         }
@@ -159,7 +200,7 @@ export async function POST(req: NextRequest) {
 
     let finalPrompt;
     if (mode === 'auto' || mode === 'custom') {
-        // --- LLAMADA AL SCRAPER INTERNO ---
+        // --- OBTENCIÓN DE DATOS ENRIQUECIDOS ---
         const scrapeUrl = `${req.nextUrl.origin}/api/scrape`;
         let scrapedHtml: string | null = null;
         try {
@@ -169,8 +210,7 @@ export async function POST(req: NextRequest) {
                 body: JSON.stringify({ url: url }),
             });
             if (scrapeResponse.ok) {
-                const scrapeResult = await scrapeResponse.json();
-                scrapedHtml = scrapeResult.html;
+                scrapedHtml = (await scrapeResponse.json()).html;
             } else {
                 console.warn(`El scraping de la URL ${url} falló con estado: ${scrapeResponse.status}`);
             }
@@ -178,15 +218,16 @@ export async function POST(req: NextRequest) {
             console.error("Error llamando a la API de scraping interna:", scrapeError);
         }
 
-        const pageSpeedScore = await getPageSpeedScore(url!);
-        finalPrompt = createGenerativePrompt(url, pageSpeedScore, scrapedHtml, context);
+        const [apolloData, pageSpeedScore] = await Promise.all([
+            getApolloData(url!),
+            getPageSpeedScore(url!)
+        ]);
+
+        finalPrompt = createGenerativePrompt(url, pageSpeedScore, scrapedHtml, apolloData, context);
 
     } else { // manual
-        finalPrompt = createGenerativePrompt(undefined, null, null, context);
+        finalPrompt = createGenerativePrompt(undefined, null, null, null, context);
     }
-
-    // --- PUNTO DE CONTROL PARA DEBUG ---
-    console.log("DEBUG: Enviando siguiente prompt a Gemini:", finalPrompt);
 
     const result = await model.generateContent(finalPrompt!); 
     const response = await result.response;
