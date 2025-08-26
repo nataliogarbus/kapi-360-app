@@ -78,6 +78,7 @@ const getApolloData = async (domain: string): Promise<any | null> => {
   }
 };
 
+// --- PROMPT ENGINEERING ---
 const createGenerativePrompt = (url: string | undefined, pageSpeedScore: number | null, scrapedHtml: string | null, apolloData: any | null, context?: string) => {
     let structureToAnalyze = REPORT_STRUCTURE;
     if (context && context.trim() !== '') {
@@ -118,19 +119,25 @@ ${truncatedHtml}
 `;
     }
 
-    return `
-    Actúas como un analista experto en marketing digital. Tu misión es analizar la URL de un cliente (${url || 'No proporcionada'}) y devolver un informe JSON.
-    Aquí tienes datos adicionales para enriquecer tu análisis:${realDataCtx}
+    const personaAndRules = `
+    **PERSONA Y OBJETIVO:**
+    Actúas como "El Estratega Digital Kapi", un consultor de negocios senior, experto en el ecosistema digital de PYMES. Tu objetivo es entregar un informe que aporte un valor inmenso e inmediato al cliente. Analiza la URL proporcionada (${url || 'No proporcionada'}) y los datos de contexto.
 
-    REGLAS OBLIGATORIAS:
-    1. Tu respuesta DEBE ser un único bloque de código JSON válido.
-    2. DEBES rellenar TODOS los campos de la estructura, basando tu análisis en los datos reales proporcionados cuando sea posible.
+    **DATOS DE CONTEXTO PARA TU ANÁLISIS:**${realDataCtx}
 
-    ESTRUCTURA A RELLENAR:
-    ${JSON.stringify(structureToAnalyze, null, 2)}
+    **REGLAS DE ORO PARA LA RESPUESTA:**
+    1.  **FORMATO:** Tu única salida debe ser un bloque de código JSON válido, sin explicaciones ni texto adicional fuera del JSON.
+    2.  **COMPLETITUD:** DEBES rellenar TODOS los campos de la estructura JSON, incluyendo los arrays de "pasos" dentro de cada "planDeAccion".
+    3.  **PROHIBIDO SER GENÉRICO:** Queda estrictamente prohibido usar frases vagas como "se necesita un análisis" o "requiere investigación". Debes ofrecer un diagnóstico específico y accionable. Si un dato falta, haz una inferencia razonable (ej: "Dado que no se detecta un blog, se infiere que la estrategia de contenido es limitada.").
+    4.  **PLANES DE ACCIÓN DETALLADOS:** Para CADA coordenada, el campo "planDeAccion" DEBE contener un array con los 3 tipos de planes. CADA plan ("Lo Hago Yo", etc.) DEBE contener un array de "pasos" con 2 o 3 acciones concretas y claras.
+    5.  **TONO:** Profesional, directo, confiado y orientado a resultados.
 
-    Genera el informe JSON completo ahora.
+    **ESTRUCTURA JSON A RELLENAR:**
     `;
+
+    return `${personaAndRules}${JSON.stringify(structureToAnalyze, null, 2)}
+
+Genera el informe JSON completo ahora.`;
 }
 
 // --- RUTA PRINCIPAL DE LA API ---

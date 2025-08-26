@@ -52,13 +52,11 @@ const KapiDiagnosticForm: React.FC<DiagnosticFormProps> = ({ onSubmit, isLoading
   const handleFormSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (!executeRecaptcha) {
-      console.error("Componente reCAPTCHA aún no está listo.");
       return;
     }
 
     const token = await executeRecaptcha('diagnoseAction');
     if (!token) {
-        console.error("No se pudo obtener el token de reCAPTCHA.");
         return;
     }
 
