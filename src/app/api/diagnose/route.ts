@@ -52,7 +52,7 @@ const getPageSpeedScore = async (url: string): Promise<number | null> => {
   }
 };
 
-const createGenerativePrompt = (url: string | undefined, pageSpeedScore: number | null, context?: string) => {
+const createGenerativePrompt = (url: string | undefined, pageSpeedScore: number | null, scrapedHtml: string | null, context?: string) => {
     let structureToAnalyze = REPORT_STRUCTURE;
     if (context && context.trim() !== '') {
         const selectedPillars = context.split(', ');
@@ -61,16 +61,26 @@ const createGenerativePrompt = (url: string | undefined, pageSpeedScore: number 
             pilares: REPORT_STRUCTURE.pilares.filter(p => selectedPillars.includes(p.titulo))
         };
     }
+    
     let realDataCtx = "";
     if (pageSpeedScore !== null) {
-        realDataCtx = `
-DATOS REALES OBTENIDOS DE APIS:
-- Google PageSpeed Score (Móvil): ${pageSpeedScore}/100
+        realDataCtx += `
+- Google PageSpeed Score (Móvil): ${pageSpeedScore}/100`;
+    }
+    if (scrapedHtml) {
+        // Truncamos el HTML para no exceder el límite de tokens del prompt
+        const truncatedHtml = scrapedHtml.substring(0, 20000);
+        realDataCtx += `
+- Contenido HTML del sitio:
+
+${truncatedHtml}
 `;
     }
+
     return `
     Actúas como un analista experto en marketing digital. Tu misión es analizar la URL de un cliente (${url || 'No proporcionada'}) y devolver un informe JSON.
-    ${realDataCtx}
+    Aquí tienes datos adicionales para enriquecer tu análisis:${realDataCtx}
+
     REGLAS OBLIGATORIAS:
     1. Tu respuesta DEBE ser un único bloque de código JSON válido.
     2. DEBES rellenar TODOS los campos de la estructura, basando tu análisis en los datos reales proporcionados cuando sea posible.
@@ -85,23 +95,20 @@ DATOS REALES OBTENIDOS DE APIS:
 // --- RUTA PRINCIPAL DE LA API ---
 export async function POST(req: NextRequest) {
   try {
+    // --- VERIFICACIÓN DE RECAPTCHA ---
     const body = await req.json();
     const { recaptchaToken } = body;
-
-    // --- VERIFICACIÓN DE RECAPTCHA ---
     const recaptchaSecret = process.env.RECAPTCHA_SECRET_KEY;
     if (!recaptchaSecret) {
         console.error("La clave secreta de reCAPTCHA no está configurada.");
         return NextResponse.json({ error: 'Error de configuración del servidor.' }, { status: 500 });
     }
-
     const recaptchaResponse = await fetch('https://www.google.com/recaptcha/api/siteverify', {
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         body: `secret=${recaptchaSecret}&response=${recaptchaToken}`,
     });
     const recaptchaData = await recaptchaResponse.json();
-
     if (!recaptchaData.success || recaptchaData.score < 0.5) {
         console.warn('Verificación de reCAPTCHA fallida o puntaje bajo:', recaptchaData);
         return NextResponse.json({ error: 'Verificación de humanidad fallida.' }, { status: 403 });
@@ -110,7 +117,6 @@ export async function POST(req: NextRequest) {
     // --- CHEQUEO DE RATE LIMIT ---
     const ip = ipAddress(req) || '127.0.0.1';
     const { success, limit, remaining, reset } = await ratelimit.limit(ip);
-
     if (!success) {
       return new NextResponse('Too many requests.', {
         status: 429,
@@ -128,15 +134,13 @@ export async function POST(req: NextRequest) {
     const context = body.context ? sanitizeHtml(body.context, { allowedTags: [], allowedAttributes: {} }).trim() : undefined;
 
     if (mode === 'auto' || mode === 'custom') {
-        if (!url || typeof url !== 'string' || url.trim() === '') {
+        if (!url) {
             return NextResponse.json({ error: 'La URL es requerida y no puede estar vacía.' }, { status: 400 });
         }
-        
         let fullUrl = url;
         if (!fullUrl.startsWith('http://') && !fullUrl.startsWith('https://')) {
             fullUrl = `https://${fullUrl}`;
         }
-
         try {
             new URL(fullUrl);
         } catch (e) {
@@ -154,10 +158,30 @@ export async function POST(req: NextRequest) {
 
     let finalPrompt;
     if (mode === 'auto' || mode === 'custom') {
+        // --- LLAMADA AL SCRAPER INTERNO ---
+        const scrapeUrl = `${req.nextUrl.origin}/api/scrape`;
+        let scrapedHtml: string | null = null;
+        try {
+            const scrapeResponse = await fetch(scrapeUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ url: url }),
+            });
+            if (scrapeResponse.ok) {
+                const scrapeResult = await scrapeResponse.json();
+                scrapedHtml = scrapeResult.html;
+            } else {
+                console.warn(`El scraping de la URL ${url} falló con estado: ${scrapeResponse.status}`);
+            }
+        } catch (scrapeError) {
+            console.error("Error llamando a la API de scraping interna:", scrapeError);
+        }
+
         const pageSpeedScore = await getPageSpeedScore(url!);
-        finalPrompt = createGenerativePrompt(url, pageSpeedScore, context);
+        finalPrompt = createGenerativePrompt(url, pageSpeedScore, scrapedHtml, context);
+
     } else { // manual
-        finalPrompt = `Actúa como un consultor experto. Un cliente describe un problema: "${context}". Genera un plan de acción en JSON: { "diagnostico": "...", "planDeAccion": [{ "titulo": "...", "pasos": ["..."] }] }`;
+        finalPrompt = createGenerativePrompt(undefined, null, null, context);
     }
 
     const result = await model.generateContent(finalPrompt!); 
