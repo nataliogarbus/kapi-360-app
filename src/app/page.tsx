@@ -13,15 +13,14 @@ import CasosExito from "@/components/CasosExito";
 import NewsletterSection from "@/components/NewsletterSection";
 import ContactForm from "@/components/ContactForm";
 import HeroSection from "@/components/HeroSection";
+import { GoogleReCaptchaProvider } from 'react-google-recaptcha-v3';
 
 interface Reporte {
   puntajeGeneral: number;
   pilares: any[];
 }
 
-// --- FUNCIÓN DE FUSIÓN Y VALIDACIÓN (CORREGIDA SEGÚN ANÁLISIS) ---
 const mergeWithStructure = (aiResponse: any): Reporte => {
-  // Si la respuesta de la IA es inválida o no tiene pilares, devolvemos una estructura por defecto.
   if (!aiResponse || !Array.isArray(aiResponse.pilares)) {
     console.warn("Respuesta de la IA inválida o sin pilares. Usando estructura por defecto.");
     return {
@@ -45,39 +44,32 @@ const mergeWithStructure = (aiResponse: any): Reporte => {
     puntajeGeneral: aiResponse.puntajeGeneral || 0,
     pilares: REPORT_STRUCTURE.pilares.map(pilarTemplate => {
       const aiPilar = aiResponse.pilares.find((p: any) => p.id === pilarTemplate.id || p.titulo === pilarTemplate.titulo);
-
-      // Fusión explícita y segura para el pilar
       const pilarResult = {
         ...pilarTemplate,
         score: 0,
         queEs: "Información no proporcionada.",
         porQueImporta: "Información no proporcionada.",
-        ...aiPilar, // El pilar de la IA sobreescribe los defaults si existe
+        ...aiPilar,
         coordenadas: pilarTemplate.coordenadas.map(coordTemplate => {
           const aiCoordenada = aiPilar?.coordenadas?.find((c: any) => c.id === coordTemplate.id || c.titulo === coordTemplate.titulo);
-          
-          // Patrón de fusión corregido para la coordenada
           return {
             ...coordTemplate,
             score: 0,
             diagnostico: "Análisis no disponible.",
             planDeAccion: [],
-            ...aiCoordenada, // La coordenada de la IA sobreescribe los defaults si existe
+            ...aiCoordenada,
           };
         })
       };
       return pilarResult;
     })
   };
-
-  // El filtro redundante ha sido eliminado.
-
   return finalReport;
 }
 
 const LoadingState = () => ( <div className="text-center my-10"> <p className="text-white text-xl mb-4">Nuestros agentes IA están analizando la información...</p> <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white mx-auto"></div> </div> );
 
-export default function Home() {
+const KapiApp = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [report, setReport] = useState<Reporte | null>(null);
@@ -87,7 +79,7 @@ export default function Home() {
     setReport(null);
   }, [currentMode]);
 
-  const handleDiagnose = async (url: string, mode: string, context?: string) => {
+  const handleDiagnose = async (url: string, mode: string, context: string | undefined, recaptchaToken: string) => {
     setIsLoading(true);
     setError(null);
     setReport(null);
@@ -96,7 +88,7 @@ export default function Home() {
       const response = await fetch('/api/diagnose', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ url, mode, context }),
+        body: JSON.stringify({ url, mode, context, recaptchaToken }),
       });
 
       const result = await response.json();
@@ -141,5 +133,23 @@ export default function Home() {
       )}
       <Footer />
     </main>
+  );
+}
+
+export default function Home() {
+  const recaptchaSiteKey = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY;
+
+  if (!recaptchaSiteKey) {
+    return (
+        <div className="bg-red-900 text-white p-4 text-center">
+            Error: La clave de sitio de reCAPTCHA no está configurada. La aplicación no puede cargarse.
+        </div>
+    );
+  }
+
+  return (
+    <GoogleReCaptchaProvider reCaptchaKey={recaptchaSiteKey}>
+      <KapiApp />
+    </GoogleReCaptchaProvider>
   );
 }

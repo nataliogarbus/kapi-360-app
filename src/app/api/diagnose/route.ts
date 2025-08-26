@@ -85,6 +85,28 @@ DATOS REALES OBTENIDOS DE APIS:
 // --- RUTA PRINCIPAL DE LA API ---
 export async function POST(req: NextRequest) {
   try {
+    const body = await req.json();
+    const { recaptchaToken } = body;
+
+    // --- VERIFICACIÓN DE RECAPTCHA ---
+    const recaptchaSecret = process.env.RECAPTCHA_SECRET_KEY;
+    if (!recaptchaSecret) {
+        console.error("La clave secreta de reCAPTCHA no está configurada.");
+        return NextResponse.json({ error: 'Error de configuración del servidor.' }, { status: 500 });
+    }
+
+    const recaptchaResponse = await fetch('https://www.google.com/recaptcha/api/siteverify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: `secret=${recaptchaSecret}&response=${recaptchaToken}`,
+    });
+    const recaptchaData = await recaptchaResponse.json();
+
+    if (!recaptchaData.success || recaptchaData.score < 0.5) {
+        console.warn('Verificación de reCAPTCHA fallida o puntaje bajo:', recaptchaData);
+        return NextResponse.json({ error: 'Verificación de humanidad fallida.' }, { status: 403 });
+    }
+
     // --- CHEQUEO DE RATE LIMIT ---
     const ip = ipAddress(req) || '127.0.0.1';
     const { success, limit, remaining, reset } = await ratelimit.limit(ip);
@@ -100,13 +122,11 @@ export async function POST(req: NextRequest) {
       });
     }
 
-    const body = await req.json();
+    // --- SANEAMIENTO Y VALIDACIÓN DE ENTRADA ---
     const { mode } = body;
-    // Sanitize user inputs to prevent injection attacks
     const url = body.url ? sanitizeHtml(body.url, { allowedTags: [], allowedAttributes: {} }).trim() : undefined;
     const context = body.context ? sanitizeHtml(body.context, { allowedTags: [], allowedAttributes: {} }).trim() : undefined;
 
-    // --- VALIDACIÓN DE ENTRADA ---
     if (mode === 'auto' || mode === 'custom') {
         if (!url || typeof url !== 'string' || url.trim() === '') {
             return NextResponse.json({ error: 'La URL es requerida y no puede estar vacía.' }, { status: 400 });
@@ -144,7 +164,6 @@ export async function POST(req: NextRequest) {
     const response = await result.response;
     const analysisText = response.text();
 
-    // --- PROCESAMIENTO Y VALIDACIÓN DE LA RESPUESTA DE LA IA ---
     const cleanedText = analysisText.replace(/```json\n|```/g, '').trim();
 
     let analysisObject;

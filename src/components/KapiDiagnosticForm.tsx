@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { REPORT_STRUCTURE } from '@/app/report-structure';
+import { useGoogleReCaptcha } from 'react-google-recaptcha-v3';
 
 const SeoIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.72"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.72-1.72"/></svg>;
 const UxIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><path d="M7 12h10M7 7h10M7 17h5"/></svg>;
@@ -25,7 +26,7 @@ const modeDescriptions: { [key: string]: string } = {
 };
 
 interface DiagnosticFormProps {
-  onSubmit: (url: string, mode: string, context?: string) => void;
+  onSubmit: (url: string, mode: string, context: string | undefined, recaptchaToken: string) => void;
   isLoading: boolean;
   onModeChange: (mode: string) => void;
 }
@@ -35,6 +36,7 @@ const KapiDiagnosticForm: React.FC<DiagnosticFormProps> = ({ onSubmit, isLoading
   const [url, setUrl] = useState('');
   const [context, setContext] = useState('');
   const [selectedPillars, setSelectedPillars] = useState<string[]>([]);
+  const { executeRecaptcha } = useGoogleReCaptcha();
 
   const handleModeChange = (newMode: string) => {
     setMode(newMode);
@@ -47,10 +49,22 @@ const KapiDiagnosticForm: React.FC<DiagnosticFormProps> = ({ onSubmit, isLoading
     );
   };
 
-  const handleFormSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  const handleFormSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    if (!executeRecaptcha) {
+      console.error("Componente reCAPTCHA aún no está listo.");
+      // Podríamos notificar al usuario aquí si quisiéramos.
+      return;
+    }
+
+    const token = await executeRecaptcha('diagnoseAction');
+    if (!token) {
+        console.error("No se pudo obtener el token de reCAPTCHA.");
+        return;
+    }
+
     const submissionContext = mode === 'custom' ? selectedPillars.join(', ') : context;
-    onSubmit(url, mode, submissionContext);
+    onSubmit(url, mode, submissionContext, token);
   };
 
   return (
