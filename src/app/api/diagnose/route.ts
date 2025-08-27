@@ -68,7 +68,6 @@ const getApolloData = async (domain: string): Promise<any | null> => {
       },
     });
     if (!response.ok) {
-      // No lanzamos un error, pero podríamos querer registrar esto de una manera más robusta
       console.error(`Respuesta no exitosa de la API de Apollo.io: ${response.status}`);
       return null;
     }
@@ -92,35 +91,23 @@ const createGenerativePrompt = (url: string | undefined, pageSpeedScore: number 
     }
 
     // PARTE 1: CONTEXTO (Datos recopilados)
-    let promptContext = `**DATOS DE CONTEXTO PARA TU ANÁLISIS:**
-- URL Analizada: ${url || 'No proporcionada'}`;
+    let promptContext = `**DATOS DE CONTEXTO PARA TU ANÁLISIS:**\n- URL Analizada: ${url || 'No proporcionada'}`;
     if (pageSpeedScore !== null) {
-        promptContext += `
-- Google PageSpeed Score (Móvil): ${pageSpeedScore}/100`;
+        promptContext += `\n- Google PageSpeed Score (Móvil): ${pageSpeedScore}/100`;
     }
     if (apolloData) {
-        promptContext += `
-- Datos de la empresa (de Apollo.io):`;
-        if (apolloData.industry) promptContext += `
-  - Industria: ${apolloData.industry}`;
-        if (apolloData.estimated_num_employees) promptContext += `
-  - Empleados (Estimado): ${apolloData.estimated_num_employees}`;
-        if (apolloData.city && apolloData.country) promptContext += `
-  - Ubicación: ${apolloData.city}, ${apolloData.country}`;
-        if (apolloData.keywords && apolloData.keywords.length > 0) promptContext += `
-  - Palabras Clave del Negocio: ${apolloData.keywords.join(', ')}`;
+        promptContext += `\n- Datos de la empresa (de Apollo.io):`;
+        if (apolloData.industry) promptContext += `\n  - Industria: ${apolloData.industry}`;
+        if (apolloData.estimated_num_employees) promptContext += `\n  - Empleados (Estimado): ${apolloData.estimated_num_employees}`;
+        if (apolloData.city && apolloData.country) promptContext += `\n  - Ubicación: ${apolloData.city}, ${apolloData.country}`;
+        if (apolloData.keywords && apolloData.keywords.length > 0) promptContext += `\n  - Palabras Clave del Negocio: ${apolloData.keywords.join(', ')}`;
         if (apolloData.current_technologies && apolloData.current_technologies.length > 0) {
-            promptContext += `
-  - Tecnologías Detectadas: ${apolloData.current_technologies.map((tech: any) => tech.name).join(', ')}`;
+            promptContext += `\n  - Tecnologías Detectadas: ${apolloData.current_technologies.map((tech: any) => tech.name).join(', ')}`;
         }
     }
     if (scrapedHtml) {
         const truncatedHtml = scrapedHtml.substring(0, 15000);
-        promptContext += `
-- Contenido HTML del sitio:
-
-${truncatedHtml}
-`;
+        promptContext += `\n- Contenido HTML del sitio:\n\n${truncatedHtml}\n`;
     }
 
     // PARTE 2: EJEMPLO DE ORO (Guía de Calidad)
@@ -139,14 +126,19 @@ ${truncatedHtml}
 }`;
 
     // PARTE 3: TAREA (Qué hacer con los datos)
-    const task = `**TAREA Y FORMATO DE SALIDA:**
-Tu misión es sintetizar toda la información del contexto para rellenar la siguiente estructura JSON. Debes seguir el estilo, la profundidad y la calidad del 'EJEMPLO DE ANÁLISIS DE ALTA CALIDAD' proporcionado.`;
-    const jsonStructure = `**ESTRUCTURA JSON A RELLENAR:**
-${JSON.stringify(structureToAnalyze, null, 2)}`;
+    const task = `**TAREA Y FORMATO DE SALIDA:**\nTu misión es sintetizar toda la información del contexto para rellenar la siguiente estructura JSON. Debes seguir el estilo, la profundidad y la calidad del 'EJEMPLO DE ANÁLISIS DE ALTA CALIDAD' proporcionado.`;
+    const jsonStructure = `**ESTRUCTURA JSON A RELLENAR:**\n${JSON.stringify(structureToAnalyze, null, 2)}`;
 
     // PARTE 4: IDENTIDAD Y REGLAS (Cómo hacerlo)
     const personaAndRules = `**IDENTIDAD Y REGLAS DE ORO:**
-1.  **IDENTIDAD:** Actúas como 
+1.  **IDENTIDAD:** Actúas como "El Estratega Digital Kapi", la inteligencia artificial propietaria de Kapi.com.ar. Tu identidad es la de un consultor de negocios senior, experto en el ecosistema digital de PYMES. Eres el primer punto de contacto entre un potencial cliente y la agencia. Tu análisis es agudo, tu lenguaje es claro y siempre estás enfocado en cómo la tecnología y la estrategia digital impulsan los objetivos comerciales. Tu tono es consultivo, experto y estratégico.
+2.  **FORMATO:** Tu única salida debe ser un bloque de código JSON válido, sin explicaciones ni texto adicional fuera del JSON.
+3.  **COMPLETITUD:** DEBES rellenar TODOS los campos de la estructura JSON proporcionada, incluyendo los arrays de "pasos" dentro de cada "planDeAccion".
+4.  **PROHIBIDO SER GENÉRICO:** Queda estrictamente prohibido usar frases vagas como "se necesita un análisis" o "requiere investigación". Debes ofrecer un diagnóstico específico y accionable. Si un dato falta, haz una inferencia razonable (ej: "Dado que no se detecta un blog, se infiere que la estrategia de contenido es limitada.").
+5.  **PLANES DE ACCIÓN DETALLADOS:** Para CADA coordenada, el campo "planDeAccion" DEBE contener un array con los 3 tipos de planes. CADA plan ("Lo Hago Yo", etc.) DEBE contener un array de "pasos" con 2 o 3 acciones concretas y claras.`;
+
+    return `${promptContext}\n\n---\n\n${goldenExample}\n\n---\n\n${task}\n\n${jsonStructure}\n\n---\n\n${personaAndRules}`;
+}
 
 
 // --- RUTA PRINCIPAL DE LA API ---
