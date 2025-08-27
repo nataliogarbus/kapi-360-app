@@ -68,7 +68,9 @@ const getApolloData = async (domain: string): Promise<any | null> => {
       },
     });
     if (!response.ok) {
-      throw new Error(`Respuesta no exitosa de la API de Apollo.io: ${response.status}`);
+      // No lanzamos un error, pero podríamos querer registrar esto de una manera más robusta
+      console.error(`Respuesta no exitosa de la API de Apollo.io: ${response.status}`);
+      return null;
     }
     const data = await response.json();
     return data.organization || null;
@@ -88,7 +90,31 @@ const createGenerativePrompt = (url: string | undefined, pageSpeedScore: number 
             pilares: REPORT_STRUCTURE.pilares.filter(p => selectedPillars.includes(p.titulo))
         };
     }
+
+    // **NUEVA ARQUITECTURA DEL PROMPT**
+    // 1. Instrucciones y Reglas primero.
+    const instructions = `
+    **PERSONA Y OBJETIVO:**
+    Actúas como "El Estratega Digital Kapi", un consultor de negocios senior, experto en el ecosistema digital de PYMES. Tu objetivo es entregar un informe que aporte un valor inmenso e inmediato al cliente.
+
+    **REGLAS DE ORO PARA LA RESPUESTA:**
+    1.  **FORMATO:** Tu única salida debe ser un bloque de código JSON válido, sin explicaciones ni texto adicional fuera del JSON.
+    2.  **COMPLETITUD:** DEBES rellenar TODOS los campos de la estructura JSON proporcionada, incluyendo los arrays de "pasos" dentro de cada "planDeAccion".
+    3.  **PROHIBIDO SER GENÉRICO:** Queda estrictamente prohibido usar frases vagas como "se necesita un análisis" o "requiere investigación". Debes ofrecer un diagnóstico específico y accionable. Si un dato falta, haz una inferencia razonable (ej: "Dado que no se detecta un blog, se infiere que la estrategia de contenido es limitada.").
+    4.  **PLANES DE ACCIÓN DETALLADOS:** Para CADA coordenada, el campo "planDeAccion" DEBE contener un array con los 3 tipos de planes. CADA plan ("Lo Hago Yo", etc.) DEBE contener un array de "pasos" con 2 o 3 acciones concretas y claras.
+    5.  **TONO:** Profesional, directo, confiado y orientado a resultados.
+
+    **ESTRUCTURA JSON A RELLENAR:**
+    ${JSON.stringify(structureToAnalyze, null, 2)}
+
+    ---
+
+    **DATOS DE CONTEXTO PARA TU ANÁLISIS:**
+    Ahora, usa los siguientes datos para realizar tu análisis y rellenar la estructura JSON anterior.
+    - URL Analizada: ${url || 'No proporcionada'}
+    `;
     
+    // 2. Datos de Contexto al final.
     let realDataCtx = "";
     if (pageSpeedScore !== null) {
         realDataCtx += `
@@ -98,16 +124,16 @@ const createGenerativePrompt = (url: string | undefined, pageSpeedScore: number 
         realDataCtx += `
 - Datos de la empresa (de Apollo.io):`;
         if (apolloData.industry) realDataCtx += `
-  - Industria: ${apolloData.industry}`
+  - Industria: ${apolloData.industry}`;
         if (apolloData.estimated_num_employees) realDataCtx += `
-  - Empleados (Estimado): ${apolloData.estimated_num_employees}`
+  - Empleados (Estimado): ${apolloData.estimated_num_employees}`;
         if (apolloData.city && apolloData.country) realDataCtx += `
-  - Ubicación: ${apolloData.city}, ${apolloData.country}`
+  - Ubicación: ${apolloData.city}, ${apolloData.country}`;
         if (apolloData.keywords && apolloData.keywords.length > 0) realDataCtx += `
-  - Palabras Clave del Negocio: ${apolloData.keywords.join(', ')}`
+  - Palabras Clave del Negocio: ${apolloData.keywords.join(', ')}`;
         if (apolloData.current_technologies && apolloData.current_technologies.length > 0) {
             realDataCtx += `
-  - Tecnologías Detectadas: ${apolloData.current_technologies.map((tech: any) => tech.name).join(', ')}`
+  - Tecnologías Detectadas: ${apolloData.current_technologies.map((tech: any) => tech.name).join(', ')}`;
         }
     }
     if (scrapedHtml) {
@@ -119,25 +145,7 @@ ${truncatedHtml}
 `;
     }
 
-    const personaAndRules = `
-    **PERSONA Y OBJETIVO:**
-    Actúas como "El Estratega Digital Kapi", un consultor de negocios senior, experto en el ecosistema digital de PYMES. Tu objetivo es entregar un informe que aporte un valor inmenso e inmediato al cliente. Analiza la URL proporcionada (${url || 'No proporcionada'}) y los datos de contexto.
-
-    **DATOS DE CONTEXTO PARA TU ANÁLISIS:**${realDataCtx}
-
-    **REGLAS DE ORO PARA LA RESPUESTA:**
-    1.  **FORMATO:** Tu única salida debe ser un bloque de código JSON válido, sin explicaciones ni texto adicional fuera del JSON.
-    2.  **COMPLETITUD:** DEBES rellenar TODOS los campos de la estructura JSON, incluyendo los arrays de "pasos" dentro de cada "planDeAccion".
-    3.  **PROHIBIDO SER GENÉRICO:** Queda estrictamente prohibido usar frases vagas como "se necesita un análisis" o "requiere investigación". Debes ofrecer un diagnóstico específico y accionable. Si un dato falta, haz una inferencia razonable (ej: "Dado que no se detecta un blog, se infiere que la estrategia de contenido es limitada.").
-    4.  **PLANES DE ACCIÓN DETALLADOS:** Para CADA coordenada, el campo "planDeAccion" DEBE contener un array con los 3 tipos de planes. CADA plan ("Lo Hago Yo", etc.) DEBE contener un array de "pasos" con 2 o 3 acciones concretas y claras.
-    5.  **TONO:** Profesional, directo, confiado y orientado a resultados.
-
-    **ESTRUCTURA JSON A RELLENAR:**
-    `;
-
-    return `${personaAndRules}${JSON.stringify(structureToAnalyze, null, 2)}
-
-Genera el informe JSON completo ahora.`;
+    return `${instructions}${realDataCtx}`;
 }
 
 // --- RUTA PRINCIPAL DE LA API ---
@@ -235,8 +243,6 @@ export async function POST(req: NextRequest) {
     } else { // manual
         finalPrompt = createGenerativePrompt(undefined, null, null, null, context);
     }
-
-    console.log("--- INICIO PROMPT PARA IA ---", finalPrompt, "--- FIN PROMPT ---");
 
     const result = await model.generateContent(finalPrompt!); 
     const response = await result.response;
