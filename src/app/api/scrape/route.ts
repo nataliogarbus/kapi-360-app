@@ -15,8 +15,14 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'La URL es requerida y no puede estar vacía.' }, { status: 400 });
     }
 
+    // Normalizar la URL para asegurar que tenga un protocolo.
+    let fullUrl = url;
+    if (!fullUrl.startsWith('http://') && !fullUrl.startsWith('https://')) {
+      fullUrl = `https://${fullUrl}`;
+    }
+
     // Usar `fetch` para obtener el contenido HTML de esa `url`.
-    const response = await fetch(url, {
+    const response = await fetch(fullUrl, {
       headers: {
         // Incluir un User-Agent personalizado.
         'User-Agent': 'KapiDigitalBot/1.0',
