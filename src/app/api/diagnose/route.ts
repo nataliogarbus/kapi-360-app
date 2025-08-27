@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { GoogleGenerativeAI } from '@google/generative-ai';
-import { createClient } from '@supabase/supabase-js';
 import { REPORT_STRUCTURE } from '@/app/report-structure';
 import { Ratelimit } from '@upstash/ratelimit';
 import { kv } from '@vercel/kv';
@@ -9,10 +8,6 @@ import { ipAddress } from '@vercel/edge';
 // --- CONFIGURACIÓN DE SERVICIOS ---
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
 const model = genAI.getGenerativeModel({ model: "gemini-1.5-pro" });
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
 
 // --- CONFIGURACIÓN DE RATE LIMITER ---
 const ratelimit = new Ratelimit({
@@ -24,28 +19,41 @@ const ratelimit = new Ratelimit({
 
 // --- FUNCIONES HELPERS DE OBTENCIÓN DE DATOS ---
 
-const getHtmlSummary = async (html: string): Promise<string | null> => {
+const extractStructuredDataFromHtml = async (html: string): Promise<any | null> => {
   if (!html || html.trim() === '') return null;
   try {
-    const prompt = `Tu tarea es actuar como un extractor de información. Analiza el siguiente código HTML y extrae un resumen conciso en formato de texto plano. El resumen debe incluir: la propuesta de valor principal, los servicios o productos clave ofrecidos, y las llamadas a la acción (CTAs) explícitas. Sé breve y directo.\n\nHTML:\n${html.substring(0, 30000)}`;
-    const result = await model.generateContent(prompt);
-    return result.response.text();
-  } catch (error) {
-    console.error("Error al generar resumen del HTML:", error);
-    return "Error al procesar el HTML.";
-  }
-};
+    const prompt = `
+      Tu tarea es actuar como un robot extractor de datos. Analiza el siguiente código HTML y devuelve únicamente un objeto JSON válido con la siguiente estructura. No incluyas explicaciones ni texto fuera del JSON.
 
-const checkForNewsletterForm = async (html: string): Promise<boolean> => {
-  if (!html || html.trim() === '') return false;
-  try {
-    const prompt = `Analiza el siguiente código HTML. Responde únicamente con la palabra 'true' si encuentras un formulario de suscripción a un newsletter, o únicamente con la palabra 'false' si no lo encuentras. No incluyas explicaciones, puntuación ni ninguna otra palabra.`;
+      ESTRUCTURA JSON REQUERIDA:
+      {
+        "contact_form_present": boolean,
+        "newsletter_form_present": boolean,
+        "social_media_links": string[],
+        "key_services": string[],
+        "value_proposition": string
+      }
+
+      INSTRUCCIONES DETALLADAS:
+      - "contact_form_present": true si encuentras un formulario de contacto (con campos como nombre, email, mensaje), false si no.
+      - "newsletter_form_present": true si encuentras un formulario específico para suscripción a newsletter, false si no.
+      - "social_media_links": Un array con las URLs completas a perfiles de redes sociales (Facebook, Instagram, LinkedIn, etc.) que encuentres. Si no hay, devuelve un array vacío [].
+      - "key_services": Un array de strings con los principales productos o servicios que ofrece el sitio.
+      - "value_proposition": Una frase corta que resuma la principal propuesta de valor o eslogan del sitio.
+
+      Ahora, analiza el siguiente HTML y devuelve el objeto JSON:
+
+      HTML:
+      ${html.substring(0, 40000)}
+    `;
     const result = await model.generateContent(prompt);
-    const textResponse = result.response.text().trim().toLowerCase();
-    return textResponse === 'true';
+    const cleanedText = result.response.text().replace(/\
+```json\n|\
+```/g, '').trim();
+    return JSON.parse(cleanedText);
   } catch (error) {
-    console.error("Error al verificar formulario de newsletter:", error);
-    return false;
+    console.error("Error al extraer datos estructurados del HTML:", error);
+    return null;
   }
 };
 
@@ -70,44 +78,20 @@ const getPageSpeedData = async (url: string): Promise<any | null> => {
   }
 };
 
-/* --- DESACTIVADO TEMPORALMENTE ---
-const getApolloData = async (domain: string): Promise<any | null> => {
-  const apiKey = process.env.APOLLO_API_KEY;
-  if (!apiKey) {
-    console.error("FATAL: APOLLO_API_KEY no está configurada en el entorno.");
-    return null;
-  }
-  const cleanDomain = domain.replace(/^www\./, '');
-  const api_url = `https://api.apollo.io/v1/organizations/enrich?api_key=${apiKey}&domain=${cleanDomain}`;
-  try {
-    const response = await fetch(api_url, { headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-cache' } });
-    if (!response.ok) {
-      console.warn(`ADVERTENCIA: La llamada a la API de Apollo.io para el dominio '${cleanDomain}' falló con estado: ${response.status}`);
-      return null;
-    }
-    const data = await response.json();
-    if (data && data.organization) {
-         console.log(`ÉXITO: Datos de organización de Apollo.io encontrados para '${cleanDomain}'.`);
-         return data.organization;
-    } else {
-        console.log(`INFO: La llamada a Apollo.io para '${cleanDomain}' fue exitosa pero no se encontró información de la organización.`);
-        return null;
-    }
-  } catch (error) {
-    console.error(`ERROR CRÍTICO: Falló la llamada a la API de Apollo.io para '${cleanDomain}'.`, error);
-    return null;
-  }
-};
-*/
-
 // --- LÓGICA DE GENERACIÓN DE PROMPT Y ANÁLISIS ---
 
-const createGenerativePrompt = (url: string | undefined, pageSpeedScore: number | null, htmlSummary: string | null, apolloData: any | null, hasNewsletter: boolean, pillar: any) => {
+const createGenerativePrompt = (url: string | undefined, pageSpeedScore: number | null, hasHttps: boolean, structuredData: any | null, pillar: any) => {
     let promptContext = `**DATOS DE CONTEXTO PARA TU ANÁLISIS:**\n- URL Analizada: ${url || 'No proporcionada'}`;
+    promptContext += `\n- Usa HTTPS: ${hasHttps ? 'Sí' : 'No'}`;
     if (pageSpeedScore !== null) promptContext += `\n- Google PageSpeed Score (Móvil): ${pageSpeedScore}/100`;
-    if (apolloData) promptContext += `\n- Datos de la empresa (de Apollo.io): ${JSON.stringify(apolloData, null, 2)}`;
-    if (htmlSummary) promptContext += `\n- Resumen del contenido del sitio:\n${htmlSummary}`;
-    promptContext += `\n- Formulario de Newsletter Detectado: ${hasNewsletter ? 'Sí' : 'No'}`;
+    
+    if (structuredData) {
+        promptContext += `\n- Propuesta de Valor: ${structuredData.value_proposition || 'No detectada'}`;
+        promptContext += `\n- Servicios Clave: ${structuredData.key_services?.join(', ') || 'No detectados'}`;
+        promptContext += `\n- Formulario de Contacto: ${structuredData.contact_form_present ? 'Sí' : 'No'}`;
+        promptContext += `\n- Formulario de Newsletter: ${structuredData.newsletter_form_present ? 'Sí' : 'No'}`;
+        promptContext += `\n- Redes Sociales: ${structuredData.social_media_links?.join(', ') || 'No detectadas'}`;
+    }
 
     const goldenExample = `**EJEMPLO DE ANÁLISIS DE ALTA CALIDAD:**
 {
@@ -132,11 +116,13 @@ const createGenerativePrompt = (url: string | undefined, pageSpeedScore: number 
     return `${promptContext}\n\n---\n\n${goldenExample}\n\n---\n\n${task}\n\n${jsonStructure}\n\n---\n\n${personaAndRules}`;
 };
 
-const generatePillarAnalysis = async (pillar: any, url: string | undefined, pageSpeedScore: number | null, htmlSummary: string | null, apolloData: any | null, hasNewsletter: boolean): Promise<any> => {
+const generatePillarAnalysis = async (pillar: any, url: string | undefined, pageSpeedScore: number | null, hasHttps: boolean, structuredData: any | null): Promise<any> => {
     try {
-        const prompt = createGenerativePrompt(url, pageSpeedScore, htmlSummary, apolloData, hasNewsletter, pillar);
+        const prompt = createGenerativePrompt(url, pageSpeedScore, hasHttps, structuredData, pillar);
         const result = await model.generateContent(prompt);
-        const cleanedText = result.response.text().replace(/```json\n|```/g, '').trim();
+        const cleanedText = result.response.text().replace(/\
+```json\n|\
+```/g, '').trim();
         return JSON.parse(cleanedText);
     } catch (error) {
         console.error(`Error al generar análisis para el pilar '${pillar.titulo}':`, error);
@@ -175,7 +161,8 @@ export async function POST(req: NextRequest) {
     if (!mode) return NextResponse.json({ error: 'El modo es requerido' }, { status: 400 });
     if (mode === 'consulta') return NextResponse.json({ analysis: { puntajeGeneral: 0, pilares: [] }, debugData: {} });
 
-    let pageSpeedData: any = null, htmlSummary: string | null = null, hasNewsletter: boolean = false;
+    let pageSpeedData: any = null, structuredData: any = null;
+    const hasHttps = url ? url.startsWith('https://') : false;
 
     if (mode === 'auto' || mode === 'custom') {
         const scrapeUrl = `${req.nextUrl.origin}/api/scrape`;
@@ -185,10 +172,9 @@ export async function POST(req: NextRequest) {
             if (scrapeResponse.ok) scrapedHtml = (await scrapeResponse.json()).html;
         } catch (e) { console.error("Error en scraping:", e); }
 
-        [pageSpeedData, htmlSummary, hasNewsletter] = await Promise.all([
+        [pageSpeedData, structuredData] = await Promise.all([
             getPageSpeedData(url!),
-            getHtmlSummary(scrapedHtml || ''),
-            checkForNewsletterForm(scrapedHtml || '')
+            extractStructuredDataFromHtml(scrapedHtml || '')
         ]);
     }
 
@@ -197,7 +183,7 @@ export async function POST(req: NextRequest) {
     const pilaresAAnalizar = context ? REPORT_STRUCTURE.pilares.filter(p => context.includes(p.titulo)) : REPORT_STRUCTURE.pilares;
 
     const analysisPromises = pilaresAAnalizar.map(pilar => 
-        generatePillarAnalysis(pilar, url, pageSpeedScore, htmlSummary, null, hasNewsletter) // ApolloData se pasa como null
+        generatePillarAnalysis(pilar, url, pageSpeedScore, hasHttps, structuredData)
     );
     const analyzedPilares = await Promise.all(analysisPromises);
 
@@ -211,8 +197,7 @@ export async function POST(req: NextRequest) {
         debugData: {
             apollo: { status: "disabled", data: null },
             pageSpeed: { status: pageSpeedData ? "success" : "error", data: pageSpeedData },
-            htmlSummary: { status: htmlSummary ? "success" : "error", data: htmlSummary },
-            newsletterCheck: { status: "success", data: { found: hasNewsletter } }
+            structuredHtmlData: { status: structuredData ? "success" : "error", data: structuredData }
         }
     }, { status: 200 });
 
