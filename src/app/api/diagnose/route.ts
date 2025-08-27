@@ -18,14 +18,27 @@ const supabase = createClient(
 // --- CONFIGURACIÓN DE RATE LIMITER ---
 const ratelimit = new Ratelimit({
   redis: kv,
-  limiter: Ratelimit.slidingWindow(5, '60 s'), // 5 solicitudes por 60 segundos
+  limiter: Ratelimit.slidingWindow(5, '60 s'),
   analytics: true,
   prefix: '@kapi/ratelimit',
 });
 
-
 // --- FUNCIONES HELPERS DE OBTENCIÓN DE DATOS ---
-const getPageSpeedScore = async (url: string): Promise<number | null> => {
+
+const getHtmlSummary = async (html: string): Promise<string | null> => {
+  if (!html || html.trim() === '') return null;
+  try {
+    const prompt = `Tu tarea es actuar como un extractor de información. Analiza el siguiente código HTML y extrae un resumen conciso en formato de texto plano. El resumen debe incluir: la propuesta de valor principal, los servicios o productos clave ofrecidos, las llamadas a la acción (CTAs) explícitas y el público objetivo si se puede inferir. Sé breve y directo.\n\nHTML:\n${html.substring(0, 25000)}`;
+    const result = await model.generateContent(prompt);
+    const response = await result.response;
+    return response.text();
+  } catch (error) {
+    console.error("Error al generar resumen del HTML:", error);
+    return "Error al procesar el HTML.";
+  }
+};
+
+const getPageSpeedData = async (url: string): Promise<any | null> => {
   const apiKey = process.env.PAGESPEED_API_KEY;
   if (!apiKey) {
     console.warn("Omitiendo análisis de PageSpeed: Clave de API no encontrada.");
@@ -43,7 +56,7 @@ const getPageSpeedScore = async (url: string): Promise<number | null> => {
       throw new Error(`Respuesta no exitosa de la API de PageSpeed: ${response.status}`);
     }
     const data = await response.json();
-    return Math.round(data.lighthouseResult.categories.performance.score * 100);
+    return data;
   } catch (error) {
     console.error("Error al obtener datos de PageSpeed:", error);
     return null;
@@ -53,10 +66,9 @@ const getPageSpeedScore = async (url: string): Promise<number | null> => {
 const getApolloData = async (domain: string): Promise<any | null> => {
   const apiKey = process.env.APOLLO_API_KEY;
   if (!apiKey) {
-    console.warn("Omitiendo enriquecimiento de Apollo: Clave de API no encontrada.");
+    console.error("FATAL: APOLLO_API_KEY no está configurada en el entorno.");
     return null;
   }
-  
   const cleanDomain = domain.replace(/^www\./, '');
   const api_url = `https://api.apollo.io/v1/organizations/enrich?api_key=${apiKey}&domain=${cleanDomain}`;
 
@@ -68,19 +80,25 @@ const getApolloData = async (domain: string): Promise<any | null> => {
       },
     });
     if (!response.ok) {
-      console.error(`Respuesta no exitosa de la API de Apollo.io: ${response.status}`);
+      console.warn(`ADVERTENCIA: La llamada a la API de Apollo.io para el dominio '${cleanDomain}' falló con estado: ${response.status}`);
       return null;
     }
     const data = await response.json();
-    return data.organization || null;
+    if (data && data.organization) {
+         console.log(`ÉXITO: Datos de organización de Apollo.io encontrados para '${cleanDomain}'.`);
+         return data.organization;
+    } else {
+        console.log(`INFO: La llamada a Apollo.io para '${cleanDomain}' fue exitosa pero no se encontró información de la organización.`);
+        return null;
+    }
   } catch (error) {
-    console.error("Error al obtener datos de Apollo.io:", error);
+    console.error(`ERROR CRÍTICO: Falló la llamada a la API de Apollo.io para '${cleanDomain}'.`, error);
     return null;
   }
 };
 
 // --- PROMPT ENGINEERING ---
-const createGenerativePrompt = (url: string | undefined, pageSpeedScore: number | null, scrapedHtml: string | null, apolloData: any | null, context?: string) => {
+const createGenerativePrompt = (url: string | undefined, pageSpeedScore: number | null, htmlSummary: string | null, apolloData: any | null, context?: string) => {
     let structureToAnalyze = REPORT_STRUCTURE;
     if (context && context.trim() !== '') {
         const selectedPillars = context.split(', ');
@@ -90,29 +108,18 @@ const createGenerativePrompt = (url: string | undefined, pageSpeedScore: number 
         };
     }
 
-    // PARTE 1: CONTEXTO (Datos recopilados)
     let promptContext = `**DATOS DE CONTEXTO PARA TU ANÁLISIS:**\n- URL Analizada: ${url || 'No proporcionada'}`;
     if (pageSpeedScore !== null) {
         promptContext += `\n- Google PageSpeed Score (Móvil): ${pageSpeedScore}/100`;
     }
     if (apolloData) {
-        promptContext += `\n- Datos de la empresa (de Apollo.io):`;
-        if (apolloData.industry) promptContext += `\n  - Industria: ${apolloData.industry}`;
-        if (apolloData.estimated_num_employees) promptContext += `\n  - Empleados (Estimado): ${apolloData.estimated_num_employees}`;
-        if (apolloData.city && apolloData.country) promptContext += `\n  - Ubicación: ${apolloData.city}, ${apolloData.country}`;
-        if (apolloData.keywords && apolloData.keywords.length > 0) promptContext += `\n  - Palabras Clave del Negocio: ${apolloData.keywords.join(', ')}`;
-        if (apolloData.current_technologies && apolloData.current_technologies.length > 0) {
-            promptContext += `\n  - Tecnologías Detectadas: ${apolloData.current_technologies.map((tech: any) => tech.name).join(', ')}`;
-        }
+        promptContext += `\n- Datos de la empresa (de Apollo.io): ${JSON.stringify(apolloData, null, 2)}`;
     }
-    if (scrapedHtml) {
-        const truncatedHtml = scrapedHtml.substring(0, 15000);
-        promptContext += `\n- Contenido HTML del sitio:\n\n${truncatedHtml}\n`;
+    if (htmlSummary) {
+        promptContext += `\n- Resumen del contenido del sitio:\n${htmlSummary}`;
     }
 
-    // PARTE 2: EJEMPLO DE ORO (Guía de Calidad)
     const goldenExample = `**EJEMPLO DE ANÁLISIS DE ALTA CALIDAD:**
-// Para la coordenada 'Rendimiento Web', un buen análisis se vería así:
 {
   "id": "rendimiento_web",
   "titulo": "Rendimiento Web (Core Web Vitals)",
@@ -125,17 +132,15 @@ const createGenerativePrompt = (url: string | undefined, pageSpeedScore: number 
   ]
 }`;
 
-    // PARTE 3: TAREA (Qué hacer con los datos)
     const task = `**TAREA Y FORMATO DE SALIDA:**\nTu misión es sintetizar toda la información del contexto para rellenar la siguiente estructura JSON. Debes seguir el estilo, la profundidad y la calidad del 'EJEMPLO DE ANÁLISIS DE ALTA CALIDAD' proporcionado.`;
     const jsonStructure = `**ESTRUCTURA JSON A RELLENAR:**\n${JSON.stringify(structureToAnalyze, null, 2)}`;
 
-    // PARTE 4: IDENTIDAD Y REGLAS (Cómo hacerlo)
     const personaAndRules = `**IDENTIDAD Y REGLAS DE ORO:**
-1.  **IDENTIDAD:** Actúas como "El Estratega Digital Kapi", la inteligencia artificial propietaria de Kapi.com.ar. Tu identidad es la de un consultor de negocios senior, experto en el ecosistema digital de PYMES. Eres el primer punto de contacto entre un potencial cliente y la agencia. Tu análisis es agudo, tu lenguaje es claro y siempre estás enfocado en cómo la tecnología y la estrategia digital impulsan los objetivos comerciales. Tu tono es consultivo, experto y estratégico.
-2.  **FORMATO:** Tu única salida debe ser un bloque de código JSON válido, sin explicaciones ni texto adicional fuera del JSON.
-3.  **COMPLETITUD:** DEBES rellenar TODOS los campos de la estructura JSON proporcionada, incluyendo los arrays de "pasos" dentro de cada "planDeAccion".
-4.  **PROHIBIDO SER GENÉRICO:** Queda estrictamente prohibido usar frases vagas como "se necesita un análisis" o "requiere investigación". Debes ofrecer un diagnóstico específico y accionable. Si un dato falta, haz una inferencia razonable (ej: "Dado que no se detecta un blog, se infiere que la estrategia de contenido es limitada.").
-5.  **PLANES DE ACCIÓN DETALLADOS:** Para CADA coordenada, el campo "planDeAccion" DEBE contener un array con los 3 tipos de planes. CADA plan ("Lo Hago Yo", etc.) DEBE contener un array de "pasos" con 2 o 3 acciones concretas y claras.`;
+1.  **IDENTIDAD:** Actúas como "El Estratega Digital Kapi"...
+2.  **FORMATO:** Tu única salida debe ser un bloque de código JSON válido...
+3.  **COMPLETITUD:** DEBES rellenar TODOS los campos...
+4.  **PROHIBIDO SER GENÉRICO:** Queda estrictamente prohibido usar frases vagas...
+5.  **PLANES DE ACCIÓN DETALLADOS:** Para CADA coordenada...`;
 
     return `${promptContext}\n\n---\n\n${goldenExample}\n\n---\n\n${task}\n\n${jsonStructure}\n\n---\n\n${personaAndRules}`;
 }
@@ -148,7 +153,6 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
     const { recaptchaToken } = body;
 
-    // --- VERIFICACIÓN DE RECAPTCHA ---
     const recaptchaSecret = process.env.RECAPTCHA_SECRET_KEY;
     if (recaptchaSecret) {
       const params = new URLSearchParams();
@@ -162,40 +166,21 @@ export async function POST(req: NextRequest) {
       });
       const recaptchaData = await recaptchaResponse.json();
       if (!recaptchaData.success || recaptchaData.score < 0.5) {
-          console.warn('Verificación de reCAPTCHA fallida o puntaje bajo:', recaptchaData);
           return NextResponse.json({ error: 'Verificación de humanidad fallida.' }, { status: 403 });
       }
-    } else {
-      console.warn("Clave secreta de reCAPTCHA no configurada. Omitiendo verificación.");
     }
 
-    // --- CHEQUEO DE RATE LIMIT ---
-    const { success, limit, remaining, reset } = await ratelimit.limit(ip);
+    const { success } = await ratelimit.limit(ip);
     if (!success) {
-      return new NextResponse('Too many requests.', {
-        status: 429,
-        headers: {
-          'X-RateLimit-Limit': limit.toString(),
-          'X-RateLimit-Remaining': remaining.toString(),
-          'X-RateLimit-Reset': new Date(reset).toUTCString(),
-        },
-      });
+      return new NextResponse('Too many requests.', { status: 429 });
     }
 
-    // --- SANEAMIENTO Y VALIDACIÓN DE ENTRADA ---
     const { mode } = body;
     const url = body.url ? sanitizeHtml(body.url, { allowedTags: [], allowedAttributes: {} }).trim() : undefined;
     const context = body.context ? sanitizeHtml(body.context, { allowedTags: [], allowedAttributes: {} }).trim() : undefined;
 
-    if (mode === 'auto' || mode === 'custom') {
-        if (!url) {
-            return NextResponse.json({ error: 'La URL es requerida y no puede estar vacía.' }, { status: 400 });
-        }
-        try {
-            new URL(url.startsWith('http') ? url : `https://${url}`);
-        } catch (e) {
-            return NextResponse.json({ error: 'El formato de la URL proporcionada no es válido.' }, { status: 400 });
-        }
+    if ((mode === 'auto' || mode === 'custom') && !url) {
+        return NextResponse.json({ error: 'La URL es requerida.' }, { status: 400 });
     }
 
     if (!mode) {
@@ -203,41 +188,37 @@ export async function POST(req: NextRequest) {
     }
 
     if (mode === 'consulta') {
-        return NextResponse.json({ analysis: JSON.stringify({ puntajeGeneral: 0, pilares: [{ id: "pilar-consulta", titulo: "Consulta Solicitada", score: 100, queEs: "Has solicitado una consulta directa.", porQueImporta: "Nos pondremos en contacto contigo.", coordenadas: [] }] }) }, { status: 200 });
+        return NextResponse.json({ analysis: { puntajeGeneral: 0, pilares: [] }, debugData: {} });
     }
 
-    let finalPrompt;
+    let pageSpeedData: any = null;
+    let apolloData: any = null;
+    let htmlSummary: string | null = null;
+
     if (mode === 'auto' || mode === 'custom') {
-        // --- OBTENCIÓN DE DATOS ENRIQUECIDOS ---
         const scrapeUrl = `${req.nextUrl.origin}/api/scrape`;
         let scrapedHtml: string | null = null;
         try {
-            const scrapeResponse = await fetch(scrapeUrl, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ url: url }),
-            });
+            const scrapeResponse = await fetch(scrapeUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ url: url }) });
             if (scrapeResponse.ok) {
                 scrapedHtml = (await scrapeResponse.json()).html;
-            } else {
-                console.warn(`El scraping de la URL ${url} falló con estado: ${scrapeResponse.status}`);
             }
         } catch (scrapeError) {
             console.error("Error llamando a la API de scraping interna:", scrapeError);
         }
 
-        const [apolloData, pageSpeedScore] = await Promise.all([
+        htmlSummary = await getHtmlSummary(scrapedHtml || '');
+
+        [apolloData, pageSpeedData] = await Promise.all([
             getApolloData(url!),
-            getPageSpeedScore(url!)
+            getPageSpeedData(url!)
         ]);
-
-        finalPrompt = createGenerativePrompt(url, pageSpeedScore, scrapedHtml, apolloData, context);
-
-    } else { // manual
-        finalPrompt = createGenerativePrompt(undefined, null, null, null, context);
     }
 
-    const result = await model.generateContent(finalPrompt!); 
+    const pageSpeedScore = pageSpeedData ? Math.round(pageSpeedData.lighthouseResult.categories.performance.score * 100) : null;
+    const finalPrompt = createGenerativePrompt(url, pageSpeedScore, htmlSummary, apolloData, context);
+
+    const result = await model.generateContent(finalPrompt);
     const response = await result.response;
     const analysisText = response.text();
 
@@ -247,11 +228,18 @@ export async function POST(req: NextRequest) {
     try {
         analysisObject = JSON.parse(cleanedText);
     } catch (parseError) {
-        console.error("Error al parsear JSON de la IA:", parseError);
+        console.error("Error al parsear JSON de la IA:", parseError, "Texto recibido:", cleanedText);
         return NextResponse.json({ error: "La respuesta de la IA no es un JSON válido." }, { status: 500 });
     }
 
-    return NextResponse.json({ analysis: analysisObject }, { status: 200 });
+    return NextResponse.json({ 
+        analysis: analysisObject,
+        debugData: {
+            apollo: apolloData,
+            pageSpeed: pageSpeedData,
+            htmlSummary: htmlSummary
+        }
+    }, { status: 200 });
 
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : "Un error desconocido ocurrió.";
