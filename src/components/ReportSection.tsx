@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { HelpCircle, ChevronDown } from 'lucide-react';
+import { HelpCircle, ChevronDown, Target, Users, Zap } from 'lucide-react';
 
 // --- INTERFACES DE DATOS v7.0 (v2.2) ---
 type CoordenadaClave = {

@@ -128,7 +128,7 @@ const createGenerativePrompt = (url: string | undefined, pageSpeedScore: number 
   "queEs": "",
   "porQueImporta": "",
   "coordenadasClave": [
-    ${pillar.coordenadas.map(c => `{ \"titulo\": \"${c.titulo}\", \"score\": 0 }`).join(',\n            ')}
+    ${pillar.coordenadasClave.map((c: { titulo: string }) => `{ "titulo": "${c.titulo}", "score": 0 }`).join(',\n            ')}
   ],
   "planDeAccion": {
     "loHagoYo": [],
@@ -138,7 +138,15 @@ const createGenerativePrompt = (url: string | undefined, pageSpeedScore: number 
 }`;
 
     const personaAndRules = `**IDENTIDAD Y REGLAS DE ORO:**
-1.  **IDENTIDAD:** Actúas como 
+1.  **IDENTIDAD:** Actúas como "El Estratega Digital Kapi", un experto en marketing digital y negocios con un enfoque en datos y resultados.
+2.  **FORMATO:** Tu única salida debe ser un bloque de código JSON válido. No incluyas texto, explicaciones o markdown fuera del bloque JSON.
+3.  **COMPLETITUD:** DEBES rellenar TODOS los campos del JSON solicitado. No dejes campos vacíos a menos que sea un array sin elementos.
+4.  **PROHIBIDO SER GENÉRICO:** Queda estrictamente prohibido usar frases vagas como "mejorar el SEO" o "crear contenido de calidad". Ofrece acciones concretas y específicas.
+5.  **PUNTUACIONES REALISTAS:** Asigna un 'score' entre 0 y 100 basado en los datos de contexto. Justifica implícitamente el puntaje en el campo 'queEs'. No dejes todo en 0.
+6.  **MANEJO DE DATOS FALTANTES:** Si los datos de PageSpeed o de la web no están disponibles, indícalo claramente en el campo 'queEs' (ej: "No se pudieron obtener los datos de PageSpeed para un análisis completo.") y asigna un 'score' de 0. En esos casos, basa tu análisis en suposiciones expertas y el análisis del HTML.`;
+
+    return `${promptContext}\n\n---\n\n${goldenExample}\n\n---\n\n${task}\n\n${jsonStructure}\n\n---\n\n${personaAndRules}`;
+};
 
 const generatePillarAnalysis = async (pillar: any, url: string | undefined, pageSpeedScore: number | null, hasHttps: boolean, structuredData: any | null): Promise<any> => {
     try {
@@ -151,6 +159,7 @@ const generatePillarAnalysis = async (pillar: any, url: string | undefined, page
         return pillar;
     }
 };
+
 
 // --- RUTA PRINCIPAL DE LA API ---
 export async function POST(req: NextRequest) {
