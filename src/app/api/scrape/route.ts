@@ -24,8 +24,9 @@ export async function POST(req: NextRequest) {
     // Usar `fetch` para obtener el contenido HTML de esa `url`.
     const response = await fetch(fullUrl, {
       headers: {
-        // Incluir un User-Agent personalizado.
+        // Incluir un User-Agent y cabecera Accept para simular un navegador.
         'User-Agent': 'KapiDigitalBot/1.0',
+        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
       },
     });
 
