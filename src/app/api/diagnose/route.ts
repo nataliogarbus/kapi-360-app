@@ -157,15 +157,20 @@ export async function POST(req: NextRequest) {
     if (!mode) return NextResponse.json({ error: 'El modo es requerido' }, { status: 400 });
     if (mode === 'consulta') return NextResponse.json({ analysis: { puntajeGeneral: 0, pilares: [] }, debugData: {} });
 
-    let pageSpeedData: any = null, structuredData: any = null;
-    const hasHttps = url ? url.startsWith('https://') : false;
+    let pageSpeedData: any = null;
+    let structuredData: any = null;
+    let finalScrapedUrl: string | null = null;
 
     if (mode === 'auto' || mode === 'custom') {
         const scrapeUrl = `${req.nextUrl.origin}/api/scrape`;
         let scrapedHtml: string | null = null;
         try {
             const scrapeResponse = await fetch(scrapeUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ url }) });
-            if (scrapeResponse.ok) scrapedHtml = (await scrapeResponse.json()).html;
+            if (scrapeResponse.ok) {
+                const scrapeResult = await scrapeResponse.json();
+                scrapedHtml = scrapeResult.html;
+                finalScrapedUrl = scrapeResult.finalUrl;
+            }
         } catch (e) { console.error("Error en scraping:", e); }
 
         [pageSpeedData, structuredData] = await Promise.all([
@@ -174,6 +179,7 @@ export async function POST(req: NextRequest) {
         ]);
     }
 
+    const hasHttps = finalScrapedUrl ? finalScrapedUrl.startsWith('https://') : (url ? url.startsWith('https://') : false);
     const pageSpeedScore = pageSpeedData ? Math.round(pageSpeedData.lighthouseResult.categories.performance.score * 100) : null;
     
     const pilaresAAnalizar = context ? REPORT_STRUCTURE.pilares.filter(p => context.includes(p.titulo)) : REPORT_STRUCTURE.pilares;
@@ -193,7 +199,8 @@ export async function POST(req: NextRequest) {
         debugData: {
             apollo: { status: "disabled", data: null },
             pageSpeed: { status: pageSpeedData ? "success" : "error", data: pageSpeedData },
-            structuredHtmlData: { status: structuredData ? "success" : "error", data: structuredData }
+            structuredHtmlData: { status: structuredData ? "success" : "error", data: structuredData },
+            scrapeInfo: { finalUrl: finalScrapedUrl }
         }
     }, { status: 200 });
 

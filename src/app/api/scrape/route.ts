@@ -35,9 +35,10 @@ export async function POST(req: NextRequest) {
       throw new Error(`Error al obtener la URL: ${response.status} ${response.statusText}`);
     }
 
-    // Si la petición es exitosa, devolver un objeto JSON con la clave `html`.
+    // Si la petición es exitosa, devolver un objeto JSON con el html y la url final.
+    const finalUrl = response.url;
     const html = await response.text();
-    return NextResponse.json({ html }, { status: 200 });
+    return NextResponse.json({ html, finalUrl }, { status: 200 });
 
   } catch (error) {
     // Si ocurre cualquier otro error, devolver un JSON con una clave `error` y un estado 500.
