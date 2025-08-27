@@ -123,32 +123,30 @@ ${truncatedHtml}
 `;
     }
 
-    // PARTE 2: TAREA (Qué hacer con los datos)
+    // PARTE 2: EJEMPLO DE ORO (Guía de Calidad)
+    const goldenExample = `**EJEMPLO DE ANÁLISIS DE ALTA CALIDAD:**
+// Para la coordenada 'Rendimiento Web', un buen análisis se vería así:
+{
+  "id": "rendimiento_web",
+  "titulo": "Rendimiento Web (Core Web Vitals)",
+  "score": 75,
+  "diagnostico": "El puntaje de PageSpeed (75/100) es aceptable pero tiene un claro margen de mejora. El LCP (Largest Contentful Paint) probablemente esté siendo afectado por imágenes sin optimizar en el banner principal, lo que retrasa la percepción de carga para el usuario y puede aumentar la tasa de rebote.",
+  "planDeAccion": [
+    { "titulo": "Lo Hago Yo", "pasos": ["Comprimir las imágenes de la cabecera usando una herramienta online como TinyPNG.", "Habilitar la compresión Gzip en el servidor web."] },
+    { "titulo": "Lo Hace Kapi con mi Equipo", "pasos": ["Realizamos una auditoría de rendimiento completa.", "Creamos un plan de optimización de imágenes y scripts para mejorar el LCP y el FID."] },
+    { "titulo": "Lo Hace Kapi", "pasos": ["Implementamos optimización de imágenes automática vía CDN.", "Minificamos y diferimos la carga de CSS y JS críticos para un renderizado casi instantáneo."] }
+  ]
+}`;
+
+    // PARTE 3: TAREA (Qué hacer con los datos)
     const task = `**TAREA Y FORMATO DE SALIDA:**
-Tu misión es sintetizar toda la información anterior en un informe claro y accionable, rellenando la siguiente estructura JSON.`;
+Tu misión es sintetizar toda la información del contexto para rellenar la siguiente estructura JSON. Debes seguir el estilo, la profundidad y la calidad del 'EJEMPLO DE ANÁLISIS DE ALTA CALIDAD' proporcionado.`;
     const jsonStructure = `**ESTRUCTURA JSON A RELLENAR:**
 ${JSON.stringify(structureToAnalyze, null, 2)}`;
 
-    // PARTE 3: IDENTIDAD Y REGLAS (Cómo hacerlo)
+    // PARTE 4: IDENTIDAD Y REGLAS (Cómo hacerlo)
     const personaAndRules = `**IDENTIDAD Y REGLAS DE ORO:**
-1.  **IDENTIDAD:** Actúas como "El Estratega Digital Kapi", la inteligencia artificial propietaria de Kapi.com.ar. Tu identidad es la de un consultor de negocios senior, experto en el ecosistema digital de PYMES. Eres el primer punto de contacto entre un potencial cliente y la agencia. Tu análisis es agudo, tu lenguaje es claro y siempre estás enfocado en cómo la tecnología y la estrategia digital impulsan los objetivos comerciales. Tu tono es consultivo, experto y estratégico.
-2.  **FORMATO:** Tu única salida debe ser un bloque de código JSON válido, sin explicaciones ni texto adicional fuera del JSON.
-3.  **COMPLETITUD:** DEBES rellenar TODOS los campos de la estructura JSON proporcionada, incluyendo los arrays de "pasos" dentro de cada "planDeAccion".
-4.  **PROHIBIDO SER GENÉRICO:** Queda estrictamente prohibido usar frases vagas como "se necesita un análisis" o "requiere investigación". Debes ofrecer un diagnóstico específico y actionable. Si un dato falta, haz una inferencia razonable (ej: "Dado que no se detecta un blog, se infiere que la estrategia de contenido es limitada.").
-5.  **PLANES DE ACCIÓN DETALLADOS:** Para CADA coordenada, el campo "planDeAccion" DEBE contener un array con los 3 tipos de planes. CADA plan ("Lo Hago Yo", etc.) DEBE contener un array de "pasos" con 2 o 3 acciones concretas y claras.`;
-
-    return `${promptContext}
-
----
-
-${task}
-
-${jsonStructure}
-
----
-
-${personaAndRules}`;
-}
+1.  **IDENTIDAD:** Actúas como 
 
 
 // --- RUTA PRINCIPAL DE LA API ---
