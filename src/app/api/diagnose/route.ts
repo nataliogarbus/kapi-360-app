@@ -28,7 +28,7 @@ const ratelimit = new Ratelimit({
 const getHtmlSummary = async (html: string): Promise<string | null> => {
   if (!html || html.trim() === '') return null;
   try {
-    const prompt = `Tu tarea es actuar como un extractor de información. Analiza el siguiente código HTML y extrae un resumen conciso en formato de texto plano. El resumen debe incluir: la propuesta de valor principal, los servicios o productos clave ofrecidos, las llamadas a la acción (CTAs) explícitas y el público objetivo si se puede inferir. Sé breve y directo.\n\nHTML:\n${html.substring(0, 30000)}`;
+    const prompt = `Tu tarea es actuar como un extractor de información. Analiza el siguiente código HTML y extrae un resumen conciso en formato de texto plano. El resumen debe incluir: la propuesta de valor principal, los servicios o productos clave ofrecidos, las llamadas a la acción (CTAs) explícitas, la presencia y ubicación de formularios de contacto o suscripción a newsletter, y el público objetivo si se puede inferir. Sé breve y directo.\n\nHTML:\n${html.substring(0, 30000)}`;
     const result = await model.generateContent(prompt);
     return result.response.text();
   } catch (error) {
