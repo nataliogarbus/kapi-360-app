@@ -236,6 +236,8 @@ export async function POST(req: NextRequest) {
         finalPrompt = createGenerativePrompt(undefined, null, null, null, context);
     }
 
+    console.log("--- INICIO PROMPT PARA IA ---", finalPrompt, "--- FIN PROMPT ---");
+
     const result = await model.generateContent(finalPrompt!); 
     const response = await result.response;
     const analysisText = response.text();

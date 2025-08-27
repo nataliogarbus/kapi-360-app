@@ -56,3 +56,6 @@ _dev_temp/
 # Documentación del Proyecto (No subir)
 KAPI_HOJA_DE_RUTA.md
 .vercel
+
+# Carpeta de logs de sesión
+/_logs
