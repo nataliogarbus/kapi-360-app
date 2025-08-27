@@ -47,9 +47,7 @@ const extractStructuredDataFromHtml = async (html: string): Promise<any | null> 
       ${html.substring(0, 40000)}
     `;
     const result = await model.generateContent(prompt);
-    const cleanedText = result.response.text().replace(/\
-```json\n|\
-```/g, '').trim();
+    const cleanedText = result.response.text().replace(/```json\n|```/g, '').trim();
     return JSON.parse(cleanedText);
   } catch (error) {
     console.error("Error al extraer datos estructurados del HTML:", error);
@@ -120,9 +118,7 @@ const generatePillarAnalysis = async (pillar: any, url: string | undefined, page
     try {
         const prompt = createGenerativePrompt(url, pageSpeedScore, hasHttps, structuredData, pillar);
         const result = await model.generateContent(prompt);
-        const cleanedText = result.response.text().replace(/\
-```json\n|\
-```/g, '').trim();
+        const cleanedText = result.response.text().replace(/```json\n|```/g, '').trim();
         return JSON.parse(cleanedText);
     } catch (error) {
         console.error(`Error al generar análisis para el pilar '${pillar.titulo}':`, error);
