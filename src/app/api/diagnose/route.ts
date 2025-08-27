@@ -91,28 +91,54 @@ const createGenerativePrompt = (url: string | undefined, pageSpeedScore: number 
         promptContext += `\n- Redes Sociales: ${structuredData.social_media_links?.join(', ') || 'No detectadas'}`;
     }
 
-    const goldenExample = `**EJEMPLO DE ANÁLISIS DE ALTA CALIDAD:**
+    const goldenExample = `**EJEMPLO DE ANÁLISIS DE ALTA CALIDAD PARA UN PILAR v2.2:**
 {
-  "id": "rendimiento_web",
-  "titulo": "Rendimiento Web (Core Web Vitals)",
-  "score": 75,
-  "diagnostico": "El puntaje de PageSpeed (75/100) es aceptable pero tiene un claro margen de mejora...",
-  "planDeAccion": [ { "titulo": "Lo Hago Yo", "pasos": ["Comprimir imágenes."] } ]
+  "score": 82,
+  "queEs": "Analiza la calidad técnica y la experiencia de usuario que ofrece tu sitio web, factores cruciales para la retención de visitantes.",
+  "porQueImporta": "Un sitio rápido, fácil de usar y seguro no solo mejora el posicionamiento en Google, sino que también aumenta la confianza y la probabilidad de conversión.",
+  "coordenadasClave": [
+    { "titulo": "Rendimiento Web (Core Web Vitals)", "score": 75 },
+    { "titulo": "Experiencia de Usuario (UX/UI)", "score": 85 },
+    { "titulo": "Accesibilidad (WCAG)", "score": 90 },
+    { "titulo": "Seguridad del Frontend (HTTPS)", "score": 80 }
+  ],
+  "planDeAccion": {
+    "loHagoYo": [
+      "Utilizar herramientas online para comprimir todas las imágenes de la web.",
+      "Revisar la web en un dispositivo móvil para asegurar que todos los textos son legibles y los botones fáciles de pulsar."
+    ],
+    "loHaceKapiConMiEquipo": [
+      "Implementar un sistema de 'lazy loading' para las imágenes y videos.",
+      "Capacitar al equipo sobre las mejores prácticas de accesibilidad para la creación de nuevo contenido."
+    ],
+    "loHaceKapi": [
+      "Realizar una auditoría de rendimiento avanzada e implementar optimizaciones críticas en el código.",
+      "Ejecutar un análisis de 'mapas de calor' para rediseñar los flujos de usuario más importantes."
+    ]
+  }
 }`;
 
     const task = `**TAREA Y FORMATO DE SALIDA:**\nTu misión es analizar la información del contexto para rellenar la siguiente estructura JSON para el pilar "${pillar.titulo}". Debes seguir el estilo, la profundidad y la calidad del 'EJEMPLO DE ANÁLISIS DE ALTA CALIDAD' proporcionado.`;
-    const jsonStructure = `**ESTRUCTURA JSON A RELLENAR:**\n${JSON.stringify(pillar, null, 2)}`;
+    
+    const jsonStructure = `**ESTRUCTURA JSON A RELLENAR (NO MODIFIQUES LAS CLAVES):**
+{
+  "id": "${pillar.id}",
+  "titulo": "${pillar.titulo}",
+  "score": 0,
+  "queEs": "",
+  "porQueImporta": "",
+  "coordenadasClave": [
+    ${pillar.coordenadas.map(c => `{ \"titulo\": \"${c.titulo}\", \"score\": 0 }`).join(',\n            ')}
+  ],
+  "planDeAccion": {
+    "loHagoYo": [],
+    "loHaceKapiConMiEquipo": [],
+    "loHaceKapi": []
+  }
+}`;
 
     const personaAndRules = `**IDENTIDAD Y REGLAS DE ORO:**
-1.  **IDENTIDAD:** Actúas como "El Estratega Digital Kapi"...
-2.  **FORMATO:** Tu única salida debe ser un bloque de código JSON válido...
-3.  **COMPLETITUD:** DEBES rellenar TODOS los campos...
-4.  **PROHIBIDO SER GENÉRICO:** Queda estrictamente prohibido usar frases vagas...
-5.  **PUNTUACIONES REALISTAS:** Asigna un 'score' entre 0 y 100 basado en los datos. No dejes todo en 0.
-6.  **MANEJO DE DATOS FALTANTES:** Si los datos de PageSpeed o Apollo no están disponibles, indícalo claramente en el diagnóstico de la coordenada correspondiente (ej: "No se pudieron obtener los datos de PageSpeed para un análisis completo.") y asigna un 'score' de -1 para indicar que no es aplicable. En esos casos, basa tu análisis únicamente en el contenido del sitio web.`;
-
-    return `${promptContext}\n\n---\n\n${goldenExample}\n\n---\n\n${task}\n\n${jsonStructure}\n\n---\n\n${personaAndRules}`;
-};
+1.  **IDENTIDAD:** Actúas como 
 
 const generatePillarAnalysis = async (pillar: any, url: string | undefined, pageSpeedScore: number | null, hasHttps: boolean, structuredData: any | null): Promise<any> => {
     try {

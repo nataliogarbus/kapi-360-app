@@ -7,52 +7,17 @@ export const REPORT_STRUCTURE = {
       score: 0,
       queEs: '',
       porQueImporta: '',
-      coordenadas: [
-        { 
-          id: 'penetracion_mercado', 
-          titulo: 'Penetración de Mercado',
-          score: 0,
-          diagnostico: '',
-          planDeAccion: [
-            { titulo: "Lo Hago Yo", pasos: [] },
-            { titulo: "Lo Hace Kapi con mi Equipo", pasos: [] },
-            { titulo: "Lo Hace Kapi", pasos: [] }
-          ]
-        },
-        { 
-          id: 'diferenciacion_competitiva', 
-          titulo: 'Diferenciación Competitiva',
-          score: 0,
-          diagnostico: '',
-          planDeAccion: [
-            { titulo: "Lo Hago Yo", pasos: [] },
-            { titulo: "Lo Hace Kapi con mi Equipo", pasos: [] },
-            { titulo: "Lo Hace Kapi", pasos: [] }
-          ]
-        },
-        { 
-          id: 'analisis_precios', 
-          titulo: 'Análisis de Precios y Ofertas',
-          score: 0,
-          diagnostico: '',
-          planDeAccion: [
-            { titulo: "Lo Hago Yo", pasos: [] },
-            { titulo: "Lo Hace Kapi con mi Equipo", pasos: [] },
-            { titulo: "Lo Hace Kapi", pasos: [] }
-          ]
-        },
-        { 
-          id: 'reputacion_online', 
-          titulo: 'Reputación Online y Reseñas',
-          score: 0,
-          diagnostico: '',
-          planDeAccion: [
-            { titulo: "Lo Hago Yo", pasos: [] },
-            { titulo: "Lo Hace Kapi con mi Equipo", pasos: [] },
-            { titulo: "Lo Hace Kapi", pasos: [] }
-          ]
-        }
-      ]
+      coordenadasClave: [
+        { id: 'penetracion_mercado', titulo: 'Penetración de Mercado' },
+        { id: 'diferenciacion_competitiva', titulo: 'Diferenciación Competitiva' },
+        { id: 'analisis_precios', titulo: 'Análisis de Precios y Ofertas' },
+        { id: 'reputacion_online', titulo: 'Reputación Online y Reseñas' }
+      ],
+      planDeAccion: {
+        loHagoYo: [],
+        loHaceKapiConMiEquipo: [],
+        loHaceKapi: []
+      }
     },
     {
       id: 'plataforma_ux',
@@ -60,52 +25,17 @@ export const REPORT_STRUCTURE = {
       score: 0,
       queEs: '',
       porQueImporta: '',
-      coordenadas: [
-        { 
-          id: 'rendimiento_web', 
-          titulo: 'Rendimiento Web (Core Web Vitals)',
-          score: 0,
-          diagnostico: '',
-          planDeAccion: [
-            { titulo: "Lo Hago Yo", pasos: [] },
-            { titulo: "Lo Hace Kapi con mi Equipo", pasos: [] },
-            { titulo: "Lo Hace Kapi", pasos: [] }
-          ]
-        },
-        { 
-          id: 'experiencia_usuario', 
-          titulo: 'Experiencia de Usuario (UX/UI)',
-          score: 0,
-          diagnostico: '',
-          planDeAccion: [
-            { titulo: "Lo Hago Yo", pasos: [] },
-            { titulo: "Lo Hace Kapi con mi Equipo", pasos: [] },
-            { titulo: "Lo Hace Kapi", pasos: [] }
-          ]
-        },
-        { 
-          id: 'accesibilidad_web', 
-          titulo: 'Accesibilidad (WCAG)',
-          score: 0,
-          diagnostico: '',
-          planDeAccion: [
-            { titulo: "Lo Hago Yo", pasos: [] },
-            { titulo: "Lo Hace Kapi con mi Equipo", pasos: [] },
-            { titulo: "Lo Hace Kapi", pasos: [] }
-          ]
-        },
-        { 
-          id: 'seguridad_frontend', 
-          titulo: 'Seguridad del Frontend (HTTPS)',
-          score: 0,
-          diagnostico: '',
-          planDeAccion: [
-            { titulo: "Lo Hago Yo", pasos: [] },
-            { titulo: "Lo Hace Kapi con mi Equipo", pasos: [] },
-            { titulo: "Lo Hace Kapi", pasos: [] }
-          ]
-        }
-      ]
+      coordenadasClave: [
+        { id: 'rendimiento_web', titulo: 'Rendimiento Web (Core Web Vitals)' },
+        { id: 'experiencia_usuario', titulo: 'Experiencia de Usuario (UX/UI)' },
+        { id: 'accesibilidad_web', titulo: 'Accesibilidad (WCAG)' },
+        { id: 'seguridad_frontend', titulo: 'Seguridad del Frontend (HTTPS)' }
+      ],
+      planDeAccion: {
+        loHagoYo: [],
+        loHaceKapiConMiEquipo: [],
+        loHaceKapi: []
+      }
     },
     {
       id: 'contenido_autoridad',
@@ -113,52 +43,17 @@ export const REPORT_STRUCTURE = {
       score: 0,
       queEs: '',
       porQueImporta: '',
-      coordenadas: [
-        { 
-          id: 'estrategia_contenidos_seo', 
-          titulo: 'Estrategia de Contenidos y SEO',
-          score: 0,
-          diagnostico: '',
-          planDeAccion: [
-            { titulo: "Lo Hago Yo", pasos: [] },
-            { titulo: "Lo Hace Kapi con mi Equipo", pasos: [] },
-            { titulo: "Lo Hace Kapi", pasos: [] }
-          ]
-        },
-        { 
-          id: 'engagement_redes', 
-          titulo: 'Engagement en Redes Sociales',
-          score: 0,
-          diagnostico: '',
-          planDeAccion: [
-            { titulo: "Lo Hago Yo", pasos: [] },
-            { titulo: "Lo Hace Kapi con mi Equipo", pasos: [] },
-            { titulo: "Lo Hace Kapi", pasos: [] }
-          ]
-        },
-        { 
-          id: 'calidad_contenido', 
-          titulo: 'Calidad y Relevancia del Contenido',
-          score: 0,
-          diagnostico: '',
-          planDeAccion: [
-            { titulo: "Lo Hago Yo", pasos: [] },
-            { titulo: "Lo Hace Kapi con mi Equipo", pasos: [] },
-            { titulo: "Lo Hace Kapi", pasos: [] }
-          ]
-        },
-        { 
-          id: 'link_building', 
-          titulo: 'Autoridad de Dominio (Backlinks)',
-          score: 0,
-          diagnostico: '',
-          planDeAccion: [
-            { titulo: "Lo Hago Yo", pasos: [] },
-            { titulo: "Lo Hace Kapi con mi Equipo", pasos: [] },
-            { titulo: "Lo Hace Kapi", pasos: [] }
-          ]
-        }
-      ]
+      coordenadasClave: [
+        { id: 'estrategia_contenidos_seo', titulo: 'Estrategia de Contenidos y SEO' },
+        { id: 'engagement_redes', titulo: 'Engagement en Redes Sociales' },
+        { id: 'calidad_contenido', titulo: 'Calidad y Relevancia del Contenido' },
+        { id: 'link_building', titulo: 'Autoridad de Dominio (Backlinks)' }
+      ],
+      planDeAccion: {
+        loHagoYo: [],
+        loHaceKapiConMiEquipo: [],
+        loHaceKapi: []
+      }
     },
     {
       id: 'crecimiento_adquisicion',
@@ -166,52 +61,17 @@ export const REPORT_STRUCTURE = {
       score: 0,
       queEs: '',
       porQueImporta: '',
-      coordenadas: [
-        { 
-          id: 'generacion_leads', 
-          titulo: 'Generación de Leads',
-          score: 0,
-          diagnostico: '',
-          planDeAccion: [
-            { titulo: "Lo Hago Yo", pasos: [] },
-            { titulo: "Lo Hace Kapi con mi Equipo", pasos: [] },
-            { titulo: "Lo Hace Kapi", pasos: [] }
-          ]
-        },
-        { 
-          id: 'analisis_datos_funnels', 
-          titulo: 'Análisis de Datos y Funnels',
-          score: 0,
-          diagnostico: '',
-          planDeAccion: [
-            { titulo: "Lo Hago Yo", pasos: [] },
-            { titulo: "Lo Hace Kapi con mi Equipo", pasos: [] },
-            { titulo: "Lo Hace Kapi", pasos: [] }
-          ]
-        },
-        { 
-          id: 'email_marketing', 
-          titulo: 'Estrategia de Email Marketing',
-          score: 0,
-          diagnostico: '',
-          planDeAccion: [
-            { titulo: "Lo Hago Yo", pasos: [] },
-            { titulo: "Lo Hace Kapi con mi Equipo", pasos: [] },
-            { titulo: "Lo Hace Kapi", pasos: [] }
-          ]
-        },
-        { 
-          id: 'publicidad_paga', 
-          titulo: 'Uso de Publicidad Paga (SEM)',
-          score: 0,
-          diagnostico: '',
-          planDeAccion: [
-            { titulo: "Lo Hago Yo", pasos: [] },
-            { titulo: "Lo Hace Kapi con mi Equipo", pasos: [] },
-            { titulo: "Lo Hace Kapi", pasos: [] }
-          ]
-        }
-      ]
+      coordenadasClave: [
+        { id: 'generacion_leads', titulo: 'Generación de Leads' },
+        { id: 'analisis_datos_funnels', titulo: 'Análisis de Datos y Funnels' },
+        { id: 'email_marketing', titulo: 'Estrategia de Email Marketing' },
+        { id: 'publicidad_paga', titulo: 'Uso de Publicidad Paga (SEM)' }
+      ],
+      planDeAccion: {
+        loHagoYo: [],
+        loHaceKapiConMiEquipo: [],
+        loHaceKapi: []
+      }
     }
   ]
 };

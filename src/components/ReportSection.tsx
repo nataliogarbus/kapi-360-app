@@ -2,20 +2,16 @@ import React, { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { HelpCircle, ChevronDown } from 'lucide-react';
 
-// --- INTERFACES DE DATOS v6.0 (FINAL) ---
-type PlanPaso = string;
-
-type Plan = {
-  titulo: string;
-  pasos: PlanPaso[];
-};
-
-type Coordenada = {
-  id: string;
+// --- INTERFACES DE DATOS v7.0 (v2.2) ---
+type CoordenadaClave = {
   titulo: string;
   score: number;
-  diagnostico: string;
-  planDeAccion: Plan[];
+};
+
+type PlanDeAccion = {
+  loHagoYo: string[];
+  loHaceKapiConMiEquipo: string[];
+  loHaceKapi: string[];
 };
 
 type Pilar = {
@@ -24,7 +20,8 @@ type Pilar = {
   score: number;
   queEs: string;
   porQueImporta: string;
-  coordenadas: Coordenada[];
+  coordenadasClave: CoordenadaClave[];
+  planDeAccion: PlanDeAccion;
 };
 
 type Reporte = {
@@ -37,7 +34,7 @@ interface ReportSectionProps {
   isLoading: boolean;
 }
 
-// --- COMPONENTES DE UI v7.0 (INDESTRUCTIBLES) ---
+// --- COMPONENTES DE UI v8.0 (v2.2) ---
 
 const Tooltip: React.FC<{ text: string; children: React.ReactNode }> = ({ text, children }) => (
   <div className="relative group inline-block">
@@ -48,61 +45,50 @@ const Tooltip: React.FC<{ text: string; children: React.ReactNode }> = ({ text, 
   </div>
 );
 
-const PlanAccordion: React.FC<{ plan: Plan }> = ({ plan }) => {
+const CoordenadaClaveGauge: React.FC<{ coordenada: CoordenadaClave }> = ({ coordenada }) => (
+    <div className="bg-slate-800/50 border border-slate-700 rounded-lg p-4 flex flex-col justify-between text-center h-full">
+        <p className="text-slate-300 text-sm font-medium h-1/2">{coordenada.titulo}</p>
+        <div className="mt-2">
+            <span className="text-3xl font-bold text-cyan-400">{coordenada.score}</span>
+            <span className="text-sm text-slate-500">/100</span>
+        </div>
+    </div>
+);
+
+const AccionAccordion: React.FC<{ titulo: string; pasos: string[]; icon: React.ReactNode }> = ({ titulo, pasos, icon }) => {
   const [isOpen, setIsOpen] = useState(false);
+  if (!pasos || pasos.length === 0) return null;
+
   return (
     <div className="bg-slate-900/70 rounded-md mb-3">
       <button onClick={() => setIsOpen(!isOpen)} className="w-full flex justify-between items-center p-3 hover:bg-slate-800/60 transition-colors">
-        <span className="font-bold text-white">{plan.titulo}</span>
+        <div className="flex items-center">
+            {icon}
+            <span className="font-bold text-white ml-3">{titulo}</span>
+        </div>
         <motion.div animate={{ rotate: isOpen ? 180 : 0 }}><ChevronDown size={20} className="text-slate-400" /></motion.div>
       </button>
       <AnimatePresence>
         {isOpen && (
-          <motion.div
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: 'auto', opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            className="overflow-hidden"
-          >
+          <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden">
             <ul className="list-disc list-inside p-4 pl-6 text-slate-300 text-sm space-y-2">
-              {/* GUARDA DE SEGURIDAD */}
-              {plan.pasos && plan.pasos.map((paso, i) => <li key={i}>{paso}</li>)}
+              {pasos.map((paso, i) => <li key={i}>{paso}</li>)}
             </ul>
           </motion.div>
         )}
       </AnimatePresence>
     </div>
-  )
-}
-
-const CoordenadaCard: React.FC<{ coordenada: Coordenada }> = ({ coordenada }) => {
-  return (
-    <div className="bg-slate-800/50 border border-slate-700 rounded-lg p-5 mb-6">
-      <div className="flex justify-between items-start mb-4">
-        <h4 className="text-xl font-bold text-white">{coordenada.titulo}</h4>
-        <span className="text-2xl font-bold text-cyan-400">{coordenada.score}/100</span>
-      </div>
-      <div className="space-y-4 text-slate-300">
-        {coordenada.diagnostico && <div className="bg-sky-900/30 p-3 rounded-md">
-          <p className="font-semibold text-slate-200 mb-1">Diagnóstico</p>
-          <p className="text-sm">{coordenada.diagnostico}</p>
-        </div>}
-        
-        {/* GUARDA DE SEGURIDAD */}
-        {coordenada.planDeAccion && coordenada.planDeAccion.length > 0 ? (
-          <div>
-            <p className="font-semibold text-slate-200 mt-4 mb-2">Plan de Acción Sugerido</p>
-            {coordenada.planDeAccion.map((plan, i) => <PlanAccordion key={i} plan={plan} />)}
-          </div>
-        ) : (
-            <div className="mt-4 p-3 bg-amber-900/30 rounded-md text-amber-300 text-sm">
-                <p className="font-semibold">Plan de Acción no disponible</p>
-            </div>
-        )}
-      </div>
-    </div>
   );
 };
+
+const PilarPlanDeAccion: React.FC<{ plan: PlanDeAccion }> = ({ plan }) => (
+    <div className="mt-6">
+        <h4 className="text-lg font-bold text-white mb-4">Plan de Acción Unificado</h4>
+        <AccionAccordion titulo="Lo Hago Yo" pasos={plan.loHagoYo} icon={<Target className="text-cyan-400" />} />
+        <AccionAccordion titulo="Lo Hace Kapi con mi Equipo" pasos={plan.loHaceKapiConMiEquipo} icon={<Users className="text-cyan-400" />} />
+        <AccionAccordion titulo="Lo Hace Kapi" pasos={plan.loHaceKapi} icon={<Zap className="text-cyan-400" />} />
+    </div>
+);
 
 const PilarAccordion: React.FC<{ pilar: Pilar }> = ({ pilar }) => {
   const [isOpen, setIsOpen] = useState(true);
@@ -136,11 +122,16 @@ const PilarAccordion: React.FC<{ pilar: Pilar }> = ({ pilar }) => {
                 <p className="font-semibold text-slate-200 mb-1">¿Qué es?</p>
                 <p className="text-slate-300 text-sm">{pilar.queEs}</p>
               </div>}
-              <h4 className="text-lg font-bold text-white mb-3">Coordenadas Clave</h4>
-              {/* GUARDA DE SEGURIDAD */}
-              {pilar.coordenadas && pilar.coordenadas.map((coord, i) => (
-                <CoordenadaCard key={coord.id || `coord-${i}`} coordenada={coord} />
-              ))}
+              
+              <h4 className="text-lg font-bold text-white mb-4">Coordenadas Clave</h4>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                {pilar.coordenadasClave && pilar.coordenadasClave.map((coord, i) => (
+                  <CoordenadaClaveGauge key={i} coordenada={coord} />
+                ))}
+              </div>
+
+              {pilar.planDeAccion && <PilarPlanDeAccion plan={pilar.planDeAccion} />}
+
             </div>
           </motion.div>
         )}

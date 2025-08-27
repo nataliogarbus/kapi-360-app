@@ -14,10 +14,31 @@ import NewsletterSection from "@/components/NewsletterSection";
 import ContactForm from "@/components/ContactForm";
 import HeroSection from "@/components/HeroSection";
 
-interface Reporte {
+type CoordenadaClave = {
+  titulo: string;
+  score: number;
+};
+
+type PlanDeAccion = {
+  loHagoYo: string[];
+  loHaceKapiConMiEquipo: string[];
+  loHaceKapi: string[];
+};
+
+type Pilar = {
+  id: string;
+  titulo: string;
+  score: number;
+  queEs: string;
+  porQueImporta: string;
+  coordenadasClave: CoordenadaClave[];
+  planDeAccion: PlanDeAccion;
+};
+
+type Reporte = {
   puntajeGeneral: number;
-  pilares: any[];
-}
+  pilares: Pilar[];
+};
 
 const mergeWithStructure = (aiResponse: any): Reporte => {
   if (!aiResponse || !Array.isArray(aiResponse.pilares)) {
@@ -29,12 +50,15 @@ const mergeWithStructure = (aiResponse: any): Reporte => {
             score: 0,
             queEs: "Información no disponible.",
             porQueImporta: "Información no disponible.",
-            coordenadas: pilarTemplate.coordenadas.map(coordTemplate => ({
+            coordenadasClave: pilarTemplate.coordenadasClave.map(coordTemplate => ({
                 ...coordTemplate,
                 score: 0,
-                diagnostico: "Análisis no disponible.",
-                planDeAccion: [],
-            }))
+            })),
+            planDeAccion: {
+                loHagoYo: [],
+                loHaceKapiConMiEquipo: [],
+                loHaceKapi: [],
+            }
         }))
     };
   }
@@ -42,23 +66,41 @@ const mergeWithStructure = (aiResponse: any): Reporte => {
   const finalReport: Reporte = {
     puntajeGeneral: aiResponse.puntajeGeneral || 0,
     pilares: REPORT_STRUCTURE.pilares.map(pilarTemplate => {
-      const aiPilar = aiResponse.pilares.find((p: any) => p.id === pilarTemplate.id || p.titulo === pilarTemplate.titulo);
+      const aiPilar = aiResponse.pilares.find((p: any) => p.id === pilarTemplate.id);
+
+      if (!aiPilar) {
+        return {
+            ...pilarTemplate,
+            score: 0,
+            queEs: "Información no generada.",
+            porQueImporta: "Información no generada.",
+             coordenadasClave: pilarTemplate.coordenadasClave.map(coordTemplate => ({
+                ...coordTemplate,
+                score: 0,
+            })),
+            planDeAccion: {
+                loHagoYo: [],
+                loHaceKapiConMiEquipo: [],
+                loHaceKapi: [],
+            }
+        };
+      }
+
       const pilarResult = {
         ...pilarTemplate,
-        score: 0,
-        queEs: "Información no proporcionada.",
-        porQueImporta: "Información no proporcionada.",
         ...aiPilar,
-        coordenadas: pilarTemplate.coordenadas.map(coordTemplate => {
-          const aiCoordenada = aiPilar?.coordenadas?.find((c: any) => c.id === coordTemplate.id || c.titulo === coordTemplate.titulo);
+        coordenadasClave: pilarTemplate.coordenadasClave.map(coordTemplate => {
+          const aiCoordenada = aiPilar.coordenadasClave?.find((c: any) => c.titulo === coordTemplate.titulo);
           return {
             ...coordTemplate,
-            score: 0,
-            diagnostico: "Análisis no disponible.",
-            planDeAccion: [],
-            ...aiCoordenada,
+            score: aiCoordenada?.score || 0,
           };
-        })
+        }),
+        planDeAccion: {
+          loHagoYo: aiPilar.planDeAccion?.loHagoYo || [],
+          loHaceKapiConMiEquipo: aiPilar.planDeAccion?.loHaceKapiConMiEquipo || [],
+          loHaceKapi: aiPilar.planDeAccion?.loHaceKapi || [],
+        }
       };
       return pilarResult;
     })
