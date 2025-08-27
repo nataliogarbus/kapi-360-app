@@ -111,7 +111,8 @@ const createGenerativePrompt = (url: string | undefined, pageSpeedScore: number 
 2.  **FORMATO:** Tu única salida debe ser un bloque de código JSON válido...
 3.  **COMPLETITUD:** DEBES rellenar TODOS los campos...
 4.  **PROHIBIDO SER GENÉRICO:** Queda estrictamente prohibido usar frases vagas...
-5.  **PUNTUACIONES REALISTAS:** Asigna un 'score' entre 0 y 100 basado en los datos. No dejes todo en 0.`;
+5.  **PUNTUACIONES REALISTAS:** Asigna un 'score' entre 0 y 100 basado en los datos. No dejes todo en 0.
+6.  **MANEJO DE DATOS FALTANTES:** Si los datos de PageSpeed o Apollo no están disponibles, indícalo claramente en el diagnóstico de la coordenada correspondiente (ej: "No se pudieron obtener los datos de PageSpeed para un análisis completo.") y asigna un 'score' de -1 para indicar que no es aplicable. En esos casos, basa tu análisis únicamente en el contenido del sitio web.`;
 
     return `${promptContext}\n\n---\n\n${goldenExample}\n\n---\n\n${task}\n\n${jsonStructure}\n\n---\n\n${personaAndRules}`;
 };
