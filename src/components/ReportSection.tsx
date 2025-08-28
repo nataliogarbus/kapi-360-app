@@ -1,72 +1,9 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Target, Users, Zap } from 'lucide-react';
-import { CircularProgressbar, buildStyles } from 'react-circular-progressbar';
-import 'react-circular-progressbar/dist/styles.css';
-
-// --- INTERFACES DE DATOS v9.0 ---
-type CoordenadaClave = {
-  titulo: string;
-  score: number;
-};
-
-type PlanDeAccion = {
-  loHagoYo: string[];
-  loHaceKapiConMiEquipo: string[];
-  loHaceKapi: string[];
-};
-
-type Pilar = {
-  id: string;
-  titulo: string;
-  score: number;
-  queEs: string;
-  porQueImporta: string;
-  coordenadasClave: CoordenadaClave[];
-  planDeAccion: PlanDeAccion;
-};
-
-type Reporte = {
-  puntajeGeneral: number;
-  pilares: Pilar[];
-};
-
-interface ReportSectionProps {
-  report: Reporte | null;
-  isLoading: boolean;
-}
-
-// --- COMPONENTES DE UI v13.0 (Diseño con Librería) ---
-
-const getPathColor = (score: number) => {
-  if (score < 40) return '#f87171'; // red-400
-  if (score < 70) return '#facc15'; // yellow-400
-  return '#22d3ee'; // cyan-400
-};
-
-const ScoreGauge: React.FC<{ score: number; size?: 'large' | 'small' }> = ({ score, size = 'small' }) => {
-  const color = getPathColor(score);
-  const dimension = size === 'large' ? 'w-48 h-48' : 'w-32 h-32';
-  const textSize = size === 'large' ? 'text-5xl' : 'text-3xl';
-
-  return (
-    <div className={`relative ${dimension}`}>
-      <CircularProgressbar
-        value={score}
-        strokeWidth={8}
-        styles={buildStyles({
-          pathColor: color,
-          trailColor: '#374151', // gray-700
-          pathTransitionDuration: 1.5,
-          pathTransition: 'stroke-dashoffset 1.5s ease-out',
-        })}
-      />
-      <div className="absolute inset-0 flex items-center justify-center">
-        <span className={`${textSize} font-bold text-white`}>{score}</span>
-      </div>
-    </div>
-  );
-};
+import { ReportSectionProps } from '@/app/types';
+import { ScoreGauge } from './ScoreGauge';
+import PilarCard from './PilarCard';
 
 const ActionPlanCard: React.FC<{ titulo: string; pasos: string[]; icon: React.ReactNode }> = ({ titulo, pasos, icon }) => (
   <div className="bg-slate-800/50 border border-slate-700 rounded-lg p-6 h-full">
@@ -91,11 +28,11 @@ const ReportSection: React.FC<ReportSectionProps> = ({ report, isLoading }) => {
         <div className="animate-pulse">
           <div className="h-48 bg-slate-800 rounded-full mx-auto w-48 mb-8"></div>
           <div className="h-10 bg-slate-800 rounded-lg w-3/4 mx-auto mb-12"></div>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-12">
-            <div className="h-32 bg-slate-800 rounded-full mx-auto w-32"></div>
-            <div className="h-32 bg-slate-800 rounded-full mx-auto w-32"></div>
-            <div className="h-32 bg-slate-800 rounded-full mx-auto w-32"></div>
-            <div className="h-32 bg-slate-800 rounded-full mx-auto w-32"></div>
+          <div className="grid grid-cols-1 gap-4 mb-12">
+            <div className="h-24 bg-slate-800 rounded-xl w-full"></div>
+            <div className="h-24 bg-slate-800 rounded-xl w-full"></div>
+            <div className="h-24 bg-slate-800 rounded-xl w-full"></div>
+            <div className="h-24 bg-slate-800 rounded-xl w-full"></div>
           </div>
           <div className="h-64 bg-slate-800 rounded-xl"></div>
         </div>
@@ -110,7 +47,7 @@ const ReportSection: React.FC<ReportSectionProps> = ({ report, isLoading }) => {
   return (
     <motion.section 
       id="report-section" 
-      className="mt-10 w-full max-w-5xl mx-auto px-4 flex flex-col items-center"
+      className="mt-10 w-full max-w-6xl mx-auto px-4 flex flex-col items-center"
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.8 }}
@@ -120,15 +57,12 @@ const ReportSection: React.FC<ReportSectionProps> = ({ report, isLoading }) => {
       <ScoreGauge score={report.puntajeGeneral} size="large" />
       
       <p className="text-center text-slate-400 mt-8 max-w-2xl">
-        Este es el resumen de tu presencia digital. El puntaje general se compone de cuatro pilares clave, cada uno con su propia evaluación.
+        Este es el resumen de tu presencia digital. El puntaje general se compone de cuatro pilares clave. Haz clic en cada uno para expandir y ver el detalle.
       </p>
 
-      <div className="w-full grid grid-cols-2 md:grid-cols-4 gap-8 my-12">
+      <div className="w-full flex flex-col items-center gap-4 my-12">
         {report.pilares.map(pilar => (
-          <div key={pilar.id} className="flex flex-col items-center text-center">
-            <ScoreGauge score={pilar.score} />
-            <h3 className="font-bold text-white mt-4 text-md">{pilar.titulo}</h3>
-          </div>
+          <PilarCard key={pilar.id} pilar={pilar} />
         ))}
       </div>
 
