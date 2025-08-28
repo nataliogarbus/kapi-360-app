@@ -4,7 +4,12 @@ import { Target, Users, Zap } from 'lucide-react';
 import { CircularProgressbar, buildStyles } from 'react-circular-progressbar';
 import 'react-circular-progressbar/dist/styles.css';
 
-// --- INTERFACES DE DATOS v8.0 ---
+// --- INTERFACES DE DATOS v9.0 ---
+type CoordenadaClave = {
+  titulo: string;
+  score: number;
+};
+
 type PlanDeAccion = {
   loHagoYo: string[];
   loHaceKapiConMiEquipo: string[];
@@ -15,6 +20,9 @@ type Pilar = {
   id: string;
   titulo: string;
   score: number;
+  queEs: string;
+  porQueImporta: string;
+  coordenadasClave: CoordenadaClave[];
   planDeAccion: PlanDeAccion;
 };
 
@@ -50,6 +58,7 @@ const ScoreGauge: React.FC<{ score: number; size?: 'large' | 'small' }> = ({ sco
           pathColor: color,
           trailColor: '#374151', // gray-700
           pathTransitionDuration: 1.5,
+          pathTransition: 'stroke-dashoffset 1.5s ease-out',
         })}
       />
       <div className="absolute inset-0 flex items-center justify-center">
@@ -141,7 +150,7 @@ const ReportSection: React.FC<ReportSectionProps> = ({ report, isLoading }) => {
           icon={<Target className="text-cyan-400" />}
         />
       </div>
-    </section>
+    </motion.section>
   );
 };
 
