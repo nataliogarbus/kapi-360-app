@@ -37,6 +37,7 @@ const itemVariants = {
 };
 
 const ReportSection: React.FC<ReportSectionProps> = ({ report, isLoading }) => {
+  console.log("--- RENDERING [ReportSection] ---");
   if (isLoading) {
     return (
       <section className="mt-10 w-full max-w-5xl mx-auto px-4 text-center">
