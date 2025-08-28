@@ -3,24 +3,31 @@ import { CoordenadaClave } from '@/app/types';
 import { Info } from 'lucide-react';
 import { Tooltip } from 'react-tooltip';
 
-// Datos de las explicaciones (solución rápida para MVP)
+// Definiciones completas y finales para las coordenadas preestablecidas
 const coordenadaExplicaciones: { [key: string]: string } = {
-  "Análisis de Competencia": "Evaluamos la fuerza y estrategia de tus competidores directos en el entorno digital.",
-  "Público Objetivo": "Analizamos si tu mensaje y tu plataforma están correctamente dirigidos a tu cliente ideal.",
-  "Propuesta de Valor": "Revisamos la claridad y el atractivo de tu oferta principal frente a la competencia.",
-  "Posicionamiento de Marca": "Medimos la percepción y visibilidad de tu marca en el mercado digital.",
-  "Rendimiento Web (Core Web Vitals)": "Analizamos la velocidad de carga y la estabilidad visual de tu sitio, factores clave para Google.",
-  "Experiencia de Usuario (UX/UI)": "Evaluamos lo fácil e intuitivo que es para un usuario navegar y encontrar lo que busca en tu web.",
-  "Accesibilidad (WCAG)": "Revisamos si tu web puede ser utilizada por personas con distintas capacidades, ampliando tu alcance.",
-  "Seguridad del Frontend (HTTPS)": "Verificamos que tu sitio sea seguro para los usuarios, un factor de confianza y posicionamiento.",
-  "Calidad del Contenido": "Analizamos si tu contenido responde a las necesidades de tu audiencia y demuestra tu experiencia.",
-  "Estrategia de Redes Sociales": "Evaluamos si estás utilizando las plataformas sociales adecuadas para llegar a tu público y cumplir tus objetivos.",
-  "SEO de Contenidos (Palabras Clave)": "Revisamos si tu contenido está optimizado para que los motores de búsqueda lo encuentren.",
-  "Email Marketing y Automatización": "Analizamos cómo utilizas el email para nutrir a tus prospectos y fidelizar a tus clientes.",
-  "Estrategia de Captación (Funnels)": "Evaluamos tus embudos de venta y cómo conviertes visitantes en clientes.",
-  "Uso de Analítica y Datos": "Revisamos si estás midiendo tus acciones de marketing para tomar decisiones informadas.",
-  "Integración de IA para Eficiencia": "Analizamos si estás usando herramientas de IA para automatizar tareas y mejorar tu productividad.",
-  "Personalización de la Experiencia": "Evaluamos si estás utilizando los datos para ofrecer experiencias personalizadas a tus usuarios."
+  // Mercado y Competencia
+  "Penetración de Mercado": "Mide tu visibilidad y cuota de participación actual frente a tus competidores directos.",
+  "Diferenciación Competitiva": "Evalúa qué tan única y atractiva es tu propuesta de valor comparada con la de otras opciones en el mercado.",
+  "Análisis de Precios y Ofertas": "Compara tus precios, descuentos y condiciones comerciales con los de la competencia para medir tu atractivo.",
+  "Reputación Online y Reseñas": "Mide la percepción pública de tu marca a través de comentarios, reseñas y valoraciones de usuarios.",
+
+  // Plataforma y UX
+  "Rendimiento Web (Core Web Vitals)": "Analiza la velocidad de carga, interactividad y estabilidad visual de tu página, factores clave para Google y la experiencia de usuario.",
+  "Experiencia de Usuario (UX/UI)": "Evalúa la facilidad, intuición y agrado con que los usuarios pueden navegar e interactuar con tu sitio web.",
+  "Accesibilidad (WCAG)": "Comprueba si tu web es usable por personas con diversas capacidades (visuales, auditivas, motoras), ampliando tu audiencia potencial.",
+  "Seguridad del Frontend (HTTPS)": "Verifica que la conexión a tu sitio sea segura (use candado HTTPS) para proteger los datos de tus usuarios y generar confianza.",
+
+  // Contenido y Autoridad
+  "Estrategia de Contenidos y SEO": "Mide si tu contenido está bien posicionado en buscadores y si responde a las preguntas que tus clientes se hacen.",
+  "Engagement en Redes Sociales": "Evalúa el nivel de interacción (likes, comentarios, compartidos) que tu marca genera en plataformas sociales.",
+  "Calidad y Relevancia del Contenido": "Analiza si la información que publicas es valiosa, útil y de alta calidad para tu público objetivo.",
+  "Autoridad de Dominio (Backlinks)": "Mide la popularidad y confianza de tu web en base a la cantidad y calidad de enlaces que recibe desde otras páginas.",
+
+  // Crecimiento y Adquisición
+  "Generación de Leads": "Evalúa tu capacidad para capturar datos de contacto de potenciales clientes a través de formularios, suscripciones, etc.",
+  "Análisis de Datos y Funnels": "Mide si estás utilizando herramientas de analítica para entender el comportamiento de tus usuarios y optimizar tus embudos de venta.",
+  "Estrategia de Email Marketing": "Analiza cómo usas el correo electrónico para comunicarte, nutrir prospectos y fidelizar clientes existentes.",
+  "Uso de Publicidad Paga (SEM)": "Evalúa si estás invirtiendo en publicidad online (Google Ads, Social Ads) y el retorno de dicha inversión."
 };
 
 const getPathColor = (score: number) => {
@@ -31,7 +38,7 @@ const getPathColor = (score: number) => {
 
 const CoordenadaGauge: React.FC<{ coordenada: CoordenadaClave }> = ({ coordenada }) => {
   const color = getPathColor(coordenada.score);
-  const explicacion = coordenadaExplicaciones[coordenada.titulo] || "Explicación no disponible.";
+  const explicacion = coordenadaExplicaciones[coordenada.titulo] || "Esta es una coordenada personalizada generada por la IA.";
 
   return (
     <div className="flex items-center justify-between bg-slate-900/50 p-3 rounded-lg">
@@ -54,7 +61,7 @@ const CoordenadaGauge: React.FC<{ coordenada: CoordenadaClave }> = ({ coordenada
           ></div>
         </div>
       </div>
-      <Tooltip id="coordenada-tooltip" className="max-w-xs" />
+      <Tooltip id="coordenada-tooltip" className="max-w-xs z-50" />
     </div>
   );
 };
