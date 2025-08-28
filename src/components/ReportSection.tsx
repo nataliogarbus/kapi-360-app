@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { HelpCircle, ChevronDown, Target, Users, Zap, ChevronsRight } from 'lucide-react';
 
-// --- INTERFACES DE DATOS v7.2 ---
+// --- INTERFACES DE DATOS v7.3 ---
 type CoordenadaClave = {
   titulo: string;
   score: number;
@@ -34,7 +34,7 @@ interface ReportSectionProps {
   isLoading: boolean;
 }
 
-// --- COMPONENTES DE UI v10.0 (Diseño Compuesto) ---
+// --- COMPONENTES DE UI v11.0 (Diseño Final Pulido) ---
 
 const Tooltip: React.FC<{ text: string; children: React.ReactNode }> = ({ text, children }) => (
   <div className="relative group">
@@ -60,20 +60,24 @@ const describeArc = (x: number, y: number, radius: number, startAngle: number, e
 
 const CompositeScoreGauge: React.FC<{ pilares: Pilar[], puntajeGeneral: number }> = ({ pilares, puntajeGeneral }) => {
   const radius = 50;
-  const totalScore = pilares.reduce((sum, p) => sum + p.score, 0);
-  let startAngle = -Math.PI / 2;
+  const circumference = 2 * Math.PI * radius;
+  const totalPillarScore = pilares.reduce((sum, p) => sum + p.score, 0);
+  let accumulatedAngle = -Math.PI / 2;
 
   return (
-    <div className="relative w-48 h-48">
+    <div className="relative w-48 h-48 cursor-default">
       <svg className="w-full h-full" viewBox="0 0 120 120">
         <circle className="text-slate-700" strokeWidth="12" stroke="currentColor" fill="transparent" r={radius} cx="60" cy="60" />
-        {
-          pilares.map(pilar => {
-            const angle = (pilar.score / totalScore) * 2 * Math.PI;
-            const endAngle = startAngle + angle;
+        <g>
+          {pilares.map(pilar => {
+            const scoreRatio = pilar.score / (totalPillarScore || 1);
+            const arcAngle = scoreRatio * 2 * Math.PI;
+            const startAngle = accumulatedAngle;
+            const endAngle = startAngle + arcAngle;
+            accumulatedAngle = endAngle;
+
             const pathData = describeArc(60, 60, radius, startAngle, endAngle);
-            const currentAngle = startAngle;
-            startAngle = endAngle;
+            const pathLength = (arcAngle / (2 * Math.PI)) * circumference;
 
             return (
               <Tooltip key={pilar.id} text={`${pilar.titulo}: ${pilar.score}`}>
@@ -81,15 +85,16 @@ const CompositeScoreGauge: React.FC<{ pilares: Pilar[], puntajeGeneral: number }
                   d={pathData}
                   stroke={getPathColor(pilar.score)}
                   strokeWidth="12"
+                  strokeLinecap="butt"
                   fill="none"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: 0.5, duration: 0.5 }}
+                  initial={{ strokeDasharray: `${pathLength} ${circumference}` , strokeDashoffset: pathLength }}
+                  animate={{ strokeDashoffset: 0 }}
+                  transition={{ duration: 1, ease: "easeOut", delay: 0.5 }}
                 />
               </Tooltip>
             );
-          })
-        }
+          })}
+        </g>
         <text x="50%" y="50%" dy=".3em" textAnchor="middle" className="text-4xl font-bold text-white">{puntajeGeneral}</text>
       </svg>
     </div>
@@ -99,16 +104,12 @@ const CompositeScoreGauge: React.FC<{ pilares: Pilar[], puntajeGeneral: number }
 const GeneralActionPlan: React.FC<{ pilares: Pilar[], onSeeDetails: () => void }> = ({ pilares, onSeeDetails }) => {
   const getActionSteps = (actionType: keyof PlanDeAccion) => {
     return pilares
-      .map(pilar => ({
-        step: pilar.planDeAccion[actionType]?.[0],
-        pilar: pilar.titulo
-      }))
+      .map(pilar => ({ step: pilar.planDeAccion[actionType]?.[0], pilar: pilar.titulo }))
       .filter(item => item.step);
   }
 
   return (
-    <div className="w-full max-w-4xl mt-12">
-      <h3 className="text-2xl font-bold text-white text-center mb-6">Plan de Acción General</h3>
+    <div className="w-full max-w-4xl mt-6">
       <div className="grid md:grid-cols-3 gap-8">
         <div>
           <div className="flex items-center mb-4"><Target className="text-cyan-400 mr-3" size={20}/><h4 className="font-bold text-lg text-white">Lo Hago Yo</h4></div>
@@ -132,9 +133,8 @@ const GeneralActionPlan: React.FC<{ pilares: Pilar[], onSeeDetails: () => void }
   )
 }
 
-const DetailedActionPlans: React.FC<{ pilares: Pilar[], onGoBack: () => void }> = ({ pilares, onGoBack }) => (
-  <div className="w-full max-w-4xl mt-12">
-     <button onClick={onGoBack} className="text-cyan-400 font-semibold hover:text-cyan-300 transition-colors mb-6">← Volver al Resumen</button>
+const DetailedActionPlans: React.FC<{ pilares: Pilar[] }> = ({ pilares }) => (
+  <div className="w-full max-w-4xl mt-6">
      {pilares.map(pilar => (
         <div key={pilar.id} className="mb-8">
           <h3 className="text-xl font-bold text-white mb-4">{pilar.titulo}</h3>
@@ -151,15 +151,55 @@ const DetailedActionPlans: React.FC<{ pilares: Pilar[], onGoBack: () => void }> 
   </div>
 )
 
-const ReportSection: React.FC<ReportSectionProps> = ({ report, isLoading }) => {
+const ActionPlanWrapper: React.FC<{ report: Reporte }> = ({ report }) => {
+  const [isPlanOpen, setPlanOpen] = useState(false);
   const [view, setView] = useState('summary'); // 'summary' or 'details'
 
+  return (
+    <div className="w-full max-w-4xl mt-8">
+      <div className="bg-slate-800/50 border border-slate-700 rounded-lg p-4 flex justify-between items-center cursor-pointer" onClick={() => setPlanOpen(!isPlanOpen)}>
+        <h3 className="text-xl font-bold text-white">Ver Plan de Acción Recomendado</h3>
+        <motion.div animate={{ rotate: isPlanOpen ? 180 : 0 }}><ChevronDown size={24} className="text-slate-400" /></motion.div>
+      </div>
+      <AnimatePresence>
+        {isPlanOpen && (
+          <motion.div
+            className="mt-4"
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: 'auto', opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+          >
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={view}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                transition={{ duration: 0.3 }}
+              >
+                {view === 'summary' ? (
+                  <GeneralActionPlan pilares={report.pilares} onSeeDetails={() => setView('details')} />
+                ) : (
+                  <DetailedActionPlans pilares={report.pilares} />
+                )}
+              </motion.div>
+            </AnimatePresence>
+             {view === 'details' && <button onClick={() => setView('summary')} className="text-cyan-400 font-semibold hover:text-cyan-300 transition-colors mt-6">← Volver al Resumen</button>}
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  )
+}
+
+const ReportSection: React.FC<ReportSectionProps> = ({ report, isLoading }) => {
   if (isLoading) {
     return (
       <section className="mt-10 w-full max-w-4xl mx-auto px-4 text-center">
         <div className="animate-pulse">
           <div className="h-48 bg-slate-800 rounded-full mx-auto w-48 mb-8"></div>
-          <div className="h-32 bg-slate-800 rounded-xl"></div>
+          <div className="h-10 bg-slate-800 rounded-lg w-3/4 mx-auto"></div>
+          <div className="h-16 bg-slate-800 rounded-lg mt-8"></div>
         </div>
       </section>
     );
@@ -174,22 +214,10 @@ const ReportSection: React.FC<ReportSectionProps> = ({ report, isLoading }) => {
       <h2 className="text-4xl sm:text-5xl font-extrabold mb-4 text-white text-center">Informe Estratégico</h2>
       <p className="text-slate-400 mb-6 text-center">Puntaje General de Madurez Digital</p>
       <CompositeScoreGauge pilares={report.pilares} puntajeGeneral={report.puntajeGeneral} />
-
-      <AnimatePresence mode="wait">
-        <motion.div
-          key={view}
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -20 }}
-          transition={{ duration: 0.3 }}
-        >
-          {view === 'summary' ? (
-            <GeneralActionPlan pilares={report.pilares} onSeeDetails={() => setView('details')} />
-          ) : (
-            <DetailedActionPlans pilares={report.pilares} onGoBack={() => setView('summary')} />
-          )}
-        </motion.div>
-      </AnimatePresence>
+      <p className="text-center text-slate-400 mt-6 max-w-2xl">
+        Este es el resumen de tu presencia digital. Cada color en la rueda representa un pilar clave de tu negocio. Pasa el cursor sobre ellos para ver su puntaje y expande el plan de acción para descubrir los siguientes pasos.
+      </p>
+      <ActionPlanWrapper report={report} />
     </section>
   );
 };
