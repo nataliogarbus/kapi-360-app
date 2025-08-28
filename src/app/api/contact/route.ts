@@ -44,7 +44,10 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ message: 'Correo enviado con éxito' }, { status: 200 });
   } catch (error: any) {
-    console.error('Error al enviar el correo:', error);
-    return NextResponse.json({ error: error.message || 'Error interno del servidor al enviar el correo' }, { status: 500 });
+    console.error('Error detallado al enviar el correo:', JSON.stringify(error, null, 2));
+    return NextResponse.json({ 
+      error: 'Error interno del servidor al enviar el correo',
+      details: error.message 
+    }, { status: 500 });
   }
 }
