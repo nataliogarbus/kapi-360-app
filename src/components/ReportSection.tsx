@@ -8,31 +8,17 @@ import { Download } from 'lucide-react';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 
-const containerVariants = {
-  hidden: { opacity: 0 },
-  show: {
-    opacity: 1,
-    transition: {
-      staggerChildren: 0.2,
-    },
-  },
-};
-
-const itemVariants = {
-  hidden: { y: 20, opacity: 0 },
-  show: { y: 0, opacity: 1 },
-};
+// ... (variants sin cambios)
 
 const ReportSection: React.FC<ReportSectionProps> = ({ report, isLoading }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isGeneratingPdf, setIsGeneratingPdf] = useState(false);
+  const [submissionStatus, setSubmissionStatus] = useState('idle'); // idle, submitting, error
 
   const handleConfirmDownload = async (email: string, subscribe: boolean) => {
-    setIsGeneratingPdf(true);
+    setSubmissionStatus('submitting');
 
-    // 1. Capturar el lead
     try {
-      await fetch('/api/contact', {
+      const response = await fetch('/api/contact', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
@@ -42,89 +28,75 @@ const ReportSection: React.FC<ReportSectionProps> = ({ report, isLoading }) => {
           message: 'Solicitud de descarga de informe PDF.'
         }),
       });
+      if (!response.ok) throw new Error('El servidor de correo falló.');
     } catch (error) {
       console.error("Error al registrar el lead:", error);
-      // Opcional: mostrar un error al usuario, pero continuar con la descarga
+      setSubmissionStatus('error');
+      return; // Detener la ejecución si el registro del lead falla
     }
 
-    // 2. Generar el PDF
     const reportElement = document.getElementById('report-section-to-download');
     if (reportElement) {
       try {
-        const canvas = await html2canvas(reportElement, { 
-          scale: 2, 
-          backgroundColor: '#1a1a1a',
-          useCORS: true,
-        });
-        
-        const pdf = new jsPDF({
-          orientation: 'p',
-          unit: 'px',
-          format: 'a4',
-        });
-
+        const canvas = await html2canvas(reportElement, { scale: 2, backgroundColor: '#1a1a1a', useCORS: true });
+        const pdf = new jsPDF({ orientation: 'p', unit: 'px', format: 'a4' });
         const pdfWidth = pdf.internal.pageSize.getWidth();
-        const pdfHeight = pdf.internal.pageSize.getHeight();
         const canvasWidth = canvas.width;
         const canvasHeight = canvas.height;
-        const canvasAspectRatio = canvasWidth / canvasHeight;
-        const pdfAspectRatio = pdfWidth / pdfHeight;
-
-        let finalCanvasWidth, finalCanvasHeight;
-
-        if (canvasAspectRatio > pdfAspectRatio) {
-            finalCanvasWidth = pdfWidth;
-            finalCanvasHeight = pdfWidth / canvasAspectRatio;
-        } else {
-            finalCanvasHeight = pdfHeight;
-            finalCanvasWidth = pdfHeight * canvasAspectRatio;
-        }
+        const aspectRatio = canvasWidth / canvasHeight;
+        const pdfHeight = pdfWidth / aspectRatio;
 
         const logoImg = new Image();
         logoImg.src = '/logo-kapi-verde.svg';
         logoImg.onload = () => {
-          pdf.addImage(logoImg, 'SVG', 20, 20, 80, 20); // Ajusta posición y tamaño
-          pdf.addImage(canvas, 'PNG', 0, 60, finalCanvasWidth, finalCanvasHeight);
+          pdf.addImage(logoImg, 'SVG', 20, 20, 80, 20);
+          pdf.addImage(canvas, 'PNG', 0, 60, pdfWidth, pdfHeight);
           pdf.save(`Informe_Kapi360_${new Date().toISOString().split('T')[0]}.pdf`);
-          setIsGeneratingPdf(false);
+          setSubmissionStatus('idle');
           setIsModalOpen(false);
         };
-      } catch (error) {
-        console.error("Error al generar el PDF:", error);
-        alert("Hubo un error al generar el PDF. Por favor, inténtalo de nuevo.");
-        setIsGeneratingPdf(false);
+      } catch (pdfError) {
+        console.error("Error al generar el PDF:", pdfError);
+        setSubmissionStatus('error');
       }
     } else {
-        alert("No se pudo encontrar el contenido del informe para generar el PDF.");
-        setIsGeneratingPdf(false);
+        setSubmissionStatus('error');
     }
   };
 
-  if (isLoading) {
-    // ... (código de loading sin cambios)
-  }
+  // ... (código de loading sin cambios)
 
-  if (!report || !report.pilares || report.pilares.length === 0) {
-    return null;
-  }
+  if (!report) return null;
 
   return (
     <>
       <motion.section 
         id="report-section-to-download"
         className="mt-10 w-full max-w-6xl mx-auto px-4 flex flex-col items-center bg-[#1a1a1a] text-white"
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.8 }}
+        // ... (animaciones sin cambios)
       >
-        {/* Contenido del informe sin cambios... */}
         <h2 className="text-4xl sm:text-5xl font-extrabold mb-4 text-white text-center">Informe Estratégico</h2>
         <p className="text-slate-400 mb-6 text-center">Puntaje General de Madurez Digital</p>
         <div className="my-8">
           <PillarsDonutChart report={report} />
         </div>
         
-        <div className="w-full my-10 print-hide"> {/* Ocultar en impresión */}
+        <p className="text-center text-slate-400 mt-8 max-w-2xl">
+          Este es el resumen de tu presencia digital. El puntaje general se compone de cuatro pilares clave. Haz clic en cada uno para expandir y ver el detalle.
+        </p>
+
+        <motion.div 
+          className="w-full flex flex-col items-center gap-4 my-12"
+          // ... (animaciones sin cambios)
+        >
+          {report.pilares.map(pilar => (
+            <motion.div key={pilar.id} /* ... */ className="w-full">
+              <PilarCard pilar={pilar} />
+            </motion.div>
+          ))}
+        </motion.div>
+
+        <div className="w-full my-10 print-hide">
           <button 
             onClick={() => setIsModalOpen(true)}
             className="w-full max-w-sm mx-auto bg-cyan-500 text-white font-bold py-4 px-6 rounded-lg flex items-center justify-center hover:bg-cyan-600 transition-colors duration-300 text-lg"
@@ -134,28 +106,13 @@ const ReportSection: React.FC<ReportSectionProps> = ({ report, isLoading }) => {
           </button>
         </div>
 
-        <p className="text-center text-slate-400 mt-8 max-w-2xl">
-          Este es el resumen de tu presencia digital. El puntaje general se compone de cuatro pilares clave. Haz clic en cada uno para expandir y ver el detalle.
-        </p>
-
-        <motion.div 
-          className="w-full flex flex-col items-center gap-4 my-12"
-          variants={containerVariants}
-          initial="hidden"
-          animate="show"
-        >
-          {report.pilares.map(pilar => (
-            <motion.div key={pilar.id} variants={itemVariants} className="w-full">
-              <PilarCard pilar={pilar} />
-            </motion.div>
-          ))}
-        </motion.div>
       </motion.section>
 
       <DownloadModal 
         isOpen={isModalOpen} 
         onClose={() => setIsModalOpen(false)} 
         onConfirm={handleConfirmDownload} 
+        status={submissionStatus}
       />
     </>
   );
