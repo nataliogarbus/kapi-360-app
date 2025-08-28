@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronDown } from 'lucide-react';
+import { ChevronDown, BarChart2, Laptop, Megaphone, BrainCircuit } from 'lucide-react';
 import { Pilar } from '@/app/types';
 import CoordenadaGauge from './CoordenadaGauge';
 import { ScoreGauge } from './ScoreGauge';
@@ -9,8 +9,16 @@ interface PilarCardProps {
   pilar: Pilar;
 }
 
+const pilarIcons: { [key: string]: React.ElementType } = {
+  "Mercado y Competencia": BarChart2,
+  "Plataforma y UX": Laptop,
+  "Contenido y Redes": Megaphone,
+  "Crecimiento e IA": BrainCircuit,
+};
+
 const PilarCard: React.FC<PilarCardProps> = ({ pilar }) => {
   const [isOpen, setIsOpen] = useState(false);
+  const Icon = pilarIcons[pilar.titulo] || BarChart2; // Fallback icon
 
   const cardVariants = {
     closed: { backgroundColor: 'rgba(30, 41, 59, 0.5)' },
@@ -33,6 +41,7 @@ const PilarCard: React.FC<PilarCardProps> = ({ pilar }) => {
     >
       <motion.div layout className="flex justify-between items-center">
         <div className="flex items-center">
+          <Icon className="w-8 h-8 text-cyan-400 mr-4" />
           <ScoreGauge score={pilar.score} size="small" />
           <h3 className="text-xl font-bold text-white ml-6">{pilar.titulo}</h3>
         </div>

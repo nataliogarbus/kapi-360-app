@@ -21,6 +21,21 @@ const ActionPlanCard: React.FC<{ titulo: string; pasos: string[]; icon: React.Re
   </div>
 );
 
+const containerVariants = {
+  hidden: { opacity: 0 },
+  show: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.2,
+    },
+  },
+};
+
+const itemVariants = {
+  hidden: { y: 20, opacity: 0 },
+  show: { y: 0, opacity: 1 },
+};
+
 const ReportSection: React.FC<ReportSectionProps> = ({ report, isLoading }) => {
   if (isLoading) {
     return (
@@ -60,11 +75,18 @@ const ReportSection: React.FC<ReportSectionProps> = ({ report, isLoading }) => {
         Este es el resumen de tu presencia digital. El puntaje general se compone de cuatro pilares clave. Haz clic en cada uno para expandir y ver el detalle.
       </p>
 
-      <div className="w-full flex flex-col items-center gap-4 my-12">
+      <motion.div 
+        className="w-full flex flex-col items-center gap-4 my-12"
+        variants={containerVariants}
+        initial="hidden"
+        animate="show"
+      >
         {report.pilares.map(pilar => (
-          <PilarCard key={pilar.id} pilar={pilar} />
+          <motion.div key={pilar.id} variants={itemVariants} className="w-full">
+            <PilarCard pilar={pilar} />
+          </motion.div>
         ))}
-      </div>
+      </motion.div>
 
       <h3 className="text-2xl font-bold text-white text-center mb-6">Plan de Acción Recomendado</h3>
       <div className="w-full grid md:grid-cols-3 gap-6">
