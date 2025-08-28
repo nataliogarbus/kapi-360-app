@@ -1,25 +1,8 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Target, Users, Zap } from 'lucide-react';
 import { ReportSectionProps } from '@/app/types';
 import { ScoreGauge } from './ScoreGauge';
 import PilarCard from './PilarCard';
-
-const ActionPlanCard: React.FC<{ titulo: string; pasos: string[]; icon: React.ReactNode }> = ({ titulo, pasos, icon }) => (
-  <div className="bg-slate-800/50 border border-slate-700 rounded-lg p-6 h-full">
-    <div className="flex items-center mb-4">
-      {icon}
-      <h4 className="font-bold text-lg text-white ml-3">{titulo}</h4>
-    </div>
-    <ul className="space-y-2 text-slate-300 text-sm">
-      {pasos.length > 0 ? (
-        pasos.map((paso, i) => <li key={i} className="flex items-start"><span className="text-cyan-400 mr-2 mt-1">-</span>{paso}</li>)
-      ) : (
-        <li className="text-slate-500">No hay acciones sugeridas en esta categoría.</li>
-      )}
-    </ul>
-  </div>
-);
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -88,25 +71,6 @@ const ReportSection: React.FC<ReportSectionProps> = ({ report, isLoading }) => {
           </motion.div>
         ))}
       </motion.div>
-
-      <h3 className="text-2xl font-bold text-white text-center mb-6">Plan de Acción Recomendado</h3>
-      <div className="w-full grid md:grid-cols-3 gap-6">
-        <ActionPlanCard 
-          titulo="Lo Hace Kapi"
-          pasos={report.pilares.flatMap(p => p.planDeAccion.loHaceKapi)}
-          icon={<Zap className="text-cyan-400" />}
-        />
-        <ActionPlanCard 
-          titulo="Lo Hace Kapi con mi Equipo"
-          pasos={report.pilares.flatMap(p => p.planDeAccion.loHaceKapiConMiEquipo)}
-          icon={<Users className="text-cyan-400" />}
-        />
-        <ActionPlanCard 
-          titulo="Lo Hago Yo"
-          pasos={report.pilares.flatMap(p => p.planDeAccion.loHagoYo)}
-          icon={<Target className="text-cyan-400" />}
-        />
-      </div>
     </motion.section>
   );
 };
