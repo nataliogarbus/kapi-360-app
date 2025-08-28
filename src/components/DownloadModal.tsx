@@ -6,7 +6,7 @@ interface DownloadModalProps {
   isOpen: boolean;
   onClose: () => void;
   onConfirm: (email: string, subscribe: boolean) => void;
-  status: 'idle' | 'submitting' | 'error';
+  status: 'idle' | 'submitting' | 'generating' | 'error';
 }
 
 const DownloadModal: React.FC<DownloadModalProps> = ({ isOpen, onClose, onConfirm, status }) => {
@@ -33,6 +33,9 @@ const DownloadModal: React.FC<DownloadModalProps> = ({ isOpen, onClose, onConfir
     if (status === 'submitting') {
       return <><Loader2 className="w-5 h-5 mr-3 animate-spin" /> Enviando...</>;
     }
+    if (status === 'generating') {
+      return <><Loader2 className="w-5 h-5 mr-3 animate-spin" /> Generando PDF...</>;
+    }
     if (status === 'error') {
       return 'Reintentar Envío';
     }
@@ -56,7 +59,7 @@ const DownloadModal: React.FC<DownloadModalProps> = ({ isOpen, onClose, onConfir
             className="bg-slate-800 border border-slate-700 rounded-2xl p-8 w-full max-w-md relative"
             onClick={(e) => e.stopPropagation()}
           >
-            <button onClick={onClose} className="absolute top-4 right-4 text-slate-500 hover:text-white disabled:opacity-50" disabled={status === 'submitting'}>
+            <button onClick={onClose} className="absolute top-4 right-4 text-slate-500 hover:text-white disabled:opacity-50" disabled={status === 'submitting' || status === 'generating'}>
               <X />
             </button>
             <h3 className="text-2xl font-bold text-white mb-4">Obtén tu Informe Completo</h3>
@@ -89,7 +92,7 @@ const DownloadModal: React.FC<DownloadModalProps> = ({ isOpen, onClose, onConfir
 
             <button 
               onClick={handleSubmit}
-              disabled={status === 'submitting'}
+              disabled={status === 'submitting' || status === 'generating'}
               className="w-full bg-cyan-500 text-white font-bold py-3 px-4 rounded-md mt-8 hover:bg-cyan-600 transition-colors duration-300 flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {getButtonContent()}
