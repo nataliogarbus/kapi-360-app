@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { CircularProgressbar, buildStyles } from 'react-circular-progressbar';
 import 'react-circular-progressbar/dist/styles.css';
 
@@ -9,14 +9,25 @@ const getPathColor = (score: number) => {
 };
 
 export const ScoreGauge: React.FC<{ score: number; size?: 'large' | 'small' }> = ({ score, size = 'small' }) => {
-  const color = getPathColor(score);
+  const [displayScore, setDisplayScore] = useState(0);
+
+  useEffect(() => {
+    // Pequeño retraso para asegurar que la animación se active al montar
+    const timer = setTimeout(() => {
+      setDisplayScore(score || 0);
+    }, 100);
+
+    return () => clearTimeout(timer);
+  }, [score]);
+
+  const color = getPathColor(displayScore);
   const dimension = size === 'large' ? 'w-48 h-48' : 'w-32 h-32';
   const textSize = size === 'large' ? 'text-5xl' : 'text-3xl';
 
   return (
     <div className={`relative ${dimension}`}>
       <CircularProgressbar
-        value={score}
+        value={displayScore}
         strokeWidth={8}
         styles={buildStyles({
           pathColor: color,
