@@ -4,7 +4,6 @@ import { useState, useEffect } from 'react';
 import Header from "@/components/Header";
 import DiagnosticForm from "@/components/KapiDiagnosticForm";
 import ReportSection from "@/components/ReportSection";
-import { REPORT_STRUCTURE } from '@/app/report-structure';
 import Faq from "@/components/Faq";
 import Footer from "@/components/Footer";
 import ComoFunciona from "@/components/ComoFunciona";
@@ -13,100 +12,8 @@ import CasosExito from "@/components/CasosExito";
 import NewsletterSection from "@/components/NewsletterSection";
 import ContactForm from "@/components/ContactForm";
 import HeroSection from "@/components/HeroSection";
-
-type CoordenadaClave = {
-  titulo: string;
-  score: number;
-};
-
-type PlanDeAccion = {
-  loHagoYo: string[];
-  loHaceKapiConMiEquipo: string[];
-  loHaceKapi: string[];
-};
-
-type Pilar = {
-  id: string;
-  titulo: string;
-  score: number;
-  queEs: string;
-  porQueImporta: string;
-  coordenadasClave: CoordenadaClave[];
-  planDeAccion: PlanDeAccion;
-};
-
-type Reporte = {
-  puntajeGeneral: number;
-  pilares: Pilar[];
-};
-
-const mergeWithStructure = (aiResponse: any): Reporte => {
-  if (!aiResponse || !Array.isArray(aiResponse.pilares)) {
-    console.warn("Respuesta de la IA inválida o sin pilares. Usando estructura por defecto.");
-    return {
-        puntajeGeneral: 0,
-        pilares: REPORT_STRUCTURE.pilares.map(pilarTemplate => ({
-            ...pilarTemplate,
-            score: 0,
-            queEs: "Información no disponible.",
-            porQueImporta: "Información no disponible.",
-            coordenadasClave: pilarTemplate.coordenadasClave.map(coordTemplate => ({
-                ...coordTemplate,
-                score: 0,
-            })),
-            planDeAccion: {
-                loHagoYo: [],
-                loHaceKapiConMiEquipo: [],
-                loHaceKapi: [],
-            }
-        }))
-    };
-  }
-
-  const finalReport: Reporte = {
-    puntajeGeneral: aiResponse.puntajeGeneral || 0,
-    pilares: REPORT_STRUCTURE.pilares.map(pilarTemplate => {
-      const aiPilar = aiResponse.pilares.find((p: any) => p.id === pilarTemplate.id);
-
-      if (!aiPilar) {
-        return {
-            ...pilarTemplate,
-            score: 0,
-            queEs: "Información no generada.",
-            porQueImporta: "Información no generada.",
-             coordenadasClave: pilarTemplate.coordenadasClave.map(coordTemplate => ({
-                ...coordTemplate,
-                score: 0,
-            })),
-            planDeAccion: {
-                loHagoYo: [],
-                loHaceKapiConMiEquipo: [],
-                loHaceKapi: [],
-            }
-        };
-      }
-
-      const pilarResult = {
-        ...pilarTemplate,
-        ...aiPilar,
-        coordenadasClave: pilarTemplate.coordenadasClave.map(coordTemplate => {
-          const aiCoordenada = aiPilar.coordenadasClave?.find((c: any) => c.titulo === coordTemplate.titulo);
-          return {
-            ...coordTemplate,
-            score: aiCoordenada?.score || 0,
-          };
-        }),
-        planDeAccion: {
-          loHagoYo: aiPilar.planDeAccion?.loHagoYo || [],
-          loHaceKapiConMiEquipo: aiPilar.planDeAccion?.loHaceKapiConMiEquipo || [],
-          loHaceKapi: aiPilar.planDeAccion?.loHaceKapi || [],
-        }
-      };
-      return pilarResult;
-    })
-  };
-  return finalReport;
-}
+import { Reporte } from '@/app/types';
+import { mergeWithStructure } from '@/lib/report-merger';
 
 const LoadingState = () => ( <div className="text-center my-10"> <p className="text-white text-xl mb-4">Nuestros agentes IA están analizando la información...</p> <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white mx-auto"></div> </div> );
 
