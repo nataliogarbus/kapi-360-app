@@ -1,7 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { ReportSectionProps } from '@/app/types';
-import { ScoreGauge } from './ScoreGauge';
+import PillarsDonutChart from './PillarsDonutChart';
 import PilarCard from './PilarCard';
 
 const containerVariants = {
@@ -25,7 +25,7 @@ const ReportSection: React.FC<ReportSectionProps> = ({ report, isLoading }) => {
     return (
       <section className="mt-10 w-full max-w-5xl mx-auto px-4 text-center">
         <div className="animate-pulse">
-          <div className="h-48 bg-slate-800 rounded-full mx-auto w-48 mb-8"></div>
+          <div className="h-64 w-64 bg-slate-800 rounded-full mx-auto mb-8"></div>
           <div className="h-10 bg-slate-800 rounded-lg w-3/4 mx-auto mb-12"></div>
           <div className="grid grid-cols-1 gap-4 mb-12">
             <div className="h-24 bg-slate-800 rounded-xl w-full"></div>
@@ -33,7 +33,6 @@ const ReportSection: React.FC<ReportSectionProps> = ({ report, isLoading }) => {
             <div className="h-24 bg-slate-800 rounded-xl w-full"></div>
             <div className="h-24 bg-slate-800 rounded-xl w-full"></div>
           </div>
-          <div className="h-64 bg-slate-800 rounded-xl"></div>
         </div>
       </section>
     );
@@ -53,7 +52,9 @@ const ReportSection: React.FC<ReportSectionProps> = ({ report, isLoading }) => {
     >
       <h2 className="text-4xl sm:text-5xl font-extrabold mb-4 text-white text-center">Informe Estratégico</h2>
       <p className="text-slate-400 mb-6 text-center">Puntaje General de Madurez Digital</p>
-      <ScoreGauge score={report.puntajeGeneral} size="large" />
+      <div className="my-8">
+        <PillarsDonutChart report={report} />
+      </div>
       
       <p className="text-center text-slate-400 mt-8 max-w-2xl">
         Este es el resumen de tu presencia digital. El puntaje general se compone de cuatro pilares clave. Haz clic en cada uno para expandir y ver el detalle.
