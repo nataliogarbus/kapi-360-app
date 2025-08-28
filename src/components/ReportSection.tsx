@@ -45,15 +45,65 @@ const Tooltip: React.FC<{ text: string; children: React.ReactNode }> = ({ text, 
   </div>
 );
 
-const CoordenadaClaveGauge: React.FC<{ coordenada: CoordenadaClave }> = ({ coordenada }) => (
-    <div className="bg-slate-800/50 border border-slate-700 rounded-lg p-4 flex flex-col justify-between text-center h-full">
-        <p className="text-slate-300 text-sm font-medium h-1/2">{coordenada.titulo}</p>
-        <div className="mt-2">
-            <span className="text-3xl font-bold text-cyan-400">{coordenada.score}</span>
-            <span className="text-sm text-slate-500">/100</span>
-        </div>
+const CoordenadaClaveGauge: React.FC<{ coordenada: CoordenadaClave }> = ({ coordenada }) => {
+  const score = coordenada.score;
+  const radius = 50;
+  const circumference = 2 * Math.PI * radius;
+  const offset = circumference - (score / 100) * circumference;
+
+  const getColor = () => {
+    if (score < 40) return 'text-red-400';
+    if (score < 70) return 'text-yellow-400';
+    return 'text-cyan-400';
+  };
+
+  return (
+    <div className="flex flex-col items-center justify-center text-center">
+      <div className="relative w-32 h-32">
+        <svg className="w-full h-full" viewBox="0 0 120 120">
+          {/* Background circle */}
+          <circle
+            className="text-slate-700"
+            strokeWidth="10"
+            stroke="currentColor"
+            fill="transparent"
+            r={radius}
+            cx="60"
+            cy="60"
+          />
+          {/* Foreground circle */}
+          <motion.circle
+            className={getColor()}
+            strokeWidth="10"
+            strokeDasharray={circumference}
+            strokeDashoffset={offset}
+            strokeLinecap="round"
+            stroke="currentColor"
+            fill="transparent"
+            r={radius}
+            cx="60"
+            cy="60"
+            transform="rotate(-90 60 60)"
+            initial={{ strokeDashoffset: circumference }}
+            animate={{ strokeDashoffset: offset }}
+            transition={{ duration: 1.5, ease: "easeOut" }}
+          />
+          {/* Text in the middle */}
+          <text
+            className={`text-3xl font-bold ${getColor()}`}
+            x="50%"
+            y="50%"
+            dy=".3em"
+            textAnchor="middle"
+          >
+            {score}
+          </text>
+        </svg>
+      </div>
+      <p className="text-slate-300 text-sm font-medium mt-3 h-10 flex items-center text-center">{coordenada.titulo}</p>
     </div>
-);
+  );
+};
 
 const AccionAccordion: React.FC<{ titulo: string; pasos: string[]; icon: React.ReactNode }> = ({ titulo, pasos, icon }) => {
   const [isOpen, setIsOpen] = useState(false);
