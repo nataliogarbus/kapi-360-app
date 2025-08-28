@@ -12,7 +12,7 @@ import html2canvas from 'html2canvas';
 
 const ReportSection: React.FC<ReportSectionProps> = ({ report, isLoading }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [submissionStatus, setSubmissionStatus] = useState('idle'); // idle, submitting, error
+    const [submissionStatus, setSubmissionStatus] = useState<'idle' | 'submitting' | 'error'>('idle');
 
   const handleConfirmDownload = async (email: string, subscribe: boolean) => {
     setSubmissionStatus('submitting');
