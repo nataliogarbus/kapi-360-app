@@ -1,8 +1,8 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { HelpCircle, ChevronDown, Target, Users, Zap } from 'lucide-react';
 
-// --- INTERFACES DE DATOS v7.0 (v2.2) ---
+// --- INTERFACES DE DATOS v7.1 ---
 type CoordenadaClave = {
   titulo: string;
   score: number;
@@ -34,73 +34,69 @@ interface ReportSectionProps {
   isLoading: boolean;
 }
 
-// --- COMPONENTES DE UI v8.0 (v2.2) ---
+// --- COMPONENTES DE UI v9.0 (Estilo PageSpeed) ---
 
 const Tooltip: React.FC<{ text: string; children: React.ReactNode }> = ({ text, children }) => (
-  <div className="relative group inline-block">
+  <div className="relative group">
     {children}
-    <div className="absolute bottom-full mb-2 w-72 bg-gray-800 text-white text-xs rounded py-2 px-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10 shadow-lg">
+    <div className="absolute bottom-full mb-2 w-64 bg-gray-800 text-white text-xs rounded py-2 px-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10 shadow-lg pointer-events-none">
       {text}
     </div>
   </div>
 );
 
-const CoordenadaClaveGauge: React.FC<{ coordenada: CoordenadaClave }> = ({ coordenada }) => {
-  const score = coordenada.score;
+const ScoreGauge: React.FC<{ score: number; marks?: CoordenadaClave[]; size?: number }> = ({ score, marks = [], size = 120 }) => {
   const radius = 50;
   const circumference = 2 * Math.PI * radius;
   const offset = circumference - (score / 100) * circumference;
 
-  const getColor = () => {
-    if (score < 40) return 'text-red-400';
-    if (score < 70) return 'text-yellow-400';
-    return 'text-cyan-400';
+  const getColor = (s: number) => {
+    if (s < 40) return '#f87171'; // red-400
+    if (s < 70) return '#facc15'; // yellow-400
+    return '#22d3ee'; // cyan-400
   };
 
+  const mainColor = getColor(score);
+
   return (
-    <div className="flex flex-col items-center justify-center text-center">
-      <div className="relative w-32 h-32">
-        <svg className="w-full h-full" viewBox="0 0 120 120">
-          {/* Background circle */}
-          <circle
-            className="text-slate-700"
-            strokeWidth="10"
-            stroke="currentColor"
-            fill="transparent"
-            r={radius}
-            cx="60"
-            cy="60"
-          />
-          {/* Foreground circle */}
-          <motion.circle
-            className={getColor()}
-            strokeWidth="10"
-            strokeDasharray={circumference}
-            strokeDashoffset={offset}
-            strokeLinecap="round"
-            stroke="currentColor"
-            fill="transparent"
-            r={radius}
-            cx="60"
-            cy="60"
-            transform="rotate(-90 60 60)"
-            initial={{ strokeDashoffset: circumference }}
-            animate={{ strokeDashoffset: offset }}
-            transition={{ duration: 1.5, ease: "easeOut" }}
-          />
-          {/* Text in the middle */}
-          <text
-            className={`text-3xl font-bold ${getColor()}`}
-            x="50%"
-            y="50%"
-            dy=".3em"
-            textAnchor="middle"
-          >
-            {score}
-          </text>
-        </svg>
-      </div>
-      <p className="text-slate-300 text-sm font-medium mt-3 h-10 flex items-center text-center">{coordenada.titulo}</p>
+    <div className="relative" style={{ width: size, height: size }}>
+      <svg className="w-full h-full" viewBox="0 0 120 120">
+        {/* Background circle */}
+        <circle className="text-slate-700" strokeWidth="10" stroke="currentColor" fill="transparent" r={radius} cx="60" cy="60" />
+        
+        {/* Foreground circle */}
+        <motion.circle
+          strokeWidth="10"
+          strokeDasharray={circumference}
+          strokeLinecap="round"
+          stroke={mainColor}
+          fill="transparent"
+          r={radius}
+          cx="60"
+          cy="60"
+          transform="rotate(-90 60 60)"
+          initial={{ strokeDashoffset: circumference }}
+          animate={{ strokeDashoffset: offset }}
+          transition={{ duration: 1.5, ease: "easeOut" }}
+        />
+
+        {/* Marks for sub-scores */}
+        {marks.map((mark, i) => {
+          const markAngle = (mark.score / 100) * 360 - 90;
+          const markX = 60 + radius * Math.cos(markAngle * Math.PI / 180);
+          const markY = 60 + radius * Math.sin(markAngle * Math.PI / 180);
+          return (
+            <Tooltip key={i} text={`${mark.titulo}: ${mark.score}`}>
+              <circle cx={markX} cy={markY} r="5" fill={getColor(mark.score)} className="cursor-pointer" />
+            </Tooltip>
+          );
+        })}
+
+        {/* Text in the middle */}
+        <text x="50%" y="50%" dy=".3em" textAnchor="middle" className="text-3xl font-bold" fill={mainColor}>
+          {score}
+        </text>
+      </svg>
     </div>
   );
 };
@@ -133,7 +129,7 @@ const AccionAccordion: React.FC<{ titulo: string; pasos: string[]; icon: React.R
 
 const PilarPlanDeAccion: React.FC<{ plan: PlanDeAccion }> = ({ plan }) => (
     <div className="mt-6">
-        <h4 className="text-lg font-bold text-white mb-4">Plan de Acción Unificado</h4>
+        <h4 className="text-lg font-bold text-white mb-4">Plan de Acción</h4>
         <AccionAccordion titulo="Lo Hago Yo" pasos={plan.loHagoYo} icon={<Target className="text-cyan-400" />} />
         <AccionAccordion titulo="Lo Hace Kapi con mi Equipo" pasos={plan.loHaceKapiConMiEquipo} icon={<Users className="text-cyan-400" />} />
         <AccionAccordion titulo="Lo Hace Kapi" pasos={plan.loHaceKapi} icon={<Zap className="text-cyan-400" />} />
@@ -141,23 +137,25 @@ const PilarPlanDeAccion: React.FC<{ plan: PlanDeAccion }> = ({ plan }) => (
 );
 
 const PilarAccordion: React.FC<{ pilar: Pilar }> = ({ pilar }) => {
-  const [isOpen, setIsOpen] = useState(true);
+  const [isOpen, setIsOpen] = useState(false);
 
   return (
     <div className="border-2 border-slate-800 rounded-xl mb-6 bg-slate-900/50 backdrop-blur-sm">
-      <button 
-        onClick={() => setIsOpen(!isOpen)} 
-        className="w-full p-5 hover:bg-slate-800/60 transition-colors flex justify-between items-center text-left"
-      >
-        <h3 className="text-2xl font-bold text-white flex items-center">
-          {pilar.titulo}
-          {pilar.porQueImporta && <Tooltip text={pilar.porQueImporta}><HelpCircle size={16} className="text-gray-400 cursor-pointer ml-2" /></Tooltip>}
-        </h3>
-        <div className="flex items-center gap-4">
-          <span className="text-3xl font-bold text-white">{pilar.score}/100</span>
-          <motion.div animate={{ rotate: isOpen ? 180 : 0 }} transition={{ duration: 0.3 }}><ChevronDown size={28} className="text-white" /></motion.div>
+      <div className="w-full p-5 flex justify-between items-center text-left">
+        <div className="flex-1">
+            <h3 className="text-2xl font-bold text-white flex items-center">
+              {pilar.titulo}
+              <Tooltip text={pilar.porQueImporta}><HelpCircle size={16} className="text-gray-400 cursor-pointer ml-2" /></Tooltip>
+            </h3>
+            <p className="text-slate-400 text-sm mt-1">{pilar.queEs}</p>
         </div>
-      </button>
+        <div className="ml-4">
+            <ScoreGauge score={pilar.score} marks={pilar.coordenadasClave} size={100} />
+        </div>
+        <button onClick={() => setIsOpen(!isOpen)} className="ml-4 p-2 rounded-full hover:bg-slate-700">
+            <motion.div animate={{ rotate: isOpen ? 180 : 0 }} transition={{ duration: 0.3 }}><ChevronDown size={28} className="text-white" /></motion.div>
+        </button>
+      </div>
       <AnimatePresence>
         {isOpen && (
           <motion.div
@@ -168,20 +166,7 @@ const PilarAccordion: React.FC<{ pilar: Pilar }> = ({ pilar }) => {
             className="overflow-hidden"
           >
             <div className="p-5 border-t border-slate-800">
-              {pilar.queEs && <div className="bg-gray-800/70 p-4 rounded-lg mb-6">
-                <p className="font-semibold text-slate-200 mb-1">¿Qué es?</p>
-                <p className="text-slate-300 text-sm">{pilar.queEs}</p>
-              </div>}
-              
-              <h4 className="text-lg font-bold text-white mb-4">Coordenadas Clave</h4>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-                {pilar.coordenadasClave && pilar.coordenadasClave.map((coord, i) => (
-                  <CoordenadaClaveGauge key={i} coordenada={coord} />
-                ))}
-              </div>
-
               {pilar.planDeAccion && <PilarPlanDeAccion plan={pilar.planDeAccion} />}
-
             </div>
           </motion.div>
         )}
@@ -191,8 +176,6 @@ const PilarAccordion: React.FC<{ pilar: Pilar }> = ({ pilar }) => {
 };
 
 const ReportSection: React.FC<ReportSectionProps> = ({ report, isLoading }) => {
-  const reporteData = report;
-
   if (isLoading) {
     return (
       <section className="mt-10 w-full max-w-4xl mx-auto px-4 text-center">
@@ -205,23 +188,20 @@ const ReportSection: React.FC<ReportSectionProps> = ({ report, isLoading }) => {
     );
   }
 
-  if (!reporteData || !reporteData.pilares || reporteData.pilares.length === 0) {
+  if (!report || !report.pilares || report.pilares.length === 0) {
     return null;
   }
 
   return (
     <section id="report-section" className="mt-10 w-full max-w-5xl mx-auto px-4">
-      <div className="text-center mb-12">
-        <h2 className="text-4xl sm:text-5xl font-extrabold mb-2 text-white">Informe Estratégico Avanzado</h2>
-        <div className="mt-6 inline-block bg-slate-800 border border-slate-700 p-4 rounded-xl">
-          <span className="text-base font-semibold text-slate-400 tracking-wider">Puntaje General de Madurez Digital</span>
-          <span className="text-7xl font-black text-white block">{reporteData.puntajeGeneral}</span>
-        </div>
+      <div className="text-center mb-12 flex flex-col items-center">
+        <h2 className="text-4xl sm:text-5xl font-extrabold mb-4 text-white">Informe Estratégico</h2>
+        <p className="text-slate-400 mb-6">Puntaje General de Madurez Digital</p>
+        <ScoreGauge score={report.puntajeGeneral} size={160} />
       </div>
 
-      {/* GUARDA DE SEGURIDAD */}
-      {reporteData.pilares && reporteData.pilares.map((pilar, i) => (
-        <PilarAccordion key={pilar.id || `pilar-${i}`} pilar={pilar} />
+      {report.pilares.map((pilar) => (
+        <PilarAccordion key={pilar.id} pilar={pilar} />
       ))}
 
     </section>
