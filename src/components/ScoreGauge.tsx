@@ -37,7 +37,7 @@ export const ScoreGauge: React.FC<{ score: number; size?: 'large' | 'small' }> =
         })}
       />
       <div className="absolute inset-0 flex items-center justify-center">
-        <span className={`${textSize} font-bold text-white`}>{score}</span>
+        <span className={`${textSize} font-bold text-white`}>{Math.round(displayScore)}</span>
       </div>
     </div>
   );
