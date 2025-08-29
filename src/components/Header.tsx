@@ -29,4 +29,5 @@ const Header = () => {
   );
 };
 
+// Forzando un re-deploy para que Vercel tome las nuevas variables de entorno
 export default Header;
