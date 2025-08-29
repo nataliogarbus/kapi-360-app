@@ -436,13 +436,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 return response.json();
             })
             .then(result => {
-                console.log('Respuesta del backend:', result);
                 if (!result.success || !result.data || !result.data.report_content) {
                     throw new Error('La respuesta del servidor no tiene el formato esperado.');
                 }
                 
                 // El backend devuelve el report_content como un string JSON, necesita ser parseado.
-                console.log('Contenido del informe antes de parsear:', result.data.report_content);
                 const parsedData = JSON.parse(result.data.report_content);
                 reportData = parsedData; // Guardar los datos parseados en el estado
                 

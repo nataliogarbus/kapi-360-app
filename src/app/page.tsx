@@ -18,7 +18,6 @@ import { mergeWithStructure } from '@/lib/report-merger';
 const LoadingState = () => ( <div className="text-center my-10"> <p className="text-white text-xl mb-4">Nuestros agentes IA están analizando la información...</p> <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white mx-auto"></div> </div> );
 
 export default function Home() {
-  console.log("--- RENDERING [Home Page] ---");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [report, setReport] = useState<Reporte | null>(null);

@@ -15,7 +15,6 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  console.log("--- RENDERING [RootLayout] ---");
   return (
     <html lang="es">
       <body className={`${inter.className} bg-[#1a1a1a]`}>

@@ -7,6 +7,7 @@ import DownloadModal from './DownloadModal';
 import { Download } from 'lucide-react';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
+import Image from 'next/image';
 
 // ... (variants sin cambios)
 
@@ -70,7 +71,7 @@ const ReportSection: React.FC<ReportSectionProps> = ({ report, isLoading }) => {
         className="mt-10 w-full max-w-6xl mx-auto px-4 flex flex-col items-center bg-[#1a1a1a] text-white p-8"
         // ... (animaciones sin cambios)
       >
-        <img src="/logo-kapi-verde.svg" alt="Kapi Logo" className="w-32 mb-8" />
+        <Image src="/logo-kapi-verde.svg" alt="Kapi Logo" className="w-32 mb-8" width={128} height={32} />
         <h2 className="text-4xl sm:text-5xl font-extrabold mb-4 text-white text-center">Informe Estratégico</h2>
         <p className="text-slate-400 mb-6 text-center">Puntaje General de Madurez Digital</p>
         <div className="my-8">
