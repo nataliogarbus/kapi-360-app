@@ -3,20 +3,16 @@ import React from 'react';
 
 const faqData = [
   {
-    question: '¿Qué es exactamente el Diagnóstico Kapi 360?',
-    answer: 'Es una herramienta de IA que analiza tu presencia online (tu web, SEO, contenido) y la de tus competidores para darte un plan de acción claro y enfocado en resultados de negocio, no solo en métricas técnicas.'
+    question: '¿Kapi es una herramienta de IA o una agencia de marketing?',
+    answer: 'Somos un socio estratégico de marketing especializado en PYMES industriales. Usamos la IA como herramienta interna para ser más eficientes, pero lo que usted recibe es una estrategia y ejecución profesional enfocada en sus resultados de negocio.'
   },
   {
-    question: '¿Este informe tiene algún costo?',
-    answer: 'El informe automático y personalizado inicial es completamente gratuito. Es nuestra forma de demostrarte el valor que podemos aportar. Si decides que quieres implementar las mejoras con nosotros, ofrecemos servicios especializados.'
+    question: '¿Este servicio es para emprendedores que recién empiezan?',
+    answer: 'Nuestro enfoque está diseñado para PYMES con una trayectoria establecida que buscan profesionalizar su marketing para escalar al siguiente nivel. Si su empresa ya tiene un recorrido y busca un socio para crecer de forma sostenible, estamos para ayudarle.'
   },
   {
-    question: '¿Qué tan rápido puedo ver los resultados?',
-    answer: 'El informe se genera en aproximadamente 90 segundos. Una vez que lo tengas, las acciones recomendadas tienen un impacto que varía según la complejidad, pero muchas de las mejoras de "fruta madura" pueden dar resultados visibles en pocas semanas.'
-  },
-  {
-    question: '¿Mis datos están seguros?',
-    answer: 'Totalmente. Solo analizamos la información pública de tu sitio web y la de tus competidores. Los datos de contacto que nos proporcionas para informes personalizados se tratan con estricta confidencialidad y no se comparten.'
+    question: '¿Cómo mido el retorno de mi inversión?',
+    answer: 'Le proporcionamos reportes periódicos claros, enfocados en las métricas que le importan: el número de consultas de calidad, cómo se traducen en presupuestos y el impacto final en sus ventas. Transparencia total sobre su ROI.'
   }
 ];
 

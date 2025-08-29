@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from 'react';
 import Header from "@/components/Header";
-import DiagnosticForm from "@/components/KapiDiagnosticForm";
 import ReportSection from "@/components/ReportSection";
 import Faq from "@/components/Faq";
 import Footer from "@/components/Footer";
@@ -14,22 +13,19 @@ import NewsletterSection from "@/components/NewsletterSection";
 import ContactForm from "@/components/ContactForm";
 import HeroSection from "@/components/HeroSection";
 import { Reporte } from '@/app/types';
-import { mergeWithStructure } from '@/lib/report-merger';
 
-const LoadingState = () => ( <div className="text-center my-10"> <p className="text-white text-xl mb-4">Nuestros agentes IA están analizando la información...</p> <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white mx-auto"></div> </div> );
+// The main page is a client component to handle the conditional rendering of the report.
+// The diagnostic form itself has been moved to the /diagnostico page.
 
 export default function Home() {
+  // State related to report generation is kept in case we want to show 
+  // a report summary here in the future, but the form itself is gone.
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
   const [report, setReport] = useState<Reporte | null>(null);
-  const [currentMode, setCurrentMode] = useState('auto');
   const [featuredPosts, setFeaturedPosts] = useState([]);
 
   useEffect(() => {
-    setReport(null);
-  }, [currentMode]);
-
-  useEffect(() => {
+    // Fetch featured posts on component mount
     const fetchPosts = async () => {
       try {
         const response = await fetch('/api/posts');
@@ -42,50 +38,15 @@ export default function Home() {
     fetchPosts();
   }, []);
 
-  const handleDiagnose = async (url: string, mode: string, context: string | undefined, recaptchaToken: string) => {
-    setIsLoading(true);
-    setError(null);
-    setReport(null);
-
-    try {
-      const response = await fetch('/api/diagnose', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ url, mode, context, recaptchaToken }),
-      });
-
-      const result = await response.json();
-
-      if (!response.ok) { throw new Error(result.error || 'Error del servidor'); }
-
-      const finalReportObject = mergeWithStructure(result.analysis);
-      setReport(finalReportObject);
-
-    } catch (err: any) {
-      setError(err.message || 'Ocurrió un error al generar el informe.');
-      console.error(err);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
   return (
-    <main className="flex min-h-screen flex-col items-center p-4 sm:p-8">
+    <main className="flex min-h-screen flex-col items-center">
       <Header />
-      {report && !isLoading ? (
+      {/* This logic is kept for now, in case a report summary is shown in a modal later */}
+      {report && isLoading === false ? (
         <ReportSection report={report} isLoading={isLoading} />
       ) : (
         <>
           <HeroSection />
-          {isLoading ? <LoadingState /> : <DiagnosticForm onSubmit={handleDiagnose} isLoading={isLoading} onModeChange={setCurrentMode} />}
-          {error && (
-            <div className="mt-6 w-full max-w-3xl">
-              <div className="p-4 text-red-400 bg-red-900/20 border border-red-600 rounded-md">
-                <p className="font-bold">Error</p>
-                <p>{error}</p>
-              </div>
-            </div>
-          )}
           <ComoFunciona />
           <Servicios />
           <CasosExito />
