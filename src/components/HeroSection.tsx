@@ -3,7 +3,7 @@ import Link from 'next/link';
 
 const HeroSection = () => {
   return (
-    <section className="flex-grow flex items-center p-4 mt-32 text-white text-center min-h-[80vh]">
+    <section className="flex-grow flex items-center p-4 mt-36 text-white text-center min-h-[80vh]">
       <div className="max-w-4xl w-full mx-auto">
         <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black uppercase tracking-tight text-shadow-custom">
           <span className="mr-4">MENOS COMPLEJIDAD,</span><span className="text-[#00DD82]">MÁS VENTAS</span>

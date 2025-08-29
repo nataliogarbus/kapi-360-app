@@ -5,7 +5,7 @@ import Image from 'next/image';
 const Header = () => {
   return (
     <header className="w-full p-4 absolute top-0 left-0 z-20">
-      <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
+      <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex justify-between items-center">
         <Link href="/" className="flex items-center space-x-2">
             <Image 
               src="/logo-kapi-verde.svg" 
