@@ -9,6 +9,7 @@ import Footer from "@/components/Footer";
 import ComoFunciona from "@/components/ComoFunciona";
 import Servicios from "@/components/Servicios";
 import CasosExito from "@/components/CasosExito";
+import FeaturedPosts from "@/components/FeaturedPosts";
 import NewsletterSection from "@/components/NewsletterSection";
 import ContactForm from "@/components/ContactForm";
 import HeroSection from "@/components/HeroSection";
@@ -22,10 +23,24 @@ export default function Home() {
   const [error, setError] = useState<string | null>(null);
   const [report, setReport] = useState<Reporte | null>(null);
   const [currentMode, setCurrentMode] = useState('auto');
+  const [featuredPosts, setFeaturedPosts] = useState([]);
 
   useEffect(() => {
     setReport(null);
   }, [currentMode]);
+
+  useEffect(() => {
+    const fetchPosts = async () => {
+      try {
+        const response = await fetch('/api/posts');
+        const data = await response.json();
+        setFeaturedPosts(data);
+      } catch (err) {
+        console.error("Failed to fetch posts", err);
+      }
+    };
+    fetchPosts();
+  }, []);
 
   const handleDiagnose = async (url: string, mode: string, context: string | undefined, recaptchaToken: string) => {
     setIsLoading(true);
@@ -44,10 +59,6 @@ export default function Home() {
       if (!response.ok) { throw new Error(result.error || 'Error del servidor'); }
 
       const finalReportObject = mergeWithStructure(result.analysis);
-      
-      // --- PUNTO DE CONTROL PARA DEBUG ---
-      console.log("DEBUG: Objeto de informe final antes de renderizar:", finalReportObject);
-
       setReport(finalReportObject);
 
     } catch (err: any) {
@@ -78,6 +89,7 @@ export default function Home() {
           <ComoFunciona />
           <Servicios />
           <CasosExito />
+          {featuredPosts.length > 0 && <FeaturedPosts posts={featuredPosts} />}
           <Faq />
           <NewsletterSection />
           <ContactForm />

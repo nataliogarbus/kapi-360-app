@@ -1,0 +1,51 @@
+import Link from 'next/link';
+
+// Definimos el tipo para un solo post, para asegurar que los datos que lleguen sean correctos
+type Post = {
+  slug: string;
+  title: string;
+  date: string;
+  excerpt: string;
+  category: string;
+};
+
+// El componente recibe un array de posts como propiedades
+const FeaturedPosts = ({ posts }: { posts: Post[] }) => {
+  return (
+    <section id="blog-destacados" className="py-20 sm:py-32 bg-gray-900/50">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="text-center mb-16">
+          <h2 className="text-base font-semibold text-cyan-400 tracking-wider uppercase">Análisis Recientes</h2>
+          <p className="mt-2 text-3xl sm:text-4xl font-extrabold text-white tracking-tight">Desde Nuestro Blog</p>
+        </div>
+        <div className="grid gap-8 md:grid-cols-1 lg:grid-cols-3">
+          {posts.map((post) => (
+            <Link href={`/blog/${post.slug}`} key={post.slug}>
+              <div className="bg-gray-800/50 rounded-2xl p-8 flex flex-col h-full hover:bg-gray-700/50 transition-colors duration-300">
+                <div className="flex-grow">
+                  <p className="text-sm font-semibold text-cyan-400 uppercase">{post.category}</p>
+                  <h3 className="text-xl font-bold text-white mt-2">{post.title}</h3>
+                  <p className="mt-4 text-gray-300">{post.excerpt}</p>
+                </div>
+                <div className="mt-6">
+                  <p className="text-blue-400 hover:text-blue-300 transition-colors duration-300 font-semibold">
+                    Leer más &rarr;
+                  </p>
+                </div>
+              </div>
+            </Link>
+          ))}
+        </div>
+        <div className="text-center mt-16">
+          <Link href="/blog">
+            <p className="inline-block bg-cyan-500 text-white font-bold py-3 px-8 rounded-lg hover:bg-cyan-600 transition-colors duration-300 text-lg">
+              Ver todos los artículos
+            </p>
+          </Link>
+        </div>
+      </div>
+    </section>
+  );
+};
+
+export default FeaturedPosts;
