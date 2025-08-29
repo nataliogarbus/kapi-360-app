@@ -18,6 +18,7 @@ export default function RootLayout({
   return (
     <html lang="es">
       <body className={`${inter.className} bg-[#1a1a1a]`}>
+        <GoogleTagManager />
         <CaptchaProvider>
           {children}
         </CaptchaProvider>

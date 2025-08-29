@@ -40,6 +40,12 @@ const ContactForm: React.FC = () => {
         throw new Error(result.error || 'Error al enviar el mensaje.');
       }
 
+      // Evento de conversión para GTM
+      pushEvent({
+        event: 'generate_lead',
+        form_location: 'contact_form_homepage'
+      });
+
       setSubmitMessage('¡Gracias! Su mensaje ha sido enviado. Nos pondremos en contacto con usted a la brevedad.');
       setFormData({ name: '', email: '', company: '', message: '' });
 
