@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
+import { Suspense } from 'react';
 import "./globals.css";
 import CaptchaProvider from "@/components/CaptchaProvider";
 import GoogleTagManager from "@/components/GoogleTagManager";
@@ -19,7 +20,9 @@ export default function RootLayout({
   return (
     <html lang="es">
       <body className={`${inter.className} bg-[#1a1a1a]`}>
-        <GoogleTagManager />
+        <Suspense fallback={null}>
+          <GoogleTagManager />
+        </Suspense>
         <CaptchaProvider>
           {children}
         </CaptchaProvider>
