@@ -2,6 +2,7 @@ import { getPostData, getAllPostIds } from '@/lib/posts';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import ReactMarkdown from 'react-markdown';
+import Link from 'next/link';
 
 export async function generateStaticParams() {
   const paths = getAllPostIds();
@@ -17,7 +18,9 @@ export default function Post({ params }: { params: { slug: string } }) {
       <article className="w-full max-w-3xl mx-auto py-12 sm:py-24">
         <div className="mb-8 text-center">
           {postData.category && (
-            <p className="text-base text-cyan-400 font-semibold tracking-wide uppercase">{postData.category}</p>
+            <Link href={`/blog/category/${encodeURIComponent(postData.category)}`}>
+              <p className="text-base text-cyan-400 font-semibold tracking-wide uppercase hover:text-cyan-300 transition-colors">{postData.category}</p>
+            </Link>
           )}
           <h1 className="text-3xl sm:text-4xl font-extrabold mt-2 text-white">{postData.title}</h1>
           {postData.date && (
@@ -30,9 +33,11 @@ export default function Post({ params }: { params: { slug: string } }) {
         {postData.tags && postData.tags.length > 0 && (
           <div className="mt-12 text-center">
             {postData.tags.map((tag) => (
-              <span key={tag} className="inline-block bg-gray-700 rounded-full px-3 py-1 text-sm font-semibold text-gray-300 mr-2 mb-2">
-                #{tag}
-              </span>
+              <Link href={`/blog/tag/${encodeURIComponent(tag)}`} key={tag}>
+                <span className="inline-block bg-gray-700 rounded-full px-3 py-1 text-sm font-semibold text-gray-300 mr-2 mb-2 hover:bg-gray-600 transition-colors">
+                  #{tag}
+                </span>
+              </Link>
             ))}
           </div>
         )}

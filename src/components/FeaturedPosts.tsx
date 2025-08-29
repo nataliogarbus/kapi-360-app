@@ -1,3 +1,5 @@
+'use client';
+
 import Link from 'next/link';
 
 // Definimos el tipo para un solo post, para asegurar que los datos que lleguen sean correctos
@@ -20,19 +22,23 @@ const FeaturedPosts = ({ posts }: { posts: Post[] }) => {
         </div>
         <div className="grid gap-8 md:grid-cols-1 lg:grid-cols-3">
           {posts.map((post) => (
-            <Link href={`/blog/${post.slug}`} key={post.slug}>
-              <div className="bg-gray-800/50 rounded-2xl p-8 flex flex-col h-full hover:bg-gray-700/50 transition-colors duration-300">
+            <Link href={`/blog/${post.slug}`} key={post.slug} className="block bg-gray-800/50 rounded-2xl p-8 flex flex-col h-full hover:bg-gray-700/50 transition-colors duration-300">
                 <div className="flex-grow">
-                  <p className="text-sm font-semibold text-cyan-400 uppercase">{post.category}</p>
+                  <Link 
+                    href={`/blog/category/${encodeURIComponent(post.category)}`}
+                    onClick={(e) => e.stopPropagation()} // Detiene el clic para no ir al post
+                    className="text-sm font-semibold text-cyan-400 uppercase hover:text-cyan-300 transition-colors relative z-10"
+                  >
+                    {post.category}
+                  </Link>
                   <h3 className="text-xl font-bold text-white mt-2">{post.title}</h3>
                   <p className="mt-4 text-gray-300">{post.excerpt}</p>
                 </div>
                 <div className="mt-6">
-                  <p className="text-blue-400 hover:text-blue-300 transition-colors duration-300 font-semibold">
+                  <p className="text-blue-400 font-semibold">
                     Leer más &rarr;
                   </p>
                 </div>
-              </div>
             </Link>
           ))}
         </div>
