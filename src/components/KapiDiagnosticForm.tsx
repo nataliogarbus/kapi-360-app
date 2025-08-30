@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { REPORT_STRUCTURE } from '@/app/report-structure';
 import { useGoogleReCaptcha } from 'react-google-recaptcha-v3';
+import { Tooltip } from 'react-tooltip';
 
 const SeoIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.72"/><path d="M14 11a5 5 0 0 0-7.54-.54l3 3a5 5 0 0 0 7.07 7.07l1.72-1.72"/></svg>;
 const UxIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><path d="M7 12h10M7 7h10M7 17h5"/></svg>;
@@ -67,15 +68,25 @@ const KapiDiagnosticForm: React.FC<DiagnosticFormProps> = ({ onSubmit, isLoading
   return (
     <div className="w-full max-w-3xl mx-auto p-4">
       <form id="diagnosticoForm" noValidate onSubmit={handleFormSubmit}>
-        <div className="flex justify-center items-center mb-4 bg-gray-900/60 border border-slate-700 rounded-full p-1 backdrop-blur-sm">
+        <div className="flex justify-center items-center mb-8 bg-gray-900/60 border border-slate-700 rounded-full p-1 backdrop-blur-sm">
           {Object.keys(modeDescriptions).map(key => (
-            <div key={key}>
-              <input type="radio" name="analysis_mode" id={`mode-${key}`} value={key} className="hidden peer" checked={mode === key} onChange={() => handleModeChange(key)} disabled={isLoading} />
-              <label htmlFor={`mode-${key}`} className="px-4 py-2 text-sm font-semibold rounded-full cursor-pointer transition-colors duration-300 text-gray-300 hover:bg-slate-700/50 peer-checked:bg-cyan-500 peer-checked:text-white peer-checked:shadow-lg capitalize">{key}</label>
-            </div>
+            <button
+              key={key}
+              type="button"
+              onClick={() => handleModeChange(key)}
+              disabled={isLoading}
+              className={`px-4 py-2 text-sm font-semibold rounded-full cursor-pointer transition-colors duration-300 uppercase ${
+                mode === key
+                  ? 'bg-transparent text-cyan-400 font-bold shadow-none'
+                  : 'text-gray-400 hover:text-cyan-400'
+              }`}
+              data-tooltip-id="mode-tooltip"
+              data-tooltip-content={modeDescriptions[key]}
+            >
+              {key}
+            </button>
           ))}
         </div>
-        <div className="text-center text-gray-400 text-sm mb-6 min-h-[40px]"><p>{modeDescriptions[mode]}</p></div>
         
         {(mode === 'auto' || mode === 'custom') && (
           <div className="flex flex-col sm:flex-row items-center bg-white/5 border border-white/20 rounded-lg p-2 gap-2 shadow-lg">
@@ -128,6 +139,7 @@ const KapiDiagnosticForm: React.FC<DiagnosticFormProps> = ({ onSubmit, isLoading
           </div>
         )}
       </form>
+      <Tooltip id="mode-tooltip" className="max-w-xs z-50" place="bottom" />
     </div>
   );
 };
