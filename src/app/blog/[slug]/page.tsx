@@ -1,8 +1,9 @@
-import { getPostData, getAllPostIds } from '@/lib/posts';
+import { getPostData, getAllPostIds, getSortedPostsData } from '@/lib/posts';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import ReactMarkdown from 'react-markdown';
 import Link from 'next/link';
+import RecommendedPosts from '@/components/RecommendedPosts';
 
 export async function generateStaticParams() {
   const paths = getAllPostIds();
@@ -11,7 +12,25 @@ export async function generateStaticParams() {
 
 export default function Post({ params }: { params: { slug: string } }) {
   const postData = getPostData(params.slug);
+  const allPosts = getSortedPostsData();
   const baseUrl = 'https://kapi-360-app.vercel.app';
+
+  // Lógica para encontrar posts relacionados
+  const relatedPosts = allPosts
+    .filter(p => p.slug !== postData.slug) // Excluir el post actual
+    .map(p => {
+      let score = 0;
+      // 2 puntos por cada tag compartido
+      score += p.tags?.filter(tag => postData.tags?.includes(tag)).length * 2;
+      // 1 punto si la categoría es la misma
+      if (p.category === postData.category) {
+        score += 1;
+      }
+      return { ...p, score };
+    })
+    .filter(p => p.score > 0) // Solo incluir posts con alguna relación
+    .sort((a, b) => b.score - a.score) // Ordenar por puntaje
+    .slice(0, 3); // Tomar los 3 mejores
 
   const jsonLd = {
     '@context': 'https://schema.org',
@@ -71,6 +90,7 @@ export default function Post({ params }: { params: { slug: string } }) {
             ))}
           </div>
         )}
+        <RecommendedPosts posts={relatedPosts} />
       </article>
       <Footer />
     </main>
