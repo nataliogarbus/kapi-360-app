@@ -3,33 +3,40 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { PostData } from '@/app/types';
+import Pagination from './Pagination';
 
 interface BlogListProps {
   allPostsData: PostData[];
   tagMapping: { [key: string]: string[] };
 }
 
+const POSTS_PER_PAGE = 5;
+
 export default function BlogList({ allPostsData, tagMapping }: BlogListProps) {
   const [searchQuery, setSearchQuery] = useState('');
   const [filteredPosts, setFilteredPosts] = useState<PostData[]>(allPostsData);
   const [selectedPillar, setSelectedPillar] = useState<string>(Object.keys(tagMapping)[0]);
+  const [currentPage, setCurrentPage] = useState(1);
 
   useEffect(() => {
     const lowercasedQuery = searchQuery.toLowerCase();
-    if (lowercasedQuery === '') {
-      setFilteredPosts(allPostsData);
-    } else {
-      const filtered = allPostsData.filter(post => {
-        return (
+    const filtered = lowercasedQuery === ''
+      ? allPostsData
+      : allPostsData.filter(post => 
           post.title.toLowerCase().includes(lowercasedQuery) ||
           (post.excerpt && post.excerpt.toLowerCase().includes(lowercasedQuery))
         );
-      });
-      setFilteredPosts(filtered);
-    }
+    
+    setFilteredPosts(filtered);
+    setCurrentPage(1); // Reset page to 1 on new search
   }, [searchQuery, allPostsData]);
 
   const pillars = Object.keys(tagMapping);
+
+  // Pagination logic
+  const indexOfLastPost = currentPage * POSTS_PER_PAGE;
+  const indexOfFirstPost = indexOfLastPost - POSTS_PER_PAGE;
+  const currentPosts = filteredPosts.slice(indexOfFirstPost, indexOfLastPost);
 
   return (
     <div>
@@ -69,9 +76,9 @@ export default function BlogList({ allPostsData, tagMapping }: BlogListProps) {
         ))}
       </div>
 
-      <div className="space-y-8">
-        {filteredPosts.length > 0 ? (
-          filteredPosts.map(({ slug, title, date, excerpt }) => (
+      <div className="space-y-8 min-h-[550px]">
+        {currentPosts.length > 0 ? (
+          currentPosts.map(({ slug, title, date, excerpt }) => (
             <Link href={`/blog/${slug}`} key={slug}>
               <div className="block bg-gray-800/50 p-8 rounded-lg hover:bg-gray-700/50 transition-colors duration-300">
                 <h2 className="text-2xl font-bold text-cyan-400 mb-2">{title}</h2>
@@ -81,9 +88,16 @@ export default function BlogList({ allPostsData, tagMapping }: BlogListProps) {
             </Link>
           ))
         ) : (
-          <p className="text-center text-gray-400 text-lg">No se encontraron artículos que coincidan con tu búsqueda.</p>
+          <p className="text-center text-gray-400 text-lg pt-16">No se encontraron artículos que coincidan con tu búsqueda.</p>
         )}
       </div>
+
+      <Pagination 
+        totalItems={filteredPosts.length}
+        itemsPerPage={POSTS_PER_PAGE}
+        currentPage={currentPage}
+        setCurrentPage={setCurrentPage}
+      />
     </div>
   );
 }
