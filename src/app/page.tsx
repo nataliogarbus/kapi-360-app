@@ -13,6 +13,7 @@ import NewsletterSection from "@/components/NewsletterSection";
 import ContactForm from "@/components/ContactForm";
 import HeroSection from "@/components/HeroSection";
 import { Reporte } from '@/app/types';
+import { ScrollAnimationWrapper } from '@/components/ScrollAnimationWrapper';
 
 export default function Home() {
   const [isLoading, setIsLoading] = useState(false);
@@ -57,13 +58,29 @@ export default function Home() {
       ) : (
         <>
           <HeroSection />
-          <ComoFunciona />
-          <Servicios />
-          <CasosExito />
-          {featuredPosts.length > 0 && <FeaturedPosts posts={featuredPosts} />}
-          <Faq />
-          <NewsletterSection />
-          <ContactForm />
+          <ScrollAnimationWrapper>
+            <ComoFunciona />
+          </ScrollAnimationWrapper>
+          <ScrollAnimationWrapper>
+            <Servicios />
+          </ScrollAnimationWrapper>
+          <ScrollAnimationWrapper>
+            <CasosExito />
+          </ScrollAnimationWrapper>
+          {featuredPosts.length > 0 && (
+            <ScrollAnimationWrapper>
+              <FeaturedPosts posts={featuredPosts} />
+            </ScrollAnimationWrapper>
+          )}
+          <ScrollAnimationWrapper>
+            <Faq />
+          </ScrollAnimationWrapper>
+          <ScrollAnimationWrapper>
+            <NewsletterSection />
+          </ScrollAnimationWrapper>
+          <ScrollAnimationWrapper>
+            <ContactForm />
+          </ScrollAnimationWrapper>
         </>
       )}
       <Footer />
