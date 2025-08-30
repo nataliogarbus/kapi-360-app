@@ -11,11 +11,41 @@ export async function generateStaticParams() {
 
 export default function Post({ params }: { params: { slug: string } }) {
   const postData = getPostData(params.slug);
+  const baseUrl = 'https://kapi-360-app.vercel.app';
+
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'Article',
+    mainEntityOfPage: {
+      '@type': 'WebPage',
+      '@id': `${baseUrl}/blog/${postData.slug}`,
+    },
+    headline: postData.title,
+    description: postData.excerpt,
+    datePublished: new Date(postData.date).toISOString(),
+    author: {
+      '@type': 'Organization',
+      name: 'Kapi',
+      url: baseUrl,
+    },
+    publisher: {
+      '@type': 'Organization',
+      name: 'Kapi',
+      logo: {
+        '@type': 'ImageObject',
+        url: `${baseUrl}/logo-kapi-verde.svg`,
+      },
+    },
+  };
 
   return (
     <main className="flex min-h-screen flex-col items-center p-4 sm:p-8 bg-[#1a1a1a] text-white">
       <Header />
       <article className="w-full max-w-3xl mx-auto py-12 sm:py-24">
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
         <div className="mb-8 text-center">
           {postData.category && (
             <Link href={`/blog/category/${encodeURIComponent(postData.category)}`}>

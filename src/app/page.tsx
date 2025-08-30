@@ -14,18 +14,12 @@ import ContactForm from "@/components/ContactForm";
 import HeroSection from "@/components/HeroSection";
 import { Reporte } from '@/app/types';
 
-// The main page is a client component to handle the conditional rendering of the report.
-// The diagnostic form itself has been moved to the /diagnostico page.
-
 export default function Home() {
-  // State related to report generation is kept in case we want to show 
-  // a report summary here in the future, but the form itself is gone.
   const [isLoading, setIsLoading] = useState(false);
   const [report, setReport] = useState<Reporte | null>(null);
   const [featuredPosts, setFeaturedPosts] = useState([]);
 
   useEffect(() => {
-    // Fetch featured posts on component mount
     const fetchPosts = async () => {
       try {
         const response = await fetch('/api/posts');
@@ -38,10 +32,26 @@ export default function Home() {
     fetchPosts();
   }, []);
 
+  const organizationSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'Organization',
+    name: 'Kapi',
+    url: 'https://kapi-360-app.vercel.app',
+    logo: 'https://kapi-360-app.vercel.app/logo-kapi-verde.svg',
+    contactPoint: {
+      '@type': 'ContactPoint',
+      contactType: 'customer support',
+      email: 'contacto@kapi.com.ar'
+    }
+  };
+
   return (
     <main className="flex min-h-screen flex-col items-center">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationSchema) }}
+      />
       <Header />
-      {/* This logic is kept for now, in case a report summary is shown in a modal later */}
       {report && isLoading === false ? (
         <ReportSection report={report} isLoading={isLoading} />
       ) : (
