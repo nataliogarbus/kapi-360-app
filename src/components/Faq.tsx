@@ -18,7 +18,7 @@ const faqData = [
 
 const Faq = () => {
   return (
-    <section className="w-full max-w-3xl mx-auto mt-16 mb-16 px-4">
+    <section id="faq" className="w-full max-w-3xl mx-auto mt-16 mb-16 px-4">
       <h2 className="text-3xl font-bold text-center mb-8 text-white">Preguntas Frecuentes</h2>
       <div className="space-y-4">
         {faqData.map((item, index) => (

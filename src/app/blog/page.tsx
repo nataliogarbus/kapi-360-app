@@ -1,7 +1,8 @@
-import Link from 'next/link';
 import { getSortedPostsData } from '@/lib/posts';
+import { tagPillarMapping } from '@/lib/tag-mapping';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
+import BlogList from '@/components/BlogList';
 
 export default function BlogHome() {
   const allPostsData = getSortedPostsData();
@@ -11,17 +12,7 @@ export default function BlogHome() {
       <Header />
       <div className="w-full max-w-4xl mx-auto py-12 sm:py-24">
         <h1 className="text-4xl sm:text-5xl font-extrabold mb-12 text-center text-white">Blog Estratégico de Kapi</h1>
-        <div className="space-y-8">
-          {allPostsData.map(({ slug, title, date, excerpt }) => (
-            <Link href={`/blog/${slug}`} key={slug}>
-              <div className="block bg-gray-800/50 p-8 rounded-lg hover:bg-gray-700/50 transition-colors duration-300">
-                <h2 className="text-2xl font-bold text-cyan-400 mb-2">{title}</h2>
-                <p className="text-gray-400 mb-4">{new Date(date).toLocaleDateString('es-AR', { year: 'numeric', month: 'long', day: 'numeric' })}</p>
-                <p className="text-gray-300">{excerpt}</p>
-              </div>
-            </Link>
-          ))}
-        </div>
+        <BlogList allPostsData={allPostsData} tagMapping={tagPillarMapping} />
       </div>
       <Footer />
     </main>

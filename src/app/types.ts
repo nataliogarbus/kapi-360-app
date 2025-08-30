@@ -28,3 +28,14 @@ export interface ReportSectionProps {
   report: Reporte | null;
   isLoading: boolean;
 }
+
+// --- Tipos para el Blog ---
+export interface PostData {
+  slug: string;
+  title: string;
+  date: string;
+  excerpt: string;
+  category: string;
+  tags: string[];
+  content?: string; // El contenido es opcional, solo se carga en la página del post
+}

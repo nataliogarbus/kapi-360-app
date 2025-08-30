@@ -1,13 +1,14 @@
 import fs from 'fs';
 import path from 'path';
 import matter from 'gray-matter';
+import { PostData } from '@/app/types';
 
 const postsDirectory = path.join(process.cwd(), '_articulos_google_docs');
 
 // Existing function to get all posts, sorted by date
-export function getSortedPostsData() {
+export function getSortedPostsData(): PostData[] {
   const fileNames = fs.readdirSync(postsDirectory);
-  const allPostsData = fileNames.map((fileName) => {
+  const allPostsData: PostData[] = fileNames.map((fileName) => {
     const slug = fileName.replace(/\.md$/, '');
     const fullPath = path.join(postsDirectory, fileName);
     const fileContents = fs.readFileSync(fullPath, 'utf8');
@@ -15,7 +16,11 @@ export function getSortedPostsData() {
 
     return {
       slug,
-      ...(matterResult.data as { title: string; date: string; excerpt: string; category: string; tags: string[] }),
+      title: matterResult.data.title,
+      date: matterResult.data.date,
+      excerpt: matterResult.data.excerpt,
+      category: matterResult.data.category,
+      tags: matterResult.data.tags,
     };
   });
 
@@ -41,7 +46,7 @@ export function getAllPostIds() {
 }
 
 // Function to get data for a single post
-export function getPostData(slug: string) {
+export function getPostData(slug: string): PostData {
   const decodedSlug = decodeURIComponent(slug);
   const fullPath = path.join(postsDirectory, `${decodedSlug}.md`);
   const fileContents = fs.readFileSync(fullPath, 'utf8');
@@ -50,7 +55,11 @@ export function getPostData(slug: string) {
   return {
     slug: decodedSlug,
     content: matterResult.content,
-    ...(matterResult.data as { title: string; date: string; excerpt: string; category: string; tags: string[] }),
+    title: matterResult.data.title,
+    date: matterResult.data.date,
+    excerpt: matterResult.data.excerpt,
+    category: matterResult.data.category,
+    tags: matterResult.data.tags,
   };
 }
 
@@ -76,4 +85,12 @@ export function getAllTags() {
       tag: tag,
     },
   }));
+}
+
+// NEW: Function to get a simple list of unique tags for the UI
+export function getUniqueTags(): string[] {
+  const allPosts = getSortedPostsData();
+  const allTags = allPosts.flatMap(post => post.tags || []);
+  const uniqueTags = [...new Set(allTags)];
+  return uniqueTags.sort();
 }

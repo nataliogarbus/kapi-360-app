@@ -42,11 +42,16 @@ const FeaturedPosts = ({ posts }: { posts: Post[] }) => {
             </Link>
           ))}
         </div>
-        <div className="text-center mt-16">
+        <div className="text-center mt-16 flex justify-center items-center flex-wrap gap-4">
           <Link href="/blog">
-            <p className="inline-block bg-cyan-500 text-white font-bold py-3 px-8 rounded-lg hover:bg-cyan-600 transition-colors duration-300 text-lg">
+            <span className="inline-block bg-cyan-500 text-black font-bold py-3 px-8 rounded-lg hover:bg-cyan-600 transition-colors duration-300 text-lg cursor-pointer">
               Ver todos los artículos
-            </p>
+            </span>
+          </Link>
+          <Link href="/blog">
+            <span className="inline-block border border-cyan-500 text-cyan-500 font-bold py-3 px-8 rounded-lg hover:bg-cyan-500 hover:text-black transition-colors duration-300 text-lg cursor-pointer">
+              Explorar por Categorías
+            </span>
           </Link>
         </div>
       </div>
