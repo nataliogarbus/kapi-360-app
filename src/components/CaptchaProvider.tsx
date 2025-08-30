@@ -25,7 +25,14 @@ export default function CaptchaProvider({ children }: { children: React.ReactNod
   }
 
   return (
-    <GoogleReCaptchaProvider reCaptchaKey={recaptchaSiteKey}>
+    <GoogleReCaptchaProvider 
+      reCaptchaKey={recaptchaSiteKey}
+      scriptProps={{
+        async: true,
+        defer: true,
+        appendTo: 'body',
+      }}
+    >
       {children}
     </GoogleReCaptchaProvider>
   );

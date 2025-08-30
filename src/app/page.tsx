@@ -1,19 +1,22 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import dynamic from 'next/dynamic';
 import Header from "@/components/Header";
 import ReportSection from "@/components/ReportSection";
-import Faq from "@/components/Faq";
 import Footer from "@/components/Footer";
-import ComoFunciona from "@/components/ComoFunciona";
-import Servicios from "@/components/Servicios";
-import CasosExito from "@/components/CasosExito";
-import FeaturedPosts from "@/components/FeaturedPosts";
-import NewsletterSection from "@/components/NewsletterSection";
-import ContactForm from "@/components/ContactForm";
 import HeroSection from "@/components/HeroSection";
 import { Reporte } from '@/app/types';
 import { ScrollAnimationWrapper } from '@/components/ScrollAnimationWrapper';
+
+// Carga dinámica de componentes que no son críticos para el primer render
+const ComoFunciona = dynamic(() => import('@/components/ComoFunciona'));
+const Servicios = dynamic(() => import('@/components/Servicios'));
+const CasosExito = dynamic(() => import('@/components/CasosExito'));
+const FeaturedPosts = dynamic(() => import('@/components/FeaturedPosts'));
+const Faq = dynamic(() => import('@/components/Faq'));
+const NewsletterSection = dynamic(() => import('@/components/NewsletterSection'));
+const ContactForm = dynamic(() => import('@/components/ContactForm'));
 
 export default function Home() {
   const [isLoading, setIsLoading] = useState(false);
