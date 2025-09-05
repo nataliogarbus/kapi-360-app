@@ -22,7 +22,7 @@ const FeaturedPosts = ({ posts }: { posts: Post[] }) => {
         </div>
         <div className="grid gap-8 md:grid-cols-1 lg:grid-cols-3">
           {posts.map((post) => (
-            <Link href={`/blog/${post.slug}`} key={post.slug} className="block bg-gray-800/50 rounded-2xl p-8 flex flex-col h-full hover:bg-gray-700/50 transition-colors duration-300">
+            <div key={post.slug} className="block bg-gray-800/50 rounded-2xl p-8 flex flex-col h-full hover:bg-gray-700/50 transition-colors duration-300">
                 <div className="flex-grow">
                   <Link 
                     href={`/blog/category/${encodeURIComponent(post.category)}`}
@@ -35,11 +35,11 @@ const FeaturedPosts = ({ posts }: { posts: Post[] }) => {
                   <p className="mt-4 text-gray-300">{post.excerpt}</p>
                 </div>
                 <div className="mt-6">
-                  <p className="text-blue-400 font-semibold">
+                  <Link href={`/blog/${post.slug}`} className="text-blue-400 font-semibold">
                     Leer más &rarr;
-                  </p>
+                  </Link>
                 </div>
-            </Link>
+            </div>
           ))}
         </div>
         <div className="text-center mt-16 flex justify-center items-center flex-wrap gap-4">

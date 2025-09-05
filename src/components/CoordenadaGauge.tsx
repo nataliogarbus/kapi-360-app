@@ -30,31 +30,25 @@ const coordenadaExplicaciones: { [key: string]: string } = {
   "Uso de Publicidad Paga (SEM)": "Evalúa si estás invirtiendo en publicidad online (Google Ads, Social Ads) y el retorno de dicha inversión."
 };
 
-const getPathColor = (score: number) => {
-  if (score < 40) return '#f87171'; // red-400
-  if (score < 70) return '#facc15'; // yellow-400
-  return '#22d3ee'; // cyan-400
-};
-
 const CoordenadaGauge: React.FC<{ coordenada: CoordenadaClave }> = ({ coordenada }) => {
-  const color = getPathColor(coordenada.score);
+  const color = '#0057FF'; // kapi-azul-electrico
   const explicacion = coordenadaExplicaciones[coordenada.titulo] || "Esta es una coordenada personalizada generada por la IA.";
 
   return (
-    <div className="flex items-center justify-between bg-slate-900/50 p-3 rounded-lg">
+    <div className="flex items-center justify-between bg-kapi-negro-suave p-3 rounded-lg">
       <div className="flex items-center">
-        <span className="text-slate-300 text-sm font-medium">{coordenada.titulo}</span>
+        <span className="text-kapi-gris-claro text-sm font-medium">{coordenada.titulo}</span>
         <Info 
-          className="w-4 h-4 text-slate-500 ml-2 cursor-pointer"
+          className="w-4 h-4 text-kapi-gris-medio ml-2 cursor-pointer"
           data-tooltip-id="coordenada-tooltip"
           data-tooltip-content={explicacion}
         />
       </div>
       <div className="flex items-center">
-        <span className="font-bold text-lg mr-3" style={{ color }}>
+        <span className="font-bold text-lg mr-3 text-kapi-gris-claro">
           {coordenada.score}
         </span>
-        <div className="w-16 h-2 bg-slate-700 rounded-full">
+        <div className="w-16 h-2 bg-kapi-gris-oscuro rounded-full">
           <div 
             className="h-2 rounded-full"
             style={{ width: `${coordenada.score}%`, backgroundColor: color, transition: 'width 1.5s ease-out' }}

@@ -5,6 +5,7 @@ import "./globals.css";
 import CaptchaProvider from "@/components/CaptchaProvider";
 import GoogleTagManager from "@/components/GoogleTagManager";
 import Script from "next/script";
+import { Toaster } from 'react-hot-toast';
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -20,11 +21,20 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="es">
-      <body className={`${inter.className} bg-[#1a1a1a]`}>
+      <body className={`${inter.className} bg-kapi-negro-suave text-kapi-gris-medio`}>
         <Suspense fallback={null}>
           <GoogleTagManager />
         </Suspense>
         <CaptchaProvider>
+          <Toaster 
+            position="bottom-right"
+            toastOptions={{
+              style: {
+                background: '#333',
+                color: '#fff',
+              },
+            }}
+          />
           {children}
         </CaptchaProvider>
         {/* Pipedrive Leadbooster Script */}

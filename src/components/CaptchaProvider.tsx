@@ -3,36 +3,19 @@ import { GoogleReCaptchaProvider } from 'react-google-recaptcha-v3';
 import React from 'react';
 
 export default function CaptchaProvider({ children }: { children: React.ReactNode }) {
-  // Si estamos en entorno de desarrollo, no renderizamos el proveedor de reCAPTCHA.
-  if (process.env.NODE_ENV === 'development') {
-    console.log("Modo desarrollo: reCAPTCHA deshabilitado.");
+  const recaptchaKey = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY;
+
+  // Si no hay clave, simplemente renderizamos los hijos sin el proveedor.
+  // El hook en el formulario fallará, pero la app no se romperá.
+  // Se mostrará una advertencia en la consola del navegador.
+  if (!recaptchaKey) {
+    console.warn("ADVERTENCIA: La clave de Google ReCaptcha no está configurada. El envío de formularios fallará.");
     return <>{children}</>;
   }
 
-  // El resto de la lógica solo se ejecuta en producción
-  const recaptchaSiteKey = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY;
-
-  if (!recaptchaSiteKey) {
-    // Este error ahora solo aparecerá en producción si la variable no está configurada
-    return (
-        <>
-            <div className="bg-red-900 text-white p-4 text-center fixed top-0 left-0 w-full z-50">
-                Error: La clave de sitio de reCAPTCHA no está configurada en las variables de entorno.
-            </div>
-            {children}
-        </>
-    );
-  }
-
+  // Si hay clave, envolvemos la aplicación con el proveedor para que funcione.
   return (
-    <GoogleReCaptchaProvider 
-      reCaptchaKey={recaptchaSiteKey}
-      scriptProps={{
-        async: true,
-        defer: true,
-        appendTo: 'body',
-      }}
-    >
+    <GoogleReCaptchaProvider reCaptchaKey={recaptchaKey}>
       {children}
     </GoogleReCaptchaProvider>
   );

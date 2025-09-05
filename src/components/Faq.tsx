@@ -24,7 +24,7 @@ const Faq = () => {
         {faqData.map((item, index) => (
           <details key={index} className="bg-gray-800 border border-gray-700 rounded-lg p-4 group">
             <summary className="flex justify-between items-center font-medium cursor-pointer text-white list-none">
-              <span>{item.question}</span>
+              <h3 className="text-lg font-medium">{item.question}</h3>
               <span className="transition-transform duration-300 group-open:rotate-180">
                 <svg fill="none" height="24" shapeRendering="geometricPrecision" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" viewBox="0 0 24 24" width="24"><path d="M6 9l6 6 6-6"></path></svg>
               </span>

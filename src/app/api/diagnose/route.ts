@@ -6,7 +6,8 @@ import { kv } from '@vercel/kv';
 import { ipAddress } from '@vercel/edge';
 
 // --- CONFIGURACIÓN DE SERVICIOS ---
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
+const geminiApiKey = process.env.GEMINI_API_KEY || '';
+const genAI = new GoogleGenerativeAI(geminiApiKey);
 const model = genAI.getGenerativeModel({ model: "gemini-1.5-pro" });
 
 // --- CONFIGURACIÓN DE RATE LIMITER ---
