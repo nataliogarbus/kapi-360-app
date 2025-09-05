@@ -11,7 +11,7 @@ export async function deleteProject(projectId: string) {
   }
 
   const cookieStore = cookies();
-  const supabase = createClient(cookieStore);
+  const supabase = createClient();
 
   const { error } = await supabase
     .from('projects')
@@ -29,7 +29,7 @@ export async function deleteProject(projectId: string) {
 
 export async function signOut() {
   const cookieStore = cookies();
-  const supabase = createClient(cookieStore);
+  const supabase = createClient();
   await supabase.auth.signOut();
   return redirect('/login');
 }
@@ -41,7 +41,7 @@ export async function updateProject(formData: FormData) {
   const assignedUserIds = formData.getAll('userIds') as string[];
 
   const cookieStore = cookies();
-  const supabase = createClient(cookieStore);
+  const supabase = createClient();
 
   // 1. Update project details
   const { error: projectError } = await supabase
@@ -107,7 +107,7 @@ export async function createProject(formData: FormData) {
   }
 
   const cookieStore = cookies();
-  const supabase = createClient(cookieStore);
+  const supabase = createClient();
 
   const { data, error } = await supabase
     .from('projects')
@@ -139,7 +139,7 @@ export async function addMessageToProject(formData: FormData): Promise<{ success
   }
 
   const cookieStore = cookies();
-  const supabase = createClient(cookieStore);
+  const supabase = createClient();
 
   const { data: { user } } = await supabase.auth.getUser();
 
