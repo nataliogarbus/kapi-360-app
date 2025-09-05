@@ -7,7 +7,7 @@ const PrivacyPolicyPage = () => {
       <p className="text-sm text-gray-400 mb-8">**Fecha de entrada en vigor:** 4 de septiembre de 2025</p>
 
       <p className="mb-4">
-        En Portal Kapi, valoramos y respetamos la privacidad de los datos de nuestros clientes. Esta Política de Privacidad describe cómo recopilamos, utilizamos y protegemos la información obtenida a través de nuestra herramienta "Portal Kapi", diseñada para proporcionar informes de rendimiento de campañas publicitarias.
+        En Portal Kapi, valoramos y respetamos la privacidad de los datos de nuestros clientes. Esta Política de Privacidad describe cómo recopilamos, utilizamos y protegemos la información obtenida a través de nuestra herramienta &quot;Portal Kapi&quot;, diseñada para proporcionar informes de rendimiento de campañas publicitarias.
       </p>
 
       <h2 className="text-2xl font-bold mt-8 mb-4 text-white">1. Información que Recopilamos</h2>
