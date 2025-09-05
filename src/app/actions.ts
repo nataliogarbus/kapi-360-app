@@ -38,8 +38,17 @@ export async function signOut() {
 export async function updateProject(formData: FormData) {
   const projectId = formData.get('projectId') as string;
   const name = formData.get('name') as string;
-  const status = formData.get('status') as string;
+  const statusFromForm = formData.get('status') as string;
   const assignedUserIds = formData.getAll('userIds') as string[];
+
+  // Define and validate the status to match the database enum
+  const allowedStatuses = ["Planificación", "Activo", "En Pausa", "Completado", "Cancelado"] as const;
+  type ProjectStatus = typeof allowedStatuses[number];
+
+  if (!allowedStatuses.includes(statusFromForm as any)) {
+    return { error: `Estado inválido proporcionado: ${statusFromForm}` };
+  }
+  const status = statusFromForm as ProjectStatus;
 
   const cookieStore = cookies();
   const supabase = createClient();
