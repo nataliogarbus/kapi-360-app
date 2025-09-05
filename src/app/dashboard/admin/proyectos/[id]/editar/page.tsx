@@ -1,47 +1,4 @@
-import { createClient } from '@/lib/supabase/server';
-import { cookies } from 'next/headers';
-import { notFound } from 'next/navigation';
-import EditProjectForm from '@/components/EditProjectForm';
-
-interface EditProjectPageProps {
-  params: { id: string };
-}
-
-export default async function EditProjectPage({ params }: EditProjectPageProps) {
-  const cookieStore = cookies();
-  const supabase = createClient(cookieStore);
-
-  // Fetch all data in parallel
-  const [projectData, usersData, assignmentsData] = await Promise.all([
-    supabase.from('projects').select('*').eq('id', params.id).single(),
-    supabase.from('profiles').select('id, full_name, email').eq('role', 'client'),
-    supabase.from('project_users').select('user_id').eq('project_id', params.id)
-  ]);
-
-  const { data: project, error: projectError } = projectData;
-  const { data: allUsers, error: usersError } = usersData;
-  const { data: assignedUsers, error: assignmentsError } = assignmentsData;
-
-  if (projectError || !project) {
-    console.error('Error fetching project:', projectError);
-    notFound();
-  }
-
-  if (usersError) {
-    console.error('Error fetching users:', usersError);
-    // Handle error appropriately
-    return <p>Error al cargar los usuarios.</p>;
-  }
-  
-  if (assignmentsError) {
-    console.error('Error fetching assignments:', assignmentsError);
-    return <p>Error al cargar las asignaciones.</p>;
-  }
-
-  const assignedUserIds = assignedUsers.map(a => a.user_id);
-
-  return (
-    'use client';
+'use client';
 
 import { createClient } from '@/lib/supabase/client';
 import EditProjectForm from '@/components/EditProjectForm';
@@ -89,7 +46,7 @@ export default function EditProjectPage({ params }: EditProjectPageProps) {
           <div className="h-10 bg-gray-700 rounded"></div>
           <div className="h-20 bg-gray-700 rounded"></div>
           <div className="h-40 bg-gray-700 rounded"></div>
-          <div className="h-12 bg-gray-600 rounded w-1/4 ml-auto"></div>
+          <div className="h-12 bg-gray-600 rounded w-1/3 ml-auto"></div>
         </div>
       </div>
     );
@@ -112,7 +69,5 @@ export default function EditProjectPage({ params }: EditProjectPageProps) {
         assignedUserIds={data.assignedUserIds}
       />
     </div>
-  );
-}
   );
 }
