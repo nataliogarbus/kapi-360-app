@@ -4,6 +4,7 @@ import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
 import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation';
+import type { Database } from '@/lib/database.types';
 
 export async function deleteProject(projectId: string) {
   if (!projectId) {
@@ -44,9 +45,10 @@ export async function updateProject(formData: FormData) {
   const supabase = createClient();
 
   // 1. Update project details
+  const updateData: Database['public']['Tables']['projects']['Update'] = { name, status };
   const { error: projectError } = await supabase
     .from('projects')
-    .update({ name, status })
+    .update(updateData)
     .eq('id', projectId);
 
   if (projectError) {
