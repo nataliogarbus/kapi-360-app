@@ -21,7 +21,7 @@
     "@vercel/kv": "^3.0.0",
     "chart.js": "^4.5.0",
     "framer-motion": "^12.23.12",
-    "google-ads-api": "^21.0.1",
+    "google-ads-api": "^14.0.0",
     "google-auth-library": "^9.0.0",
     "gray-matter": "^4.0.3",
     "html2canvas": "^1.4.1",
@@ -55,3 +55,5 @@
     "typescript": "^5"
   }
 }
+
+
