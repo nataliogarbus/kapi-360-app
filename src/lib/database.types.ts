@@ -190,7 +190,7 @@ export type Database = {
     }
     Enums: {
       project_status:
-        | "Planificaci├│n"
+        | "Planificación"
         | "Activo"
         | "En Pausa"
         | "Completado"
