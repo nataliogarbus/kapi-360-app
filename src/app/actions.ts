@@ -111,7 +111,16 @@ export async function updateProject(formData: FormData) {
 
 export async function createProject(formData: FormData) {
   const name = formData.get('name') as string;
-  const status = formData.get('status') as string;
+  const statusFromForm = formData.get('status') as string;
+
+  // Define and validate the status to match the database enum
+  const allowedStatuses = ["Planificación", "Activo", "En Pausa", "Completado", "Cancelado"] as const;
+  type ProjectStatus = typeof allowedStatuses[number];
+
+  if (!allowedStatuses.includes(statusFromForm as any)) {
+    return { error: `Estado inválido proporcionado: ${statusFromForm}` };
+  }
+  const status = statusFromForm as ProjectStatus;
 
   if (!name || !status) {
     return { error: 'Nombre y estado son requeridos.' };
