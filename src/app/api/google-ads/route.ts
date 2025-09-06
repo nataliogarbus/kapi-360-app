@@ -1,10 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { GoogleAdsApi } from 'google-ads-api';
+import { OAuth2Client } from 'google-auth-library';
 
 export async function GET(request: NextRequest) {
   try {
     const developerToken = process.env.GOOGLE_ADS_DEVELOPER_TOKEN;
-    const loginCustomerId = process.env.GOOGLE_ADS_LOGIN_CUSTOMER_ID;
+    const loginCustomerId = process.env.GOOGLE_ADS_LOGIN_CUSTOMER_ID; // Still needed for later operations
     const clientId = process.env.GOOGLE_ADS_CLIENT_ID;
     const clientSecret = process.env.GOOGLE_ADS_CLIENT_SECRET;
     const refreshToken = process.env.GOOGLE_ADS_REFRESH_TOKEN;
@@ -20,13 +21,12 @@ export async function GET(request: NextRequest) {
     // --- FIN VERIFICACIÓN EXPLÍCITA ---
 
     // Validación de variables de entorno
-    if (!developerToken || !loginCustomerId || !clientId || !clientSecret || !refreshToken) {
+    if (!developerToken || !clientId || !clientSecret || !refreshToken) { // loginCustomerId is not needed for constructor
       console.error('ERROR: Faltan una o más variables de entorno de Google Ads API.');
       return NextResponse.json({
         error: 'Faltan una o más variables de entorno de Google Ads API.',
         details: {
           developerToken: !!developerToken,
-          loginCustomerId: !!loginCustomerId,
           clientId: !!clientId,
           clientSecret: !!clientSecret,
           refreshToken: !!refreshToken,
@@ -34,14 +34,18 @@ export async function GET(request: NextRequest) {
       }, { status: 500 });
     }
 
+    // Create an OAuth2 client
+    const oauth2Client = new OAuth2Client(
+      clientId,
+      clientSecret,
+      '' // Redirect URI is not needed for refresh token flow
+    );
+    oauth2Client.setCredentials({ refresh_token: refreshToken });
+
     // --- RECONSTRUCCIÓN DEL OBJETO CLIENTE ---
     const client = new GoogleAdsApi({
       developer_token: developerToken,
-      credentials: {
-        client_id: clientId,
-        client_secret: clientSecret,
-        refresh_token: refreshToken,
-      },
+      oauth2_client: oauth2Client, // Pass the OAuth2 client here
     });
     // --- FIN RECONSTRUCCIÓN ---
 
