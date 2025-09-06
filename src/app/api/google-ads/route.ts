@@ -37,7 +37,6 @@ export async function GET(request: NextRequest) {
     // --- RECONSTRUCCIÓN DEL OBJETO CLIENTE ---
     const client = new GoogleAdsApi({
       developer_token: developerToken,
-      login_customer_id: loginCustomerId,
       credentials: {
         client_id: clientId,
         client_secret: clientSecret,
