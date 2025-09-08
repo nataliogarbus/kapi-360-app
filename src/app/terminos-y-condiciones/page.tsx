@@ -61,7 +61,7 @@ Estos Términos y Condiciones se regirán e interpretarán de acuerdo con las le
 ---
 **Contacto:**
 
-Si tiene alguna pregunta sobre estos Términos, por favor, contáctenos en [email o dirección de contacto de Kapi].
+Si tiene alguna pregunta sobre estos Términos, por favor, contáctenos en hola@kapi.com.ar.
 `;
 
 export default function TerminosYCondicionesPage() {
