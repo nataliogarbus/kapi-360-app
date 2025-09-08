@@ -1,4 +1,7 @@
-import { Message } from '@/app/types';
+import { Tables } from '@/lib/database.types';
+
+// Define the Message type from the database schema
+type Message = Tables<'messages'>;
 
 interface MessagingFeedProps {
   messages: Message[];
@@ -8,7 +11,10 @@ export default function MessagingFeed({ messages }: MessagingFeedProps) {
   return (
     <div className="space-y-6">
       {messages.map((message) => {
-        const isKapiSender = message.author_role === 'kapi_team';
+        // FIXME: The logic to determine the sender is a placeholder.
+        // The original 'author_role' property does not exist on the message object.
+        const isKapiSender = false; 
+
         return (
           <div 
             key={message.id}

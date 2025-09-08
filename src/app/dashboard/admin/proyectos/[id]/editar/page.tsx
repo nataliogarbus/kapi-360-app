@@ -14,7 +14,7 @@ const supabase = createClient();
 const fetcher = async (projectId: string) => {
   const [projectData, usersData, assignmentsData] = await Promise.all([
     supabase.from('projects').select('*').eq('id', projectId).single(),
-    supabase.from('profiles').select('id, full_name, email').eq('role', 'client'),
+    supabase.from('profiles').select('id, full_name').eq('role', 'cliente'),
     supabase.from('project_users').select('user_id').eq('project_id', projectId)
   ]);
 

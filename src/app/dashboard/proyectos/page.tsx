@@ -44,6 +44,21 @@ export default function ProyectosPage() {
     );
   }
 
+  // Add a guard for undefined projects after loading and error checks
+  if (!projects) {
+    return (
+      <div className="p-4 sm:p-6 lg:p-8">
+        <div className="flex justify-between items-center mb-8">
+          <h1 className="text-3xl font-bold text-kapi-gris-claro">Mis Proyectos</h1>
+        </div>
+        <DashboardSection className="text-center !py-12">
+          <h3 className="text-lg font-medium text-kapi-gris-claro">No se encontraron datos</h3>
+          <p className="mt-1 text-sm text-kapi-gris-medio">No fue posible cargar la información de los proyectos.</p>
+        </DashboardSection>
+      </div>
+    );
+  }
+
   return (
     <div className="p-4 sm:p-6 lg:p-8">
       <div className="flex justify-between items-center mb-8">

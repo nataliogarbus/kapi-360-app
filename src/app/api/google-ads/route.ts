@@ -1,11 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { GoogleAdsApi } from 'google-ads-api';
-import { OAuth2Client } from 'google-auth-library';
 
 export async function GET(request: NextRequest) {
   try {
     const developerToken = process.env.GOOGLE_ADS_DEVELOPER_TOKEN;
-    const loginCustomerId = process.env.GOOGLE_ADS_LOGIN_CUSTOMER_ID; // Still needed for later operations
+    const loginCustomerId = process.env.GOOGLE_ADS_LOGIN_CUSTOMER_ID;
     const clientId = process.env.GOOGLE_ADS_CLIENT_ID;
     const clientSecret = process.env.GOOGLE_ADS_CLIENT_SECRET;
     const refreshToken = process.env.GOOGLE_ADS_REFRESH_TOKEN;
@@ -21,7 +20,7 @@ export async function GET(request: NextRequest) {
     // --- FIN VERIFICACIÓN EXPLÍCITA ---
 
     // Validación de variables de entorno
-    if (!developerToken || !clientId || !clientSecret || !refreshToken) { // loginCustomerId is not needed for constructor
+    if (!developerToken || !clientId || !clientSecret || !refreshToken || !loginCustomerId) {
       console.error('ERROR: Faltan una o más variables de entorno de Google Ads API.');
       return NextResponse.json({
         error: 'Faltan una o más variables de entorno de Google Ads API.',
@@ -30,27 +29,34 @@ export async function GET(request: NextRequest) {
           clientId: !!clientId,
           clientSecret: !!clientSecret,
           refreshToken: !!refreshToken,
+          loginCustomerId: !!loginCustomerId,
         }
       }, { status: 500 });
     }
 
-    // Create an OAuth2 client
-    const oauth2Client = new OAuth2Client(
-      clientId,
-      clientSecret,
-      '' // Redirect URI is not needed for refresh token flow
-    );
-    oauth2Client.setCredentials({ refresh_token: refreshToken });
-
-    // --- RECONSTRUCCIÓN DEL OBJETO CLIENTE ---
+    // --- CONSTRUCCIÓN DEL CLIENTE Y CUSTOMER (MÉTODO CORRECTO) ---
+    // La librería google-ads-api maneja la autenticación internamente.
     const client = new GoogleAdsApi({
+      client_id: clientId,
+      client_secret: clientSecret,
       developer_token: developerToken,
-      oauth2_client: oauth2Client, // Pass the OAuth2 client here
     });
-    // --- FIN RECONSTRUCCIÓN ---
 
-    // Llamada a la API
-    const accessibleCustomers = await client.listAccessibleCustomers();
+    const customer = client.Customer({
+      customer_id: loginCustomerId, // Usamos el manager account ID aquí
+      login_customer_id: loginCustomerId, // Y aquí también
+      refresh_token: refreshToken,
+    });
+    // --- FIN CONSTRUCCIÓN ---
+
+    // Llamada a la API para obtener los clientes accesibles por la cuenta manager
+    const accessibleCustomers = await customer.query(`
+      SELECT
+        customer_client.id,
+        customer_client.descriptive_name,
+        customer_client.status
+      FROM customer_client
+    `);
 
     return NextResponse.json({
       message: 'Conexión con Google Ads API exitosa y clientes accesibles listados.',

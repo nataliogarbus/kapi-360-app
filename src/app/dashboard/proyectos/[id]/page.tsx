@@ -3,7 +3,10 @@
 import { createClient } from '@/lib/supabase/client';
 import MessageForm from '@/components/MessageForm';
 import { addMessageToProject } from '@/app/actions';
-import { Message } from '@/app/types';
+import { Tables } from '@/lib/database.types';
+
+// Define the Message type from the database schema
+type Message = Tables<'messages'>;
 import RealtimeMessages from '@/components/RealtimeMessages';
 import useSWR from 'swr';
 import DashboardSection from '@/components/DashboardSection';

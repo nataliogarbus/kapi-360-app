@@ -10,7 +10,7 @@ import DashboardSection from './DashboardSection';
 interface UserProfile {
   id: string;
   full_name: string | null;
-  email: string | null;
+  email?: string | null;
 }
 
 interface Project {

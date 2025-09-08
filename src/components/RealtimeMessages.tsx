@@ -2,8 +2,11 @@
 
 import { useEffect, useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
-import { Message } from '@/app/types';
+import { Tables } from '@/lib/database.types';
 import MessagingFeed from './MessagingFeed';
+
+// Define the Message type from the database schema
+type Message = Tables<'messages'>;
 
 interface RealtimeMessagesProps {
   serverMessages: Message[];
