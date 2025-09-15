@@ -1,0 +1,10 @@
+[33m6d8d5fe[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m fix: Overwrite database types to solve build error
+[33mb2662bd[m fix: Apply all pending type and component fixes
+[33mbcc81dc[m chore: Force overwrite of database types
+[33m499c1dc[m fix: Restore and correct database type definitions
+[33me0931de[m fix: Update profile types for Google Ads fields
+[33m77f2c7c[m feat: Add Casavicuña institutional catalog
+[33mdb2d055[m feat: Añadir página de Métricas, TyC y Plan de Desarrollo
+[33mf993fdd[m feat: Añadir página de Métricas y Términos y Condiciones
+[33m2d96653[m feat: Añadir página de Términos y Condiciones
+[33mff731ef[m Fix: Corregir errores de tipos para el build de Vercel
