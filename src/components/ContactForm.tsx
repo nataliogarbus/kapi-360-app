@@ -48,7 +48,7 @@ const ContactForm: React.FC = () => {
     setSubmitError(null);
 
     try {
-      const response = await fetch('https://hook.eu2.make.com/z734t2xlgmyykc2T8eiiykhqibmpe9qq', {
+            const response = await fetch('https://hook.eu2.make.com/z734t2xlgmyykc278eiiykhqibmpe9qq', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData),
