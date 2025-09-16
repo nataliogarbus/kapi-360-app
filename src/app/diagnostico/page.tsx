@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import Header from "@/components/Header";
 import KapiDiagnosticForm from "@/components/KapiDiagnosticForm";
 import ReportSection from "@/components/ReportSection";
@@ -98,7 +98,9 @@ export default function DiagnosticoPage() {
               <HowItWorksSteps />
               <ReportPillarsPreview />
               {featuredPosts.length > 0 && <FeaturedPosts posts={featuredPosts} />}
-              <ContactForm />
+              <Suspense fallback={<div>Cargando formulario...</div>}>
+                <ContactForm />
+              </Suspense>
 
             </div>
           )}

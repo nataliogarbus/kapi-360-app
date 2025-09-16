@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import Header from "@/components/Header";
 import ReportSection from "@/components/ReportSection";
 import Faq from "@/components/Faq";
@@ -79,7 +79,9 @@ export default function Home() {
             <NewsletterSection />
           </ScrollAnimationWrapper>
           <ScrollAnimationWrapper>
-            <ContactForm />
+            <Suspense fallback={<div>Cargando formulario...</div>}>
+              <ContactForm />
+            </Suspense>
           </ScrollAnimationWrapper>
         </>
       )}

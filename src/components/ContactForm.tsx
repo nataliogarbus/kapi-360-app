@@ -1,6 +1,7 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { pushEvent } from '@/lib/datalayer';
 
 const ContactForm: React.FC = () => {
@@ -9,10 +10,28 @@ const ContactForm: React.FC = () => {
     email: '',
     company: '',
     message: '',
+    utm_source: '',
+    utm_medium: '',
+    utm_campaign: '',
+    utm_content: '',
+    utm_term: '',
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitMessage, setSubmitMessage] = useState<string | null>(null);
   const [submitError, setSubmitError] = useState<string | null>(null);
+
+  const searchParams = useSearchParams();
+
+  useEffect(() => {
+    setFormData(prev => ({
+      ...prev,
+      utm_source: searchParams.get('utm_source') || '',
+      utm_medium: searchParams.get('utm_medium') || '',
+      utm_campaign: searchParams.get('utm_campaign') || '',
+      utm_content: searchParams.get('utm_content') || '',
+      utm_term: searchParams.get('utm_term') || '',
+    }));
+  }, [searchParams]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -29,34 +48,27 @@ const ContactForm: React.FC = () => {
     setSubmitError(null);
 
     try {
-      const response = await fetch('/api/contact', {
+      const response = await fetch('https://hook.eu2.make.com/z734t2xlgmyykc2T8eiiykhqibmpe9qq', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData),
       });
-
-      const result = await response.json();
-
       if (!response.ok) {
-        throw new Error(result.error || 'Error al enviar el mensaje.');
+        throw new Error('Error al enviar los datos al webhook.');
       }
-
-      // Evento de conversión para GTM
       pushEvent({
         event: 'generate_lead',
         form_location: 'contact_form_homepage'
       });
-
       setSubmitMessage('¡Gracias! Su mensaje ha sido enviado. Nos pondremos en contacto con usted a la brevedad.');
-      setFormData({ name: '', email: '', company: '', message: '' });
-
+      setFormData(prev => ({ ...prev, name: '', email: '', company: '', message: '' }));
     } catch (err: any) {
       setSubmitError(err.message || 'Ocurrió un error. Por favor, inténtelo de nuevo.');
     } finally {
       setIsSubmitting(false);
     }
   };
-
+  
   return (
     <section id="contact" className="w-full max-w-3xl mx-auto py-12 px-4 sm:px-6 lg:px-8 bg-[#1a1a1a] rounded-lg shadow-xl mt-12">
       <h2 className="text-3xl font-bold text-center text-white mb-2">Agende una Consultoría con un Director</h2>
@@ -99,3 +111,4 @@ const ContactForm: React.FC = () => {
 };
 
 export default ContactForm;
+
