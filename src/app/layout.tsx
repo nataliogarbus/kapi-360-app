@@ -6,6 +6,7 @@ import CaptchaProvider from "@/components/CaptchaProvider";
 import GoogleTagManager from "@/components/GoogleTagManager";
 import Script from "next/script";
 import { Toaster } from 'react-hot-toast';
+import { Analytics } from '@vercel/analytics/react';
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -61,6 +62,7 @@ export default function RootLayout({
           `}
         </Script>
         <Script src="https://leadbooster-chat.pipedrive.com/assets/loader.js" async strategy="lazyOnload" />
+        <Analytics />
       </body>
     </html>
   );
