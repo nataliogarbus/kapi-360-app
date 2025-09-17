@@ -62,6 +62,7 @@ export default function RootLayout({
           `}
         </Script>
         <Script src="https://leadbooster-chat.pipedrive.com/assets/loader.js" async strategy="lazyOnload" />
+        {/* Vercel Analytics */}
         <Analytics />
       </body>
     </html>
