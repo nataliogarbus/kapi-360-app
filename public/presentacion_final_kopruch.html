@@ -98,17 +98,21 @@
             }
 
             /* Control de saltos de página */
-            section, .grid > div, .relative.mb-8, .relative {
+            section {
+                page-break-before: always; /* Fuerza una nueva página para cada sección */
+            }
+
+            section:first-of-type {
+                page-break-before: auto; /* La primera sección no necesita un salto antes */
+            }
+
+            /* Evitar que estos elementos se corten entre páginas */
+            .grid > div, blockquote, .relative.mb-8, .relative {
                 page-break-inside: avoid;
             }
 
-            section {
-                margin-top: 1.5rem;
-                margin-bottom: 1.5rem;
-            }
-
-            h2, h3 {
-                page-break-after: avoid;
+            h2, h3, h4 {
+                page-break-after: avoid; /* Evita que un título quede solo al final de una página */
             }
             
             /* Hoja de ruta */
