@@ -41,8 +41,6 @@
         @media print {
             body {
                 font-family: 'Georgia', 'Times New Roman', serif;
-                background-color: #fff !important;
-                color: #000 !important;
                 -webkit-print-color-adjust: exact;
                 print-color-adjust: exact;
             }
@@ -59,42 +57,16 @@
                 display: none !important;
             }
 
-            /* Resetear animaciones y estilos visuales */
+            /* Resetear animaciones */
             .fade-in-section, .fade-in-section.is-visible, .transition, .duration-300, .hover\:shadow-2xl, .hover\:-translate-y-2 {
                 opacity: 1 !important;
                 transform: none !important;
                 transition: none !important;
             }
-
-            /* Forzar fondos y colores para impresión */
-            .bg-gray-50, .bg-white, .bg-brand-green {
-                background-color: #fff !important;
-            }
             
-            h1, h2, h3, h4, h5, h6, p, li, strong, blockquote, div, span {
-                color: #000 !important;
-            }
-
-            .text-brand-green, .text-white {
-                color: #000 !important;
-            }
-            
-            .rounded-full {
-                border: 1px solid #000;
-                background-color: #fff !important;
-            }
-
-            /* Eliminar sombras y bordes de color */
+            /* Eliminar sombras que no se imprimen bien */
             .shadow-lg, .shadow-xl, .shadow-md {
                 box-shadow: none !important;
-            }
-            
-            .border-t-4, .border-b-4, .border-l-4 {
-                border-color: #ccc !important;
-            }
-            
-            .rounded-xl, .rounded-lg {
-                border: 1px solid #eee;
             }
 
             /* Control de saltos de página */
@@ -106,7 +78,6 @@
                 page-break-before: auto; /* La primera sección no necesita un salto antes */
             }
 
-            /* Evitar que estos elementos se corten entre páginas */
             .grid > div, blockquote, .relative.mb-8, .relative {
                 page-break-inside: avoid;
             }
@@ -115,9 +86,9 @@
                 page-break-after: avoid; /* Evita que un título quede solo al final de una página */
             }
             
-            /* Hoja de ruta */
+            /* Ajustes para la Hoja de ruta */
             .absolute.left-1\/2.top-0.bottom-0 {
-                display: none !important; /* Ocultar línea vertical */
+                display: none !important;
             }
             .ml-\[calc\(50\%\+2rem\)\] {
                 margin-left: 0 !important;
