@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Catálogo Interactivo - Casavicuña</title>
+    
+    <!-- 1. Librería Swiper.js -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css"/>
+    <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+
+    <!-- 2. Estilos y Fuentes -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;700&display=swap" rel="stylesheet">
+    
+    <style>
+        html, body { position: relative; height: 100%; margin: 0; padding: 0; background-color: #f3f3f3; font-family: 'Inter', sans-serif; }
+        .swiper { width: 100%; height: 100%; }
+        .swiper-slide { text-align: center; font-size: 18px; background: #fff; display: flex; justify-content: center; align-items: center; }
+        .slide-content { display: flex; width: 100%; height: 100%; }
+        .page-left, .page-right { width: 50%; height: 100%; box-sizing: border-box; }
+        .page-left { background-size: cover; background-position: center; }
+        .page-right { background-color: #fff; padding: 3rem; display: flex; flex-direction: column; justify-content: center; text-align: left; }
+        h1, h2, h3, .font-serif { font-family: 'Playfair Display', serif; }
+        .accent-bg { background-color: #8D6E63; }
+        .accent-bg:hover { background-color: #795548; }
+        .swiper-button-next, .swiper-button-prev { color: #8D6E63; }
+    </style>
+</head>
+<body>
+    <!-- Slider main container -->
+    <div class="swiper">
+        <!-- Additional required wrapper -->
+        <div class="swiper-wrapper">
+            <!-- Las páginas (slides) se generarán aquí -->
+        </div>
+        <!-- If we need pagination -->
+        <div class="swiper-pagination"></div>
+
+        <!-- If we need navigation buttons -->
+        <div class="swiper-button-prev"></div>
+        <div class="swiper-button-next"></div>
+    </div>
+
+    <script type="text/javascript">
+        document.addEventListener('DOMContentLoaded', function () {
+            fetch('productos.json')
+                .then(response => response.json())
+                .then(productos => {
+                    const swiperWrapper = document.querySelector('.swiper-wrapper');
+
+                    // Portada
+                    let portadaHtml = `
+                        <div class="swiper-slide">
+                            <div class="slide-content w-full h-full flex items-center justify-center bg-[#fdfcfb]">
+                                <div class="text-center">
+                                    <img src="https://i.imgur.com/SpFMK7V.png" alt="Casavicuña Logo" class="h-24 w-auto mx-auto"/>
+                                    <h1 class="text-5xl mt-4 font-serif">Catálogo 2025</h1>
+                                    <p class="mt-2 text-gray-600">El arte de crear tu lugar en el mundo.</p>
+                                </div>
+                            </div>
+                        </div>`;
+                    swiperWrapper.innerHTML += portadaHtml;
+
+                    // Páginas de Productos
+                    productos.forEach(producto => {
+                        let pageHtml = `
+                            <div class="swiper-slide">
+                                <div class="slide-content">
+                                    <div class="page-left" style="background-image:url(${producto.imagen_url});"></div>
+                                    <div class="page-right">
+                                        <h2 class="text-4xl font-serif mb-4">${producto.nombre}</h2>
+                                        <p class="text-gray-600 leading-relaxed mb-8 flex-grow">${producto.descripcion}</p>
+                                        <button class="w-full py-3 px-4 border border-gray-800 text-gray-800 rounded-full hover:bg-gray-200 transition-colors mb-4">Pedir Asesoría IA</button>
+                                        <a href="${producto.tienda_url}" target="_blank" class="w-full text-center accent-bg text-white py-3 px-5 rounded-full transition-colors">Ver en la Tienda</a>
+                                    </div>
+                                </div>
+                            </div>`;
+                        swiperWrapper.innerHTML += pageHtml;
+                    });
+                    
+                    // Inicializar Swiper DESPUÉS de añadir todos los slides
+                    const swiper = new Swiper('.swiper', {
+                        // Optional parameters
+                        direction: 'horizontal',
+                        loop: false,
+                        // Navigation arrows
+                        navigation: {
+                            nextEl: '.swiper-button-next',
+                            prevEl: '.swiper-button-prev',
+                        },
+                        // Efecto
+                        effect: 'slide', // o 'fade', 'cube', 'coverflow', 'flip'
+                    });
+                })
+                .catch(e => console.error("Error cargando productos:", e));
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,23 @@
+[
+  {
+    "id": "sillon-terra",
+    "nombre": "Sillón Terra",
+    "descripcion": "Moderno y modular con respaldo y apoyabrazos móviles. Se adapta a cualquier espacio y situación, ofreciendo máximo confort y versatilidad.",
+    "imagen_url": "https://dcdn-us.mitiendanube.com/stores/003/985/767/products/captura-de-pantalla-2025-09-14-a-las-5-23-08p-m-4f736f1c35c65734fc17578815445270-1024-1024.webp",
+    "tienda_url": "https://casavicuña.com.ar/productos/sillon-terra/"
+  },
+  {
+    "id": "mesa-de-carrara",
+    "nombre": "Mesa De Carrara",
+    "descripcion": "Mesa ovalada fabricada íntegramente en Mármol de Carrara. Una pieza central única, pulida a la perfección para un acabado de lujo.",
+    "imagen_url": "https://dcdn-us.mitiendanube.com/stores/003/985/767/products/whatsapp-image-2025-09-10-at-13-54-35-2-7741db83dcd37bba1e17575266849674-1024-1024.webp",
+    "tienda_url": "https://casavicuña.com.ar/productos/mesa-de-carrara/"
+  },
+  {
+    "id": "silla-wishbone-varnish",
+    "nombre": "Silla WISHBONE Varnish",
+    "descripcion": "Un ícono del diseño que combina elegancia y comodidad, con madera de olmo laqueada y tejido de kraft natural.",
+    "imagen_url": "https://dcdn-us.mitiendanube.com/stores/003/985/767/products/copia-de-dsc_1533-fd44a6edbfbc9bee3617578827352383-1024-1024.webp",
+    "tienda_url": "https://casavicuña.com.ar/productos/silla-wishbone-varnish/"
+  }
+]

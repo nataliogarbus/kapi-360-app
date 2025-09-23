@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kopruch: Arquitectura de Marca Definitiva</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --brand-bg: #FFFFFF;
+            --brand-bg-alt: #F7FAFC;
+            --brand-text: #1a202c;
+            --brand-text-secondary: #718096;
+            --brand-primary: #3B82F6; /* Azul Vibrante */
+            --brand-border: #E2E8F0;
+        }
+
+        @media print {
+            @page {
+                size: A4 landscape;
+                margin: 1cm;
+            }
+
+            /* Reset animations and transforms for printing */
+            .animated-item {
+                opacity: 1 !important;
+                transform: translateY(0) !important;
+                transition: none !important;
+            }
+
+            body, .brand-section, .app-card {
+                background-color: white !important;
+                color: black !important;
+                -webkit-print-color-adjust: exact;
+            }
+            .no-print, .scroll-prompt, #to-top-btn, footer {
+                display: none !important;
+            }
+            #cover {
+                height: 95vh !important; /* Make cover take almost a full page */
+                padding: 2rem 0;
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                align-items: center;
+            }
+
+            /* Page break strategy */
+            #cover, .brand-section:not(:last-of-type) {
+                page-break-after: always;
+            }
+            
+            .brand-section {
+                padding: 2rem 0 !important;
+            }
+
+            /* Avoid breaking these elements */
+            .app-card, .animated-item {
+                page-break-inside: avoid;
+            }
+
+            .app-card {
+                box-shadow: none !important;
+                border: 1px solid #ccc !important;
+            }
+            h1, h2, h3, p, div {
+                color: black !important;
+            }
+            h1 { font-size: 24pt !important; }
+            h2 { font-size: 20pt !important; }
+            h3 { font-size: 16pt !important; }
+            p, div { font-size: 9pt !important; }
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--brand-bg);
+            color: var(--brand-text);
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        #cover {
+            background: linear-gradient(270deg, #f7fafc, #ffffff, #f7fafc);
+            background-size: 200% 200%;
+            animation: subtle-gradient 15s ease infinite;
+        }
+
+        @keyframes subtle-gradient {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .animated-item {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+        }
+
+        .animated-item.is-visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .scroll-prompt svg {
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-20px); }
+            60% { transform: translateY(-10px); }
+        }
+
+        .app-card {
+            transition: all 0.3s ease-in-out;
+        }
+
+        .app-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.07), 0 4px 6px -2px rgba(0, 0, 0, 0.04) !important;
+        }
+
+        #to-top-btn.visible {
+            opacity: 1;
+            pointer-events: auto;
+            transform: translateY(0);
+        }
+
+    </style>
+</head>
+<body>
+
+    <!-- Cover Section -->
+    <section id="cover" class="h-screen flex flex-col items-center justify-center text-center p-8 relative">
+        <img src="https://i.imgur.com/MMqotBi.png" alt="Logo Kopruch" class="h-56 mb-8 animated-item">
+        <h1 class="text-4xl md:text-6xl font-extrabold mb-4 animated-item" style="transition-delay: 0.1s;">Arquitectura de Marca Definitiva</h1>
+        <p class="text-xl md:text-2xl text-gray-500 max-w-3xl animated-item" style="transition-delay: 0.2s;">Presentando cada marca como una solución integral y detallando sus aplicaciones para alinear las estrategias de marketing, ventas y SEO.</p>
+        <div class="scroll-prompt absolute bottom-10 no-print animated-item" style="transition-delay: 0.4s;">
+            <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path></svg>
+        </div>
+    </section>
+
+    <main id="brands-container">
+        <!-- Brand Sections will be injected here by JS -->
+    </main>
+
+    <footer class="text-center p-10 bg-gray-100 no-print">
+        <img src="https://i.imgur.com/fGTnXEz.png" alt="Logo Kapi" class="h-20 mx-auto">
+    </footer>
+
+    <button id="to-top-btn" class="no-print fixed bottom-8 right-8 bg-blue-500 hover:bg-blue-600 text-white p-3 rounded-full shadow-lg transition-all duration-300 opacity-0 pointer-events-none transform translateY-4">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"></path></svg>
+    </button>
+
+    <script>
+        const brandData = [
+            {
+                id: 'climacontrol',
+                name: 'Kopruch CLIMACONTROL™',
+                icon: '<svg class="w-10 h-10 mr-4 text-blue-500 no-print" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path></svg',
+                slogan: 'Tecnología para el control activo de las variables climáticas.',
+                descCorta: 'Soluciones de ingeniería textil para el control activo del clima, protegiendo cultivos de alto valor y asegurando la rentabilidad de cada cosecha.',
+                descLarga: 'CLIMACONTROL™ es nuestra línea de soluciones de ingeniería textil diseñadas para ir más allá de la simple protección. No se trata de reaccionar al clima, sino de dominarlo. Nuestras mallas y coberturas permiten a los productores crear microclimas estables y optimizados, protegiendo sus cultivos de alto valor contra eventos extremos como el granizo, las heladas y la radiación solar excesiva. Es la herramienta definitiva para asegurar la calidad, el rendimiento y la rentabilidad de cada cosecha.',
+                apps: [
+                    { title: 'Protección Anti-Granizo', text: 'Nuestra malla de alta tenacidad crea un escudo impenetrable que protege viñedos y frutales durante las tormentas más severas, salvaguardando la inversión de toda una temporada.' },
+                    { title: 'Control de Sombra', text: 'Para viveros y horticultura, ofrecemos mallas con porcentajes de sombra calibrados con precisión, permitiendo regular la intensidad lumínica para acelerar el crecimiento y evitar el estrés térmico.' },
+                    { title: 'Defensa Anti-Heladas', text: 'Nuestras coberturas térmicas especiales retienen el calor irradiado por el suelo durante la noche, creando una barrera que protege los cultivos más sensibles de los daños por heladas.' }
+                ]
+            },
+            {
+                id: 'biosecure',
+                name: 'Kopruch BIOSECURE™',
+                icon: '<svg class="w-10 h-10 mr-4 text-blue-500 no-print" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12 12 0 0012 21.944a12 12 0 008.618-3.04A11.955 11.955 0 0121.618 7.984z"></path></svg',
+                slogan: 'El escudo biológico de alta precisión para sus cultivos.',
+                descCorta: 'Barreras físicas de alta densidad que aíslan los cultivos de plagas y enfermedades, garantizando un producto final más limpio y de mayor calidad.',
+                descLarga: 'BIOSECURE™ representa nuestro compromiso con una agricultura moderna y sostenible. Esta línea de agrotextiles de alta densidad crea una barrera física impenetrable que aísla los cultivos de plagas e insectos vectores de enfermedades. Al reducir drásticamente la necesidad de pesticidas, BIOSECURE™ no solo protege la salud de la planta, sino que garantiza un producto final más limpio y de mayor calidad, cumpliendo con los más altos estándares del mercado.',
+                apps: [
+                    { title: 'Cultivos Hidropónicos', text: 'Creamos un entorno completamente estéril, aislando la producción de cualquier vector externo y garantizando la máxima sanidad y rendimiento del sistema hidropónico.' },
+                    { title: 'Control de Malezas', text: 'Nuestras coberturas de suelo impiden el paso de la luz, eliminando la competencia de las malezas sin necesidad de herbicidas y optimizando el uso de agua y nutrientes.' }
+                ]
+            },
+            {
+                id: 'infraprotect',
+                name: 'Kopruch INFRAPROTECT™',
+                icon: '<svg class="w-10 h-10 mr-4 text-blue-500 no-print" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path></svg',
+                slogan: 'Sistemas de contención y seguridad para proyectos de envergadura.',
+                descCorta: 'Sistemas de contención y seguridad perimetral para grandes proyectos, garantizando la eficiencia y protección en la operación.',
+                descLarga: 'INFRAPROTECT™ es nuestra división especializada en soluciones para la seguridad y eficiencia en grandes proyectos. Entendemos que en la construcción y la industria, el control del perímetro no es un detalle, es un pilar de la gestión de riesgos. Nuestras lonas y mallas garantizan la delimitación de zonas de trabajo, la protección de personal y activos, y la contención de materiales, asegurando que las operaciones se desarrollen de manera ordenada, segura y profesional.',
+                apps: [
+                    { title: 'Seguridad en Obra', text: 'Delimitación de zonas de trabajo con lonas y mallas de alta visibilidad que cumplen con las normativas de seguridad, protegiendo al personal y al público.' },
+                    { title: 'Privacidad Perimetral', text: 'Soluciones de ocultación de alto porcentaje para countries, eventos y propiedades privadas, garantizando confidencialidad sin sacrificar la durabilidad.' },
+                    { title: 'Contención de Materiales', text: 'Mallas de alta densidad para andamios y zonas de acopio que evitan la dispersión de polvo y la caída de escombros.' }
+                ]
+            },
+            {
+                id: 'prosystem',
+                name: 'Kopruch PROSYSTEM™',
+                icon: '<svg class="w-10 h-10 mr-4 text-blue-500 no-print" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg',
+                slogan: 'Sistemas integrales para la optimización de la producción.',
+                descCorta: 'Soluciones integrales para crear y optimizar ambientes controlados, maximizando el rendimiento en la producción animal y vegetal.',
+                descLarga: 'PROSYSTEM™ es la solución para quienes buscan llevar su producción al siguiente nivel. Esta línea de productos está diseñada para crear y optimizar ambientes controlados que maximizan la eficiencia y el rendimiento, ya sea en ganadería, acuicultura o cultivos especializados. Desde cortinas de viento que mejoran el bienestar animal hasta cerramientos que estabilizan entornos de cría, PROSYSTEM™ es la inversión inteligente para una producción más rentable y sostenible.',
+                apps: [
+                    { title: 'Bienestar Animal', text: 'Cortinas rompevientos para feedlots que reducen el estrés térmico en el ganado, mejorando la conversión alimenticia y la salud general del rodeo.' },
+                    { title: 'Acuicultura', text: 'Cerramientos y coberturas para tanques de piscicultura que controlan la temperatura del agua y protegen de predadores, optimizando el ciclo de cría.' },
+                    { title: 'Producción Vegetal Especializada', text: 'Sistemas a medida para viveros y cultivos de alto rendimiento que requieren un control ambiental preciso.' }
+                ]
+            }
+        ];
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const container = document.getElementById('brands-container');
+            brandData.forEach((brand, index) => {
+                const section = document.createElement('section');
+                section.className = `brand-section py-20 px-8 ${(index % 2 === 1) ? 'bg-gray-50' : ''}`;
+                
+                let appsHtml = brand.apps.map((app, appIndex) => `
+                    <div class="app-card bg-white p-8 rounded-xl shadow-lg border-t-4 border-blue-500 animated-item" style="transition-delay: ${appIndex * 100}ms;">
+                        <h4 class="font-bold text-xl mb-3 text-gray-800">${app.title}</h4>
+                        <p class="text-gray-600" style="line-height: 1.75;">${app.text}</p>
+                    </div>
+                `).join('');
+
+                section.innerHTML = `
+                    <div class="max-w-5xl mx-auto">
+                        <div class="bg-white p-10 rounded-xl shadow-md border border-gray-200/80 animated-item">
+                            <div class="flex items-center mb-3">
+                                ${brand.icon}
+                                <h2 style="font-size: 2.5rem; line-height: 2.75rem; font-weight: 900;">${brand.name}</h2>
+                            </div>
+                            <p class="text-2xl italic font-light mb-6 text-gray-600">${brand.slogan}</p>
+                            <div class="space-y-4 text-gray-700 text-lg" style="line-height: 1.75;">
+                                <p class="font-semibold text-gray-800">${brand.descCorta}</p>
+                                <p>${brand.descLarga}</p>
+                            </div>
+                        </div>
+                        <div class="mt-16">
+                            <h3 class="text-3xl font-bold mb-8 text-center animated-item">Aplicaciones y Soluciones Específicas</h3>
+                            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                                ${appsHtml}
+                            </div>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(section);
+            });
+
+            // Animation Observer
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('is-visible');
+                        observer.unobserve(entry.target);
+                    }
+                });
+            }, { threshold: 0.1 });
+
+            document.querySelectorAll('.animated-item').forEach(item => {
+                observer.observe(item);
+            });
+
+            // Back to Top Button Logic
+            const toTopBtn = document.getElementById('to-top-btn');
+            window.addEventListener('scroll', () => {
+                if (window.scrollY > 400) {
+                    toTopBtn.classList.add('visible');
+                } else {
+                    toTopBtn.classList.remove('visible');
+                }
+            });
+            toTopBtn.addEventListener('click', () => {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            });
+        });
+    </script>
+</body>
+</html>

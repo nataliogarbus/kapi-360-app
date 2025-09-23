@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server';
 import { GoogleAdsApi } from 'google-ads-api';
 
 export async function GET() {
+  /*
+  // TEMPORARILY DISABLED TO PREVENT BUILD FAILURE DUE TO INVALID_GRANT
   try {
     // Extract environment variables
     const developerToken = process.env.GOOGLE_ADS_DEVELOPER_TOKEN;
@@ -59,4 +61,6 @@ export async function GET() {
       details: error.errors || null,
     }, { status: 500 });
   }
+  */
+  return NextResponse.json([]); // Return empty array while disabled
 }
