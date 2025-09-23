@@ -2,6 +2,18 @@ import { NextRequest, NextResponse } from 'next/server';
 import { GoogleAdsApi } from 'google-ads-api';
 
 export async function GET(request: NextRequest) {
+  // --- WORKAROUND TEMPORAL: Deshabilitar llamada a Google Ads API ---
+  // La funcionalidad original ha sido comentada para permitir el despliegue en Vercel
+  // debido a un error de "invalid_grant" con el refresh_token.
+  console.log('--- AVISO: La API de Google Ads está deshabilitada temporalmente. ---');
+  return NextResponse.json({
+    message: 'Google Ads API está deshabilitada temporalmente. Se devuelven datos de muestra.',
+    accessibleCustomers: [],
+  });
+  // --- FIN DEL WORKAROUND ---
+
+  /*
+  // --- CÓDIGO ORIGINAL COMENTADO ---
   try {
     const developerToken = process.env.GOOGLE_ADS_DEVELOPER_TOKEN;
     const loginCustomerId = process.env.GOOGLE_ADS_LOGIN_CUSTOMER_ID;
@@ -79,4 +91,5 @@ export async function GET(request: NextRequest) {
       api_error_details: error.errors ? error.errors : undefined, // Incluir detalles de la API si existen
     }, { status: 500 });
   }
+  */
 }
