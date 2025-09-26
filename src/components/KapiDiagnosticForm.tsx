@@ -3,6 +3,7 @@ import { REPORT_STRUCTURE } from '@/app/report-structure';
 import { useGoogleReCaptcha } from 'react-google-recaptcha-v3';
 import { Tooltip } from 'react-tooltip';
 
+// ... (Icon components remain the same)
 const SeoIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.72"/><path d="M14 11a5 5 0 0 0-7.54-.54l3 3a5 5 0 0 0 7.07 7.07l1.72-1.72"/></svg>;
 const UxIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><path d="M7 12h10M7 7h10M7 17h5"/></svg>;
 const ConversionIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>;
@@ -30,9 +31,11 @@ interface DiagnosticFormProps {
   onSubmit: (url: string, mode: string, context: string | undefined, recaptchaToken: string) => void;
   isLoading: boolean;
   onModeChange: (mode: string) => void;
+  submitButtonText?: string;
+  showUrlInput?: boolean;
 }
 
-const KapiDiagnosticForm: React.FC<DiagnosticFormProps> = ({ onSubmit, isLoading, onModeChange }) => {
+const KapiDiagnosticForm: React.FC<DiagnosticFormProps> = ({ onSubmit, isLoading, onModeChange, submitButtonText, showUrlInput = true }) => {
   const [mode, setMode] = useState('auto');
   const [url, setUrl] = useState('');
   const [context, setContext] = useState('');
@@ -90,11 +93,13 @@ const KapiDiagnosticForm: React.FC<DiagnosticFormProps> = ({ onSubmit, isLoading
         
         {(mode === 'auto' || mode === 'custom') && (
           <div className="flex flex-col sm:flex-row items-center bg-white/5 border border-white/20 rounded-lg p-2 gap-2 shadow-lg">
-             <div className="relative flex-grow w-full">
-               <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg></div>
-               <input type="text" value={url} onChange={(e) => setUrl(e.target.value)} className="w-full bg-transparent text-white text-lg placeholder-gray-400 pl-12 pr-4 py-3 focus:outline-none focus:ring-0 border-0" placeholder="Ingresa tu URL de sitio web" required disabled={isLoading} />
-             </div>
-             <button type="submit" className="w-full sm:w-auto bg-green-400 text-black font-bold uppercase px-8 py-3 rounded-md hover:bg-green-500 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed" disabled={isLoading || !url}>Generar Plan</button>
+            {showUrlInput && (
+              <div className="relative flex-grow w-full">
+                <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg></div>
+                <input type="text" value={url} onChange={(e) => setUrl(e.target.value)} className="w-full bg-transparent text-white text-lg placeholder-gray-400 pl-12 pr-4 py-3 focus:outline-none focus:ring-0 border-0" placeholder="Ingresa tu URL de sitio web" required disabled={isLoading} />
+              </div>
+            )}
+             <button type="submit" className="w-full sm:w-auto bg-green-400 text-black font-bold uppercase px-8 py-3 rounded-md hover:bg-green-500 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed" disabled={isLoading || (showUrlInput && !url)}>{submitButtonText || 'Generar Plan'}</button>
            </div>
         )}
 
@@ -124,7 +129,7 @@ const KapiDiagnosticForm: React.FC<DiagnosticFormProps> = ({ onSubmit, isLoading
         {mode === 'manual' && (
           <div className="flex flex-col gap-4">
             <textarea value={context} onChange={(e) => setContext(e.target.value)} className="w-full bg-white/5 border border-white/20 rounded-lg p-4 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-cyan-500" rows={5} placeholder="Describe tu problema o el área que más te preocupa..." required disabled={isLoading}></textarea>
-            <button type="submit" className="w-full bg-green-400 text-black font-bold uppercase px-8 py-3 rounded-md hover:bg-green-500 transition-all disabled:opacity-50" disabled={isLoading || !context}>Generar Plan</button>
+            <button type="submit" className="w-full bg-green-400 text-black font-bold uppercase px-8 py-3 rounded-md hover:bg-green-500 transition-all disabled:opacity-50" disabled={isLoading || !context}>{submitButtonText || 'Generar Plan'}</button>
           </div>
         )}
 
@@ -135,7 +140,7 @@ const KapiDiagnosticForm: React.FC<DiagnosticFormProps> = ({ onSubmit, isLoading
               <input type="text" placeholder="Tu nombre" className="flex-grow bg-white/5 border border-white/20 rounded-lg p-3 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-cyan-500" disabled={isLoading} />
               <input type="email" placeholder="Tu email de contacto" className="flex-grow bg-white/5 border border-white/20 rounded-lg p-3 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-cyan-500" required disabled={isLoading} />
             </div>
-            <button type="submit" className="w-full bg-green-400 text-black font-bold uppercase px-8 py-3 rounded-md hover:bg-green-500 transition-all disabled:opacity-50" disabled={isLoading || !context}>Enviar Consulta</button>
+            <button type="submit" className="w-full bg-green-400 text-black font-bold uppercase px-8 py-3 rounded-md hover:bg-green-500 transition-all disabled:opacity-50" disabled={isLoading || !context}>{submitButtonText || 'Enviar Consulta'}</button>
           </div>
         )}
       </form>
