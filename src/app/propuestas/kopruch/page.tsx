@@ -55,7 +55,7 @@ const KopruchProposalContent = () => {
             
             <section className="text-center mb-24 section-fade-in">
                 <div className="flex justify-center items-center mb-6">
-                    <img src="https://i.imgur.com/MMqotBi.png" alt="Logo Kopruch" className="h-12" />
+                    <img src="https://i.imgur.com/MMqotBi.png" alt="Logo Kopruch" className="h-24" />
                 </div>
                 <h1 className="text-4xl md:text-6xl font-extrabold text-kopruch-green tracking-tight">Proyecto Visión Kopruch</h1>
                 <h2 className="text-xl md:text-2xl mt-4 text-gray-600">La Evolución a un Sistema de Soluciones Integrales.</h2>
