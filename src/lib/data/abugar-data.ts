@@ -1,4 +1,4 @@
-export const basePath = '/images/casos-exito/abugar';
+export const basePath = '/images/casos-exito/Abugar';
 
 export const videos = [
   { src: 'Sucursal Nordelta.mp4', title: 'Showroom Nordelta' },
