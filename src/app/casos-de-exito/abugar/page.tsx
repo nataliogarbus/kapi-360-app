@@ -1,5 +1,6 @@
 import Image from 'next/image';
 import { Metadata } from 'next';
+import { Suspense } from 'react';
 import ContactForm from '@/components/ContactForm';
 import { videos, images, basePath } from '@/lib/data/abugar-data';
 
@@ -125,7 +126,9 @@ const CasoExitoAbugar = () => {
             </div>
           </section>
 
-          <ContactForm />
+          <Suspense fallback={<div className="text-center p-8">Cargando formulario...</div>}>
+            <ContactForm />
+          </Suspense>
 
           {/* Galería de Videos */}
           <section id="galeria-videos">
