@@ -1,4 +1,4 @@
-'''import Image from 'next/image';
+import Image from 'next/image';
 import { Metadata } from 'next';
 import ContactForm from '@/components/ContactForm';
 import { videos, images, basePath } from '@/lib/data/abugar-data';
@@ -170,4 +170,4 @@ const CasoExitoAbugar = () => {
   );
 };
 
-export default CasoExitoAbugar;'''
+export default CasoExitoAbugar;
