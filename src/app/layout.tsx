@@ -7,6 +7,8 @@ import GoogleTagManager from "@/components/GoogleTagManager";
 import Script from "next/script";
 import { Toaster } from 'react-hot-toast';
 import { Analytics } from '@vercel/analytics/react';
+import Header from "@/components/Header";
+import Footer from "@/components/Footer";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -36,7 +38,9 @@ export default function RootLayout({
               },
             }}
           />
+          <Header />
           {children}
+          <Footer />
         </CaptchaProvider>
         {/* Pipedrive Leadbooster Script */}
         <Script id="pipedrive-leadbooster-config" strategy="beforeInteractive">

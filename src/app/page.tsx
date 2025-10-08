@@ -52,7 +52,6 @@ export default function Home() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationSchema) }}
       />
-      <Header />
       {report && isLoading === false ? (
         <ReportSection report={report} isLoading={isLoading} />
       ) : (
@@ -85,7 +84,6 @@ export default function Home() {
           </ScrollAnimationWrapper>
         </>
       )}
-      <Footer />
     </main>
   );
 }
