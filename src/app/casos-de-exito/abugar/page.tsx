@@ -80,7 +80,7 @@ const CasoExitoAbugar = () => {
               </div>
               <div className="bg-gray-900 p-8 rounded-2xl shadow-2xl">
                 <p className="text-5xl font-extrabold text-white">Top 3</p>
-                <p className="mt-2 text-lg text-gray-300">en Google para "Sillones de Diseño"</p>
+                <p className="mt-2 text-lg text-gray-300">en Google para &quot;Sillones de Diseño&quot;</p>
               </div>
               <div className="bg-gray-900 p-8 rounded-2xl shadow-2xl">
                 <p className="text-5xl font-extrabold text-white">-50%</p>
