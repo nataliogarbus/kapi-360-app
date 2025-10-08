@@ -48,7 +48,7 @@ const CasoExitoAbugar = () => {
           <section className="text-center">
             <h2 className="text-3xl font-bold tracking-tight text-cyan-400 sm:text-4xl mb-4">El Cliente</h2>
             <p className="text-lg text-gray-300 leading-relaxed">
-              <strong>ABUGAR</strong> es una fábrica de sillones y muebles con 7 sucursales y envíos a todo el país. Aunque eran líderes en el mercado, su identidad digital no reflejaba la alta calidad y el diseño de su línea "tech".
+              <strong>ABUGAR</strong> es una fábrica de sillones y muebles con 7 sucursales y envíos a todo el país. Aunque eran líderes en el mercado, su identidad digital no reflejaba la alta calidad y el diseño de su línea &quot;tech&quot;.
             </p>
             <div className="mt-8 border-t border-gray-700 pt-8">
                 <h3 className="text-2xl font-bold tracking-tight text-cyan-400 mb-4">El Desafío</h3>
