@@ -2,6 +2,10 @@
 @tailwind components;
 @tailwind utilities;
 
+html {
+  scroll-behavior: smooth;
+}
+
 .section-fade-in {
     opacity: 0;
     transform: translateY(20px);

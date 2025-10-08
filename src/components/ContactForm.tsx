@@ -71,7 +71,7 @@ const ContactForm: React.FC = () => {
   
   return (
     <section id="contact" className="w-full max-w-3xl mx-auto py-12 px-4 sm:px-6 lg:px-8 bg-[#1a1a1a] rounded-lg shadow-xl mt-12">
-      <h2 className="text-3xl font-bold text-center text-white mb-2">Agende una Consultoría con un Director</h2>
+      <h2 className="text-3xl font-bold text-center text-white mb-2">Agende una Consultoría Estratégica</h2>
       <p className="text-center text-gray-300 mb-8">Cuéntenos sobre su empresa. Estamos listos para ser el socio estratégico que le ayude a profesionalizar sus ventas.</p>
       <form onSubmit={handleSubmit} className="space-y-6">
         <div>
