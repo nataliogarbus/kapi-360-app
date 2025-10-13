@@ -21,6 +21,15 @@ export interface Reporte {
 }
 
 // Estructura para los Posts del Blog
+export interface Post {
+  slug: string;
+  title: string;
+  date: string;
+  excerpt: string;
+  category: string;
+  tags: string[];
+}
+
 export interface PostData extends Post {
   content: string;
 }
