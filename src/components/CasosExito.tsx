@@ -24,6 +24,18 @@ const CasosExito = () => {
             </div>
           </Link>
 
+          <Link href="/casos-de-exito/emama" className="bg-gray-800/50 rounded-2xl p-8 flex flex-col hover:bg-gray-700/50 transition-colors duration-300 border border-transparent hover:border-cyan-500">
+            <div className="flex-grow">
+              <Image src="/images/casos-exito/emama/emama-logo.png" alt="Logo Emama" className="h-10 mb-6 w-auto" width={140} height={40} />
+              <p className="text-xl font-medium text-white">“La experiencia y capacidad de gestión del equipo fue clave. Logramos 8 mil seguidores en Instagram en dos meses, superando todas las expectativas.”</p>
+            </div>
+            <div className="mt-8">
+              <p className="text-lg font-bold text-white">Cecilia Chakass</p>
+              <p className="text-base text-gray-400">Gerente General, Emama</p>
+              <p className="text-sm font-semibold text-[#00DD82] mt-4">Ver caso de éxito →</p>
+            </div>
+          </Link>
+
           <div className="bg-gray-800/50 rounded-2xl p-8 flex flex-col">
             <div className="flex-grow">
               <Image src="https://placehold.co/150x50/1A1A1A/FFFFFF?text=MetalurgicaFADEP" alt="Logo Metalúrgica FADEP S.A." className="h-8 mb-6 w-auto" width={150} height={50} />
@@ -31,15 +43,6 @@ const CasosExito = () => {
             </div>
             <div className="mt-8">
               <p className="text-lg font-bold text-white">Carlos Fernández, Socio Gerente, Metalúrgica FADEP S.A.</p>
-            </div>
-          </div>
-          <div className="bg-gray-800/50 rounded-2xl p-8 flex flex-col">
-            <div className="flex-grow">
-              <Image src="https://placehold.co/150x50/1A1A1A/FFFFFF?text=AlimentosDelSur" alt="Logo Alimentos del Sur" className="h-8 mb-6 w-auto" width={150} height={50} />
-              <p className="text-xl font-medium text-white">«Necesitábamos una imagen más profesional para competir en el mercado. El equipo de Kapi entendió perfectamente nuestra industria y nuestros productos. El resultado es más presencia y, sobre todo, más ventas.»</p>
-            </div>
-            <div className="mt-8">
-              <p className="text-lg font-bold text-white">Laura B., Directora, Alimentos del Sur</p>
             </div>
           </div>
         </div>
