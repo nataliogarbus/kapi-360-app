@@ -1,5 +1,3 @@
-import { Post } from './lib/posts';
-
 // Estructura del Reporte de IA
 export interface Pillar {
   pilar: string;
