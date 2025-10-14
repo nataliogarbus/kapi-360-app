@@ -10,7 +10,7 @@ export const lavazuladaData: CaseStudyData = {
   hero: {
     title: 'De Agrupación Nueva a Candidato Finalista en 4 Meses',
     subtitle: 'Cómo una campaña de comunicación integral posicionó a La V Azulada en las elecciones del club Vélez Sarsfield.',
-    imageUrl: '/images/casos-exito/lavazulada/lvazulada-1_c95.jpg', // Usamos una imagen principal
+    imageUrl: '/images/casos-exito/lavazulada/lalo-rado-presidente.jpg', // Usamos una imagen principal
   },
   client: {
     name: 'La V Azulada',
