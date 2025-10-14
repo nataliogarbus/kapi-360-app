@@ -19,7 +19,7 @@ const Header = () => {
     { href: '/diagnostico', text: 'Diagnóstico IA' },
   ];
 
-  const contactLink = { href: '/#contact', text: 'Contacto' };
+  const contactLink = { href: '/#contacto', text: 'Contacto' };
 
   return (
     <header className="w-full absolute top-0 left-0 z-50">

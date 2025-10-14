@@ -72,16 +72,21 @@ export default function Home() {
             </ScrollAnimationWrapper>
           )}
           <ScrollAnimationWrapper>
+            <FeaturedTestimonial />
+          </ScrollAnimationWrapper>
+          <ScrollAnimationWrapper>
             <Faq />
           </ScrollAnimationWrapper>
           <ScrollAnimationWrapper>
             <NewsletterSection />
           </ScrollAnimationWrapper>
-          <ScrollAnimationWrapper>
-            <Suspense fallback={<div>Cargando formulario...</div>}>
-              <ContactForm />
-            </Suspense>
-          </ScrollAnimationWrapper>
+          <section id="contacto">
+            <ScrollAnimationWrapper>
+              <Suspense fallback={<div>Cargando formulario...</div>}>
+                <ContactForm />
+              </Suspense>
+            </ScrollAnimationWrapper>
+          </section>
         </>
       )}
     </main>
