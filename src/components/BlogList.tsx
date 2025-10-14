@@ -2,11 +2,11 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { PostData } from '@/app/types';
+import { Post } from '@/app/types';
 import Pagination from './Pagination';
 
 interface BlogListProps {
-  allPostsData: PostData[];
+  allPostsData: Post[];
   tagMapping: { [key: string]: string[] };
 }
 
@@ -14,7 +14,7 @@ const POSTS_PER_PAGE = 5;
 
 export default function BlogList({ allPostsData, tagMapping }: BlogListProps) {
   const [searchQuery, setSearchQuery] = useState('');
-  const [filteredPosts, setFilteredPosts] = useState<PostData[]>(allPostsData);
+  const [filteredPosts, setFilteredPosts] = useState<Post[]>(allPostsData);
   const [selectedPillar, setSelectedPillar] = useState<string>(Object.keys(tagMapping)[0]);
   const [currentPage, setCurrentPage] = useState(1);
 
