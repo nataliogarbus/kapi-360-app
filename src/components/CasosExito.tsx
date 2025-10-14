@@ -14,12 +14,16 @@ const CasosExito = () => {
           {/* Abugar Case Study Card */}
           <Link href="/casos-de-exito/abugar" className="bg-gray-800/50 rounded-2xl p-8 flex flex-col hover:bg-gray-700/50 transition-colors duration-300 border border-transparent hover:border-cyan-500">
             <div className="flex-grow">
-              <Image src="/images/casos-exito/Abugar/abugar-logo.png" alt="Logo Abugar" className="h-10 mb-6 w-auto" width={140} height={40} />
-              <p className="text-xl font-medium text-white">“Encontramos un equipo con el que pudimos crecer en consultas y ventas. Logramos redefinir la identidad y alcanzar nuestros objetivos.”</p>
+              <p className="text-xl font-medium text-white flex-grow">“Encontramos un equipo con el que pudimos crecer en consultas y ventas. Logramos redefinir la identidad y alcanzar nuestros objetivos.”</p>
             </div>
             <div className="mt-8">
-              <p className="text-lg font-bold text-white">Paola Urrego</p>
-              <p className="text-base text-gray-400">Gerente de Marketing, Abugar</p>
+              <div className="flex items-center mb-4">
+                <Image src="/images/casos-exito/Abugar/paola-urrego.png" alt="Paola Urrego" width={56} height={56} className="rounded-full mr-4" />
+                <div>
+                  <p className="text-lg font-bold text-white">Paola Urrego</p>
+                  <p className="text-base text-gray-400">Gerente de Marketing, Abugar</p>
+                </div>
+              </div>
               <p className="text-sm font-semibold text-[#00DD82] mt-4">Ver caso de éxito →</p>
             </div>
           </Link>
