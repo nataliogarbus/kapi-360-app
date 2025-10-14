@@ -87,7 +87,7 @@ const ReportSection: React.FC<ReportSectionProps> = ({ report, isLoading }) => {
           // ... (animaciones sin cambios)
         >
           {report.pilares.map(pilar => (
-            <motion.div key={pilar.id} /* ... */ className="w-full">
+            <motion.div key={pilar.titulo} /* ... */ className="w-full">
               <PilarCard pilar={pilar} />
             </motion.div>
           ))}
