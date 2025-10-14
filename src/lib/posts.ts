@@ -1,14 +1,14 @@
 import fs from 'fs';
 import path from 'path';
 import matter from 'gray-matter';
-import { PostData } from '@/app/types';
+import { Post, PostData } from '@/app/types';
 
 const postsDirectory = path.join(process.cwd(), '_articulos_google_docs');
 
 // Existing function to get all posts, sorted by date
-export function getSortedPostsData(): PostData[] {
+export function getSortedPostsData(): Post[] {
   const fileNames = fs.readdirSync(postsDirectory);
-  const allPostsData: PostData[] = fileNames.map((fileName) => {
+  const allPostsData: Post[] = fileNames.map((fileName) => {
     const slug = fileName.replace(/\.md$/, '');
     const fullPath = path.join(postsDirectory, fileName);
     const fileContents = fs.readFileSync(fullPath, 'utf8');
