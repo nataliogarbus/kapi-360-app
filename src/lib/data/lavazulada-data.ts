@@ -37,7 +37,7 @@ export const lavazuladaData: CaseStudyData = {
     ],
   },
   testimonial: {
-    text: 'Trabajar con Brandi fue clave para lograr nuestro objetivo de posicionar a esta nueva agrupación de Vélez Sarfield como una alternativa política y de servicio para el club y los socios. Interpretaron rápidamente el mensaje y el tono de comunicación para los distintos públicos objetivo, logrando superar ampliamente nuestras expectativas.',
+    text: 'Trabajar con Kapi fue clave para lograr nuestro objetivo de posicionar a esta nueva agrupación de Vélez Sarfield como una alternativa política y de servicio para el club y los socios. Interpretaron rápidamente el mensaje y el tono de comunicación para los distintos públicos objetivo, logrando superar ampliamente nuestras expectativas.',
     author: 'Gonzalo Reinoso',
     role: 'Responsable de Marketing, La V Azulada',
     image: 'gonzalo-review.png',

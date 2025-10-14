@@ -30,6 +30,15 @@ const CaseStudyPage: React.FC<CaseStudyPageProps> = ({ caseData }) => {
             allowFullScreen
             title="YouTube video background"
           ></iframe>
+        ) : hero.imageUrl ? (
+          <Image
+            src={hero.imageUrl}
+            alt={hero.title}
+            layout="fill"
+            objectFit="cover"
+            className="absolute top-0 left-0 w-full h-full z-0"
+            priority
+          />
         ) : null}
         <div className="absolute inset-0 bg-black bg-opacity-60 z-10" />
         <div className="relative z-20 flex flex-col items-center justify-center h-full text-center px-4">
