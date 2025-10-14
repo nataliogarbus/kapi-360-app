@@ -10,6 +10,7 @@ import Servicios from "@/components/Servicios";
 import CasosExito from "@/components/CasosExito";
 import FeaturedPosts from "@/components/FeaturedPosts";
 import NewsletterSection from "@/components/NewsletterSection";
+import FeaturedTestimonial from "@/components/FeaturedTestimonial";
 import ContactForm from "@/components/ContactForm";
 import HeroSection from "@/components/HeroSection";
 import { Reporte } from '@/app/types';
