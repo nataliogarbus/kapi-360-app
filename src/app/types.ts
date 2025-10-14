@@ -1,21 +1,26 @@
-// Estructura del Reporte de IA
-export interface Pillar {
-  pilar: string;
-  puntaje: number;
-  resumen: string;
-  analisis_profundo: string;
-  plan_de_accion: string[];
+// Estructura del Reporte de IA (v2.2)
+export interface CoordenadaClave {
+  titulo: string;
+  score: number;
+}
+
+export interface Pilar {
+  titulo: string;
+  score: number;
+  queEs: string;
+  porQueImporta: string;
+  coordenadasClave: CoordenadaClave[];
+  planDeAccion: {
+    loHagoYo: string[];
+    loHaceKapiConMiEquipo: string[];
+    loHaceKapi: string[];
+  };
 }
 
 export interface Reporte {
-  puntaje_general: number;
-  pilares: Pillar[];
-  resumen_ejecutivo: string;
-  plan_de_accion_3_niveles: {
-    lo_hago_yo: string[];
-    lo_hace_kapi_con_mi_equipo: string[];
-    lo_hace_kapi: string[];
-  };
+  puntajeGeneral: number;
+  pilares: Pilar[];
+  resumenFinal?: string; // Opcional, por si la IA añade un resumen al final
 }
 
 export interface CoordenadaClave {
