@@ -92,7 +92,7 @@ const CaseStudyPage: React.FC<CaseStudyPageProps> = ({ caseData }) => {
             <h2 className="text-3xl font-bold tracking-tight text-cyan-400 sm:text-4xl text-center mb-12">{results.title}</h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
               {results.metrics.map((metric, index) => (
-                <div key={index} className="bg-gray-900 p-8 rounded-2xl shadow-2xl">
+                <div key={index} className="bg-gray-900 p-8 rounded-2xl shadow-2xl flex flex-col items-center justify-center">
                   <p className="text-5xl font-extrabold text-white">{metric.value}</p>
                   <p className="mt-2 text-lg text-gray-300">{metric.label}</p>
                 </div>
