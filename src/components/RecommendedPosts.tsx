@@ -1,7 +1,7 @@
 import Link from 'next/link';
-import { PostData } from '@/app/types';
+import { Post } from '@/app/types';
 
-const RecommendedPosts = ({ posts }: { posts: PostData[] }) => {
+const RecommendedPosts = ({ posts }: { posts: Post[] }) => {
   if (!posts || posts.length === 0) {
     return null;
   }
