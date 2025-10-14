@@ -18,6 +18,11 @@ export interface Reporte {
   };
 }
 
+export interface CoordenadaClave {
+  titulo: string;
+  score: number;
+}
+
 // Estructura para los Posts del Blog
 export interface Post {
   slug: string;
