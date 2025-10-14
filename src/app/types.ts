@@ -52,6 +52,7 @@ export interface CaseStudyData {
   hero: {
     title: string;
     subtitle: string;
+    imageUrl?: string; // Path a una imagen principal, ej: '/images/hero.jpg'
     videoUrl?: string; // URL completa del video de YouTube para el fondo
     selfHostedVideo?: string; // Path a un video local, ej: 'video.mp4'
   };
