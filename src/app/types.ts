@@ -23,9 +23,9 @@ export interface Reporte {
   resumenFinal?: string; // Opcional, por si la IA añade un resumen al final
 }
 
-export interface CoordenadaClave {
-  titulo: string;
-  score: number;
+export interface ReportSectionProps {
+  report: Reporte | null;
+  isLoading: boolean;
 }
 
 // Estructura para los Posts del Blog
