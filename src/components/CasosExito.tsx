@@ -44,15 +44,21 @@ const CasosExito = () => {
             </div>
           </Link>
 
-          <div className="bg-gray-800/50 rounded-2xl p-8 flex flex-col">
-            <div className="flex-grow">
-              <Image src="https://placehold.co/150x50/1A1A1A/FFFFFF?text=MetalurgicaFADEP" alt="Logo Metalúrgica FADEP S.A." className="h-8 mb-6 w-auto" width={150} height={50} />
-              <p className="text-xl font-medium text-white">«Antes, el marketing era un dolor de cabeza que manejábamos &apos;a pulmón&apos;. Kapi nos ordenó la casa, modernizó la web y ahora las consultas de calidad llegan todas las semanas. Pudimos delegar y enfocarnos en la producción.»</p>
+          <Link href="/casos-de-exito/lavazulada" className="bg-gray-800/50 rounded-2xl p-8 flex flex-col hover:bg-gray-700/50 transition-colors duration-300 border border-transparent hover:border-cyan-500">
+            <div class="flex-grow">
+              <p class="text-xl font-medium text-white flex-grow">“Trabajar con Brandi fue clave para lograr nuestro objetivo de posicionar a esta nueva agrupación de Vélez Sarfield como una alternativa política y de servicio para el club y los socios.”</p>
             </div>
-            <div className="mt-8">
-              <p className="text-lg font-bold text-white">Carlos Fernández, Socio Gerente, Metalúrgica FADEP S.A.</p>
+            <div class="mt-8">
+              <div class="flex items-center mb-4">
+                <Image src="/images/casos-exito/lavazulada/gonzalo-review.png" alt="Gonzalo Reinoso" width={56} height={56} className="rounded-full mr-4" />
+                <div>
+                  <p class="text-lg font-bold text-white">Gonzalo Reinoso</p>
+                  <p class="text-base text-gray-400">Responsable de Marketing, La V Azulada</p>
+                </div>
+              </div>
+              <p className="text-sm font-semibold text-[#00DD82] mt-4">Ver caso de éxito →</p>
             </div>
-          </div>
+          </Link>
         </div>
       </div>
     </section>
