@@ -4,6 +4,7 @@ import Footer from '@/components/Footer';
 import ReactMarkdown from 'react-markdown';
 import Link from 'next/link';
 import RecommendedPosts from '@/components/RecommendedPosts';
+import { notFound } from 'next/navigation';
 
 export async function generateStaticParams() {
   const paths = getAllPostIds();
@@ -12,6 +13,11 @@ export async function generateStaticParams() {
 
 export default function Post({ params }: { params: { slug: string } }) {
   const postData = getPostData(params.slug);
+
+  if (!postData) {
+    notFound();
+  }
+
   const allPosts = getSortedPostsData();
   const baseUrl = 'https://kapi-360-app.vercel.app';
 
