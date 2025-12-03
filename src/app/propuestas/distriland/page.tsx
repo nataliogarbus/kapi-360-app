@@ -215,6 +215,58 @@ export default function DistrilandProposal() {
                 </div>
             </section>
 
+            {/* --- Section 3.5: Operational Scope --- */}
+            <section className="py-20 px-6">
+                <div className="max-w-5xl mx-auto">
+                    <FadeIn className="text-center mb-12">
+                        <h3 className="text-2xl font-bold text-white mb-4">Alcance Operativo Mensual</h3>
+                        <p className="text-gray-400">Detalle de tareas recurrentes incluidas en el fee de agencia:</p>
+                    </FadeIn>
+
+                    <div className="grid md:grid-cols-2 gap-8">
+                        <FadeIn delay={0.1}>
+                            <div className="bg-white/5 rounded-xl p-8 border border-white/10 h-full hover:border-[#00e676]/30 transition-colors duration-300">
+                                <h4 className="text-[#00e676] font-bold mb-6 uppercase text-sm tracking-wider border-b border-white/10 pb-4">Dirección & Creatividad</h4>
+                                <ul className="space-y-4">
+                                    <li className="flex items-start gap-3 text-gray-300 text-sm">
+                                        <CheckCircle className="w-5 h-5 text-[#00e676] shrink-0" />
+                                        <span><strong>Planificación Estratégica:</strong> Reuniones quincenales de directorio para definir objetivos comerciales.</span>
+                                    </li>
+                                    <li className="flex items-start gap-3 text-gray-300 text-sm">
+                                        <CheckCircle className="w-5 h-5 text-[#00e676] shrink-0" />
+                                        <span><strong>Dirección de Arte:</strong> Bajada de línea creativa y guionado de piezas para el equipo de diseño interno.</span>
+                                    </li>
+                                    <li className="flex items-start gap-3 text-gray-300 text-sm">
+                                        <CheckCircle className="w-5 h-5 text-[#00e676] shrink-0" />
+                                        <span><strong>Desarrollo de Oferta:</strong> Definición de combos y promociones (ej. &quot;Kit Fiestas&quot;) basado en stock de Odoo.</span>
+                                    </li>
+                                </ul>
+                            </div>
+                        </FadeIn>
+
+                        <FadeIn delay={0.2}>
+                            <div className="bg-white/5 rounded-xl p-8 border border-white/10 h-full hover:border-[#00e676]/30 transition-colors duration-300">
+                                <h4 className="text-[#00e676] font-bold mb-6 uppercase text-sm tracking-wider border-b border-white/10 pb-4">Tráfico & Tecnología</h4>
+                                <ul className="space-y-4">
+                                    <li className="flex items-start gap-3 text-gray-300 text-sm">
+                                        <CheckCircle className="w-5 h-5 text-[#00e676] shrink-0" />
+                                        <span><strong>Gestión de Campañas (Paid Media):</strong> Setup, optimización y A/B testing en Google Ads y Meta Ads.</span>
+                                    </li>
+                                    <li className="flex items-start gap-3 text-gray-300 text-sm">
+                                        <CheckCircle className="w-5 h-5 text-[#00e676] shrink-0" />
+                                        <span><strong>Automation Marketing:</strong> Configuración de flujos de email en Odoo para recuperación de carritos y ofertas al gremio.</span>
+                                    </li>
+                                    <li className="flex items-start gap-3 text-gray-300 text-sm">
+                                        <CheckCircle className="w-5 h-5 text-[#00e676] shrink-0" />
+                                        <span><strong>Reportes Interactivos:</strong> Tablero de métricas en tiempo real y análisis de tendencias de búsqueda.</span>
+                                    </li>
+                                </ul>
+                            </div>
+                        </FadeIn>
+                    </div>
+                </div>
+            </section>
+
             {/* --- Section 4: Budget --- */}
             <section className="py-24 px-6">
                 <div className="max-w-4xl mx-auto">
