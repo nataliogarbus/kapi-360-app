@@ -10,19 +10,6 @@ import Servicios from "@/components/Servicios";
 import CasosExito from "@/components/CasosExito";
 import FeaturedPosts from "@/components/FeaturedPosts";
 import NewsletterSection from "@/components/NewsletterSection";
-import FeaturedTestimonial from "@/components/FeaturedTestimonial";
-import ContactForm from "@/components/ContactForm";
-import HeroSection from "@/components/HeroSection";
-import { Reporte } from '@/app/types';
-import { ScrollAnimationWrapper } from '@/components/ScrollAnimationWrapper';
-
-export default function Home() {
-  const [isLoading, setIsLoading] = useState(false);
-  const [report, setReport] = useState<Reporte | null>(null);
-  const [featuredPosts, setFeaturedPosts] = useState([]);
-
-  useEffect(() => {
-    const fetchPosts = async () => {
       try {
         const response = await fetch('/api/posts');
         const data = await response.json();
