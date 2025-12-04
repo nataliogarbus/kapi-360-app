@@ -66,13 +66,13 @@ export default function DistrilandProposal() {
 
                 <div className="max-w-5xl mx-auto text-center">
                     <FadeIn>
-                        <Badge>Propuesta Estratégica 2026</Badge>
+                        <Badge>Propuesta Estratégica 2025</Badge>
                     </FadeIn>
 
                     <FadeIn delay={0.1}>
                         <h1 className="mt-6 text-5xl md:text-7xl font-bold text-white tracking-tight leading-tight">
                             Plan Estratégico de <br />
-                            <span className="text-transparent bg-clip-text bg-gradient-to-r from-white to-gray-500">Expansión 2026</span>
+                            <span className="text-transparent bg-clip-text bg-gradient-to-r from-white to-gray-500">Expansión 2025</span>
                         </h1>
                     </FadeIn>
 
@@ -117,76 +117,6 @@ export default function DistrilandProposal() {
                                 </p>
                             </Card>
                         </FadeIn>
-                    </div>
-                </div>
-            </section>
-
-            {/* --- Section 1.5: Growth Architecture (The Path) --- */}
-            <section className="py-24 px-6 relative overflow-hidden">
-                <div className="max-w-4xl mx-auto">
-                    <FadeIn className="text-center mb-16">
-                        <h2 className="text-3xl md:text-4xl font-bold text-white">Arquitectura de Crecimiento</h2>
-                        <p className="mt-4 text-gray-400">El camino para transformar creatividad en ingresos</p>
-                    </FadeIn>
-
-                    <div className="relative">
-                        {/* Connecting Line */}
-                        <div className="absolute left-1/2 top-0 bottom-0 w-1 bg-gradient-to-b from-[#00e676]/0 via-[#00e676]/20 to-[#00e676]/0 -translate-x-1/2 hidden md:block" />
-
-                        <div className="space-y-12 relative z-10">
-                            {/* Step 1: Input */}
-                            <FadeIn className="flex flex-col md:flex-row items-center justify-center gap-6">
-                                <div className="bg-white/5 border border-white/10 p-6 rounded-xl text-center w-full md:w-64 backdrop-blur-sm">
-                                    <span className="text-[#00e676] font-bold block mb-2">INPUT</span>
-                                    <h3 className="text-white font-bold text-lg">Negocio Distriland</h3>
-                                    <p className="text-xs text-gray-500 mt-2">+ Creatividad Kapi</p>
-                                </div>
-                            </FadeIn>
-
-                            {/* Arrow Down */}
-                            <div className="flex justify-center text-[#00e676]/50"><ArrowRight className="rotate-90 w-6 h-6" /></div>
-
-                            {/* Step 2: Process Loop */}
-                            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                                {['Diseño & Branding', 'Campañas Ads', 'Canales de Venta', 'Inversión'].map((item, i) => (
-                                    <FadeIn key={i} delay={i * 0.1}>
-                                        <div className="bg-white/[0.02] border border-white/5 p-4 rounded-lg text-center h-full flex items-center justify-center hover:bg-white/5 transition-colors">
-                                            <span className="text-gray-300 text-sm font-medium">{item}</span>
-                                        </div>
-                                    </FadeIn>
-                                ))}
-                            </div>
-
-                            {/* Arrow Down */}
-                            <div className="flex justify-center text-[#00e676]/50"><ArrowRight className="rotate-90 w-6 h-6" /></div>
-
-                            {/* Step 3: Output */}
-                            <FadeIn>
-                                <div className="bg-gradient-to-b from-[#00e676]/10 to-transparent border border-[#00e676]/20 p-8 rounded-2xl text-center relative overflow-hidden">
-                                    <div className="absolute inset-0 bg-[#00e676]/5 blur-xl" />
-                                    <div className="relative z-10">
-                                        <span className="text-[#00e676] font-bold tracking-widest text-xs uppercase mb-4 block">RESULTADOS</span>
-                                        <div className="flex flex-wrap justify-center gap-4 md:gap-8 text-white font-bold">
-                                            <span>Impresiones</span>
-                                            <span className="text-gray-600">→</span>
-                                            <span>Clicks</span>
-                                            <span className="text-gray-600">→</span>
-                                            <span>Consultas</span>
-                                            <span className="text-gray-600">→</span>
-                                            <span className="text-[#00e676] text-xl">VENTAS</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </FadeIn>
-
-                            {/* Step 4: Feedback Loop */}
-                            <FadeIn delay={0.2} className="flex justify-center">
-                                <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 text-xs text-gray-400">
-                                    <Users className="w-3 h-3" />
-                                    <span>Automatización & Remarketing (Ciclo Continuo)</span>
-                                </div>
-                            </FadeIn>
-                        </div>
                     </div>
                 </div>
             </section>
@@ -239,62 +169,8 @@ export default function DistrilandProposal() {
                 </div>
             </section>
 
-            {/* --- Section 2.5: Management Objectives 2026 --- */}
-            <section className="py-24 px-6 bg-white/[0.02]">
-                <div className="max-w-6xl mx-auto">
-                    <FadeIn className="mb-12 text-center">
-                        <h2 className="text-3xl md:text-4xl font-bold text-white">Objetivos de Gestión 2026</h2>
-                        <p className="mt-4 text-gray-400">Metodología aplicada a resultados concretos</p>
-                    </FadeIn>
-
-                    <div className="grid md:grid-cols-3 gap-8">
-                        {[
-                            {
-                                title: "Eficiencia Publicitaria",
-                                method: "Segmentación Técnica",
-                                result: "Menor Costo por Venta (ROAS)",
-                                icon: <BarChart3 className="w-6 h-6 text-[#00e676]" />
-                            },
-                            {
-                                title: "Consolidación de Marca",
-                                method: "Contenido de Valor",
-                                result: "Autoridad en el Gremio",
-                                icon: <ShieldCheck className="w-6 h-6 text-[#00e676]" />
-                            },
-                            {
-                                title: "Soberanía Digital",
-                                method: "Incentivos Odoo",
-                                result: "Ventas Directas (Sin Comisión)",
-                                icon: <Database className="w-6 h-6 text-[#00e676]" />
-                            }
-                        ].map((obj, idx) => (
-                            <FadeIn key={idx} delay={idx * 0.2}>
-                                <div className="bg-white/5 border border-white/10 p-8 rounded-2xl relative group hover:bg-white/10 transition-colors">
-                                    <div className="absolute top-0 right-0 p-4 opacity-20 group-hover:opacity-100 transition-opacity">
-                                        {obj.icon}
-                                    </div>
-                                    <h3 className="text-xl font-bold text-white mb-6">{obj.title}</h3>
-
-                                    <div className="space-y-4">
-                                        <div>
-                                            <span className="text-xs text-gray-500 uppercase tracking-wider">Método</span>
-                                            <p className="text-gray-300 font-medium">{obj.method}</p>
-                                        </div>
-                                        <div className="w-full h-px bg-white/10" />
-                                        <div>
-                                            <span className="text-xs text-[#00e676] uppercase tracking-wider">Resultado Esperado</span>
-                                            <p className="text-white font-bold text-lg">{obj.result}</p>
-                                        </div>
-                                    </div>
-                                </div>
-                            </FadeIn>
-                        ))}
-                    </div>
-                </div>
-            </section>
-
             {/* --- Section 3: Roadmap --- */}
-            <section className="py-24 px-6 relative overflow-hidden">
+            <section className="py-24 px-6 bg-white/[0.02] relative overflow-hidden">
                 <div className="max-w-4xl mx-auto">
                     <FadeIn className="mb-16 text-center">
                         <h2 className="text-3xl md:text-4xl font-bold text-white">Roadmap de Ejecución</h2>
@@ -340,7 +216,7 @@ export default function DistrilandProposal() {
             </section>
 
             {/* --- Section 3.5: Operational Scope --- */}
-            <section className="py-20 px-6 bg-white/[0.02]">
+            <section className="py-20 px-6">
                 <div className="max-w-5xl mx-auto">
                     <FadeIn className="text-center mb-12">
                         <h3 className="text-2xl font-bold text-white mb-4">Alcance Operativo Mensual</h3>
@@ -433,40 +309,12 @@ export default function DistrilandProposal() {
                 </div>
             </section>
 
-            {/* --- Tech Stack Strip --- */}
-            <section className="py-12 border-y border-white/5 bg-white/[0.01]">
-                <div className="max-w-7xl mx-auto px-6 text-center">
-                    <p className="text-xs text-gray-500 uppercase tracking-widest mb-6">Ecosistema Tecnológico</p>
-                    <div className="flex flex-wrap justify-center gap-8 md:gap-16 opacity-50 grayscale hover:grayscale-0 transition-all duration-500">
-                        {['Odoo', 'Google Ads', 'Meta Ads', 'Looker Studio'].map((tech) => (
-                            <span key={tech} className="text-xl font-bold text-white">{tech}</span>
-                        ))}
-                    </div>
-                </div>
-            </section>
-
-            {/* --- CTA & Onboarding --- */}
+            {/* --- CTA --- */}
             <section className="py-24 px-6 text-center">
                 <FadeIn>
                     <h2 className="text-3xl md:text-5xl font-bold text-white mb-8">¿Comenzamos la transformación?</h2>
-
-                    {/* Onboarding Steps */}
-                    <div className="max-w-3xl mx-auto grid grid-cols-3 gap-4 mb-12 text-left">
-                        {[
-                            { step: "1", title: "Kick-off", desc: "Reunión de arranque y definición de objetivos." },
-                            { step: "2", title: "Accesos", desc: "Vinculación de cuentas y setup de herramientas." },
-                            { step: "3", title: "Despegue", desc: "Lanzamiento de primeras campañas y acciones." }
-                        ].map((s) => (
-                            <div key={s.step} className="bg-white/5 p-4 rounded-lg border border-white/5">
-                                <span className="text-[#00e676] font-bold text-xl block mb-1">{s.step}.</span>
-                                <h4 className="text-white font-bold text-sm">{s.title}</h4>
-                                <p className="text-xs text-gray-500 mt-1">{s.desc}</p>
-                            </div>
-                        ))}
-                    </div>
-
                     <a
-                        href="https://wa.me/5491112345678"
+                        href="https://wa.me/5491112345678" // Reemplazar con el número real si se tiene, o un mailto
                         className="inline-flex items-center gap-3 bg-[#00e676] text-black font-bold py-4 px-10 rounded-full text-lg hover:bg-[#00c853] hover:scale-105 transition-all duration-300 shadow-[0_0_20px_rgba(0,230,118,0.4)]"
                     >
                         Aceptar Propuesta y Agendar Kick-off
