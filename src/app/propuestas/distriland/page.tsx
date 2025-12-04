@@ -40,6 +40,16 @@ const Badge = ({ children }: { children: React.ReactNode }) => (
     </span>
 );
 
+const Tooltip = ({ text, children }: { text: string, children: React.ReactNode }) => (
+    <span className="relative group cursor-help inline-block border-b border-dashed border-gray-500/50">
+        {children}
+        <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-48 p-2 bg-[#111] border border-white/10 rounded-lg text-xs text-gray-300 shadow-xl opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-50 text-center">
+            {text}
+            <span className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-[#111]"></span>
+        </span>
+    </span>
+);
+
 export default function DistrilandProposal() {
     return (
         <div className="min-h-screen bg-[#050505] text-[#e0e0e0] font-sans selection:bg-[#00e676]/30 selection:text-white">
@@ -60,7 +70,7 @@ export default function DistrilandProposal() {
             </header>
 
             {/* --- Hero Section --- */}
-            <section className="relative pt-32 pb-20 md:pt-48 md:pb-32 px-6 overflow-hidden">
+            <section className="relative pt-48 pb-20 md:pt-64 md:pb-32 px-6 overflow-hidden">
                 {/* Background Gradients */}
                 <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1000px] h-[500px] bg-[#00e676]/10 rounded-full blur-[120px] -z-10" />
 
@@ -101,7 +111,7 @@ export default function DistrilandProposal() {
                                     <h3 className="text-xl font-bold text-white">Situación Actual</h3>
                                 </div>
                                 <p className="text-gray-400 leading-relaxed">
-                                    Distriland cuenta con activos sólidos: 7 años de trayectoria, implementación de Odoo + Tienda Nube y equipo de diseño in-house. Sin embargo, la dependencia de MercadoLibre comprime márgenes y diluye la identidad de marca ante el gremio.
+                                    Distriland cuenta con activos sólidos: 7 años de trayectoria, implementación de <Tooltip text="ERP de gestión integral para empresas">Odoo</Tooltip> + Tienda Nube y equipo de diseño in-house. Sin embargo, la dependencia de MercadoLibre comprime márgenes y diluye la identidad de marca. Se detecta la necesidad de <strong>profesionalizar los canales de venta</strong>, inyectar <strong>creatividad</strong> para destacar en el mercado y <strong>aumentar las ventas</strong>.
                                 </p>
                             </Card>
                         </FadeIn>
@@ -113,7 +123,7 @@ export default function DistrilandProposal() {
                                     <h3 className="text-xl font-bold text-white">La Solución Kapi</h3>
                                 </div>
                                 <p className="text-gray-300 leading-relaxed">
-                                    Evolucionar de &quot;Vendedor Mayorista&quot; a <strong className="text-white">&quot;Socio Estratégico del Técnico&quot;</strong>. Implementaremos una Dirección Externa de Marketing para unificar canales, optimizar la inversión publicitaria y desarrollar nuevas unidades de negocio propias.
+                                    Evolucionar de &quot;Vendedor Mayorista&quot; a <strong className="text-white">&quot;Socio Estratégico del Técnico&quot;</strong>. Implementaremos una Dirección Externa de Marketing para unificar canales y optimizar la inversión. Además, generamos <strong>ideas creativas y soluciones de negocio</strong> para impactar en el mercado y potenciar la inversión publicitaria.
                                 </p>
                             </Card>
                         </FadeIn>
@@ -233,7 +243,7 @@ export default function DistrilandProposal() {
                                 </div>
                                 <h3 className="text-xl font-bold text-white mb-3">Performance & Tráfico</h3>
                                 <p className="text-gray-400 text-sm leading-relaxed">
-                                    Gestión intensiva de campañas en Google Ads (Búsqueda Técnica) y Meta Ads (Catálogo) orientadas a ROAS. Segmentación dual: Gremio (B2B) vs Consumidor Final (B2C).
+                                    Gestión intensiva de campañas en Google Ads (Búsqueda Técnica) y Meta Ads (Catálogo) orientadas a <Tooltip text="Retorno de Inversión Publicitaria">ROAS</Tooltip>. Segmentación dual: <Tooltip text="Venta a Empresas/Gremio">Gremio (B2B)</Tooltip> vs <Tooltip text="Venta a Consumidor Final">Consumidor Final (B2C)</Tooltip>.
                                 </p>
                             </Card>
                         </FadeIn>
@@ -245,7 +255,7 @@ export default function DistrilandProposal() {
                                 </div>
                                 <h3 className="text-xl font-bold text-white mb-3">Inteligencia Odoo (Data)</h3>
                                 <p className="text-gray-400 text-sm leading-relaxed">
-                                    Alineación de métricas entre el ERP y Marketing. Uso de datos históricos para automatizar Email Marketing y detectar tendencias de importación.
+                                    Alineación de métricas entre el <Tooltip text="Sistema de Planificación de Recursos Empresariales">ERP</Tooltip> y Marketing. Uso de datos históricos para automatizar Email Marketing y detectar tendencias de importación.
                                 </p>
                             </Card>
                         </FadeIn>
@@ -257,7 +267,7 @@ export default function DistrilandProposal() {
                                 </div>
                                 <h3 className="text-xl font-bold text-white mb-3">Innovación y Desarrollo</h3>
                                 <p className="text-gray-400 text-sm leading-relaxed">
-                                    Consultoría estratégica para crear nuevas unidades de negocio. Kapi presentará trimestralmente proyectos de innovación (MVPs) para capturar mercado.
+                                    Consultoría estratégica para crear nuevas unidades de negocio. Kapi presentará trimestralmente proyectos de innovación (<Tooltip text="Producto Mínimo Viable: Versión funcional para testear mercado">MVPs</Tooltip>) para capturar mercado.
                                 </p>
                             </Card>
                         </FadeIn>
