@@ -3,12 +3,15 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
+import { usePathname } from 'next/navigation';
 import { Menu, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import SmoothLink from './SmoothLink';
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const pathname = usePathname();
+  const isDistriland = pathname?.includes('/propuestas/distriland');
 
   const navLinks = [
     { href: '/#servicios', text: 'Servicios' },
@@ -19,37 +22,37 @@ const Header = () => {
     { href: '/diagnostico', text: 'Diagnóstico IA' },
   ];
 
-  const contactLink = { href: '/#contacto', text: 'Contacto' };
+  const contactLink = { href: 'https://wa.me/5491140753480', text: 'Contacto' };
 
   return (
-    <header className="w-full absolute top-0 left-0 z-50">
+    <header className={`w-full absolute left-0 z-50 ${isDistriland ? 'top-24' : 'top-6'}`}>
       <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2 flex justify-between items-center">
         <Link href="/" className="flex items-center space-x-2" onClick={() => isMenuOpen && setIsMenuOpen(false)}>
-            <Image 
-              src="/logo-kapi-verde.svg" 
-              alt="Logo de Kapi"
-              width={150} 
-              height={42}
-              priority
-            />
+          <Image
+            src="/logo-kapi-verde.svg"
+            alt="Logo de Kapi"
+            width={150}
+            height={42}
+            priority
+          />
         </Link>
-        
+
         {/* Desktop Menu */}
         <div className="hidden md:flex items-center space-x-8">
-            {navLinks.map((link) => (
-              link.href.startsWith('/#') ? (
-                <SmoothLink key={link.href} href={link.href} className="text-gray-300 hover:text-white transition-colors duration-300">
-                  {link.text}
-                </SmoothLink>
-              ) : (
-                <Link key={link.href} href={link.href} className="text-gray-300 hover:text-white transition-colors duration-300">
-                  {link.text}
-                </Link>
-              )
-            ))}
-            <SmoothLink href={contactLink.href} className="bg-white/10 text-white py-2 px-5 rounded-lg hover:bg-white/20 transition-colors duration-300">
-              {contactLink.text}
-            </SmoothLink>
+          {navLinks.map((link) => (
+            link.href.startsWith('/#') ? (
+              <SmoothLink key={link.href} href={link.href} className="text-gray-300 hover:text-white transition-colors duration-300">
+                {link.text}
+              </SmoothLink>
+            ) : (
+              <Link key={link.href} href={link.href} className="text-gray-300 hover:text-white transition-colors duration-300">
+                {link.text}
+              </Link>
+            )
+          ))}
+          <Link href={contactLink.href} target="_blank" rel="noopener noreferrer" className="bg-white/10 text-white py-2 px-5 rounded-lg hover:bg-white/20 transition-colors duration-300">
+            {contactLink.text}
+          </Link>
         </div>
 
         {/* Hamburger Button */}
@@ -83,9 +86,9 @@ const Header = () => {
                   </Link>
                 )
               ))}
-              <SmoothLink href={contactLink.href} className="bg-cyan-500 text-white py-3 px-8 rounded-lg hover:bg-cyan-600 transition-colors duration-300 text-lg" onClick={() => setIsMenuOpen(false)}>
+              <Link href={contactLink.href} target="_blank" rel="noopener noreferrer" className="bg-cyan-500 text-white py-3 px-8 rounded-lg hover:bg-cyan-600 transition-colors duration-300 text-lg" onClick={() => setIsMenuOpen(false)}>
                 {contactLink.text}
-              </SmoothLink>
+              </Link>
             </div>
           </motion.div>
         )}

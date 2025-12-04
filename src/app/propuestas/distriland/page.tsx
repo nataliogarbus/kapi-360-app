@@ -366,53 +366,125 @@ export default function DistrilandProposal() {
             </section>
 
             {/* --- Section 3.5: Operational Scope --- */}
-            <section className="py-20 px-6 bg-white/[0.02]">
+            <section className="py-20 px-6 bg-white/[0.01]">
                 <div className="max-w-5xl mx-auto">
                     <FadeIn className="text-center mb-12">
-                        <h3 className="text-2xl font-bold text-white mb-4">Alcance Operativo Mensual</h3>
-                        <p className="text-gray-400">Detalle de tareas recurrentes incluidas en el fee de agencia:</p>
+                        <h3 className="text-2xl font-bold text-white mb-4">Detalle de Ejecución Mensual</h3>
+                        <p className="text-gray-400">Desglose de entregables y alcance operativo incluido en el Plan L (Partner):</p>
                     </FadeIn>
 
-                    <div className="grid md:grid-cols-2 gap-8">
+                    <div className="grid md:grid-cols-2 gap-6">
+
                         <FadeIn delay={0.1}>
-                            <div className="bg-white/5 rounded-xl p-8 border border-white/10 h-full hover:border-[#00e676]/30 transition-colors duration-300">
-                                <h4 className="text-[#00e676] font-bold mb-6 uppercase text-sm tracking-wider border-b border-white/10 pb-4">Dirección & Creatividad</h4>
-                                <ul className="space-y-4">
-                                    <li className="flex items-start gap-3 text-gray-300 text-sm">
-                                        <CheckCircle className="w-5 h-5 text-[#00e676] shrink-0" />
-                                        <span><strong>Planificación Estratégica:</strong> Reuniones quincenales de directorio para definir objetivos comerciales.</span>
-                                    </li>
-                                    <li className="flex items-start gap-3 text-gray-300 text-sm">
-                                        <CheckCircle className="w-5 h-5 text-[#00e676] shrink-0" />
-                                        <span><strong>Dirección de Arte:</strong> Bajada de línea creativa y guionado de piezas para el equipo de diseño interno.</span>
-                                    </li>
-                                    <li className="flex items-start gap-3 text-gray-300 text-sm">
-                                        <CheckCircle className="w-5 h-5 text-[#00e676] shrink-0" />
-                                        <span><strong>Desarrollo de Oferta:</strong> Definición de combos y promociones (ej. &quot;Kit Fiestas&quot;) basado en stock de Odoo.</span>
-                                    </li>
-                                </ul>
+                            <div className="bg-[#111] border border-white/10 rounded-xl overflow-hidden h-full">
+                                <div className="bg-white/5 px-6 py-4 border-b border-white/10 flex justify-between items-center">
+                                    <h4 className="text-white font-bold flex items-center gap-2">
+                                        <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5 text-[#00e676]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 20V10" /><path d="M18 20V4" /><path d="M6 20v-4" /></svg>
+                                        Gestión de Pauta (Ads)
+                                    </h4>
+                                    <span className="text-xs bg-[#00e676]/20 text-[#00e676] px-2 py-1 rounded">Prioridad Alta</span>
+                                </div>
+                                <div className="p-6 space-y-4">
+                                    <div className="flex justify-between items-center border-b border-white/5 pb-2">
+                                        <span className="text-gray-400 text-sm">Campañas Google Ads</span>
+                                        <span className="text-white font-mono text-sm">Hasta 8 Campañas Activas</span>
+                                    </div>
+                                    <div className="flex justify-between items-center border-b border-white/5 pb-2">
+                                        <span className="text-gray-400 text-sm">Campañas Meta (IG/FB)</span>
+                                        <span className="text-white font-mono text-sm">Hasta 8 Conjuntos de Anuncios</span>
+                                    </div>
+                                    <div className="flex justify-between items-center border-b border-white/5 pb-2">
+                                        <span className="text-gray-400 text-sm">A/B Testing</span>
+                                        <span className="text-white font-mono text-sm">Continuo (Creatividades y Públicos)</span>
+                                    </div>
+                                    <div className="flex justify-between items-center pt-1">
+                                        <span className="text-gray-400 text-sm">Setup de Tracking</span>
+                                        <span className="text-white font-mono text-sm">GTM + Pixel + API Conversiones</span>
+                                    </div>
+                                </div>
                             </div>
                         </FadeIn>
 
                         <FadeIn delay={0.2}>
-                            <div className="bg-white/5 rounded-xl p-8 border border-white/10 h-full hover:border-[#00e676]/30 transition-colors duration-300">
-                                <h4 className="text-[#00e676] font-bold mb-6 uppercase text-sm tracking-wider border-b border-white/10 pb-4">Tráfico & Tecnología</h4>
-                                <ul className="space-y-4">
-                                    <li className="flex items-start gap-3 text-gray-300 text-sm">
-                                        <CheckCircle className="w-5 h-5 text-[#00e676] shrink-0" />
-                                        <span><strong>Gestión de Campañas (Paid Media):</strong> Setup, optimización y A/B testing en Google Ads y Meta Ads.</span>
-                                    </li>
-                                    <li className="flex items-start gap-3 text-gray-300 text-sm">
-                                        <CheckCircle className="w-5 h-5 text-[#00e676] shrink-0" />
-                                        <span><strong>Automation Marketing:</strong> Configuración de flujos de email en Odoo para recuperación de carritos y ofertas al gremio.</span>
-                                    </li>
-                                    <li className="flex items-start gap-3 text-gray-300 text-sm">
-                                        <CheckCircle className="w-5 h-5 text-[#00e676] shrink-0" />
-                                        <span><strong>Reportes Interactivos:</strong> Tablero de métricas en tiempo real y análisis de tendencias de búsqueda.</span>
-                                    </li>
-                                </ul>
+                            <div className="bg-[#111] border border-white/10 rounded-xl overflow-hidden h-full">
+                                <div className="bg-white/5 px-6 py-4 border-b border-white/10 flex justify-between items-center">
+                                    <h4 className="text-white font-bold flex items-center gap-2">
+                                        <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5 text-[#00e676]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z" /><polyline points="14 2 14 8 20 8" /></svg>
+                                        Producción & Dirección
+                                    </h4>
+                                    <span className="text-xs bg-gray-800 text-gray-400 px-2 py-1 rounded">Soporte In-House</span>
+                                </div>
+                                <div className="p-6 space-y-4">
+                                    <div className="flex justify-between items-center border-b border-white/5 pb-2">
+                                        <span className="text-gray-400 text-sm">Dirección de Arte</span>
+                                        <span className="text-white font-mono text-sm">Guionado Mensual para Equipo Interno</span>
+                                    </div>
+                                    <div className="flex justify-between items-center border-b border-white/5 pb-2">
+                                        <span className="text-gray-400 text-sm">Piezas Gráficas (Ads)</span>
+                                        <span className="text-white font-mono text-sm">Diseño de hasta 13 Piezas Clave</span>
+                                    </div>
+                                    <div className="flex justify-between items-center border-b border-white/5 pb-2">
+                                        <span className="text-gray-400 text-sm">Edición Video / Reels</span>
+                                        <span className="text-white font-mono text-sm">2 Videos de Alto Impacto (Motion)</span>
+                                    </div>
+                                    <div className="flex justify-between items-center pt-1">
+                                        <span className="text-gray-400 text-sm">Stories / Formatos Efímeros</span>
+                                        <span className="text-white font-mono text-sm">Pack x 25 Adaptaciones</span>
+                                    </div>
+                                </div>
                             </div>
                         </FadeIn>
+
+                        <FadeIn delay={0.3}>
+                            <div className="bg-[#111] border border-white/10 rounded-xl overflow-hidden h-full">
+                                <div className="bg-white/5 px-6 py-4 border-b border-white/10 flex justify-between items-center">
+                                    <h4 className="text-white font-bold flex items-center gap-2">
+                                        <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5 text-[#00e676]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="2" y="3" width="20" height="14" rx="2" ry="2" /><line x1="8" y1="21" x2="16" y2="21" /><line x1="12" y1="17" x2="12" y2="21" /></svg>
+                                        Email & Base de Datos
+                                    </h4>
+                                </div>
+                                <div className="p-6 space-y-4">
+                                    <div className="flex justify-between items-center border-b border-white/5 pb-2">
+                                        <span className="text-gray-400 text-sm">Estrategia Email Marketing</span>
+                                        <span className="text-white font-mono text-sm">Integración con Odoo</span>
+                                    </div>
+                                    <div className="flex justify-between items-center border-b border-white/5 pb-2">
+                                        <span className="text-gray-400 text-sm">Envíos Masivos</span>
+                                        <span className="text-white font-mono text-sm">4 Campañas Mensuales (Semanal)</span>
+                                    </div>
+                                    <div className="flex justify-between items-center pt-1">
+                                        <span className="text-gray-400 text-sm">Segmentación de Listas</span>
+                                        <span className="text-white font-mono text-sm">Gremio vs. Consumidor Final</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </FadeIn>
+
+                        <FadeIn delay={0.4}>
+                            <div className="bg-[#111] border border-white/10 rounded-xl overflow-hidden h-full">
+                                <div className="bg-white/5 px-6 py-4 border-b border-white/10 flex justify-between items-center">
+                                    <h4 className="text-white font-bold flex items-center gap-2">
+                                        <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5 text-[#00e676]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M23 21v-2a4 4 0 0 0-3-3.87" /><path d="M16 3.13a4 4 0 0 1 0 7.75" /></svg>
+                                        Dirección & Reportes
+                                    </h4>
+                                </div>
+                                <div className="p-6 space-y-4">
+                                    <div className="flex justify-between items-center border-b border-white/5 pb-2">
+                                        <span className="text-gray-400 text-sm">Reuniones de Seguimiento</span>
+                                        <span className="text-white font-mono text-sm">2 Reuniones Mensuales (Quincenal)</span>
+                                    </div>
+                                    <div className="flex justify-between items-center border-b border-white/5 pb-2">
+                                        <span className="text-gray-400 text-sm">Reporte de Rendimiento</span>
+                                        <span className="text-white font-mono text-sm">1 Dashboard Interactivo + PDF</span>
+                                    </div>
+                                    <div className="flex justify-between items-center pt-1">
+                                        <span className="text-gray-400 text-sm">Consultoría I+D</span>
+                                        <span className="text-white font-mono text-sm">Desarrollo Nuevos Negocios (Unidad de Innovación)</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </FadeIn>
+
                     </div>
                 </div>
             </section>
@@ -492,7 +564,7 @@ export default function DistrilandProposal() {
                     </div>
 
                     <a
-                        href="https://wa.me/5491112345678"
+                        href="https://wa.me/5491140753480"
                         className="inline-flex items-center gap-3 bg-[#00e676] text-black font-bold py-4 px-10 rounded-full text-lg hover:bg-[#00c853] hover:scale-105 transition-all duration-300 shadow-[0_0_20px_rgba(0,230,118,0.4)]"
                     >
                         Aceptar Propuesta y Agendar Kick-off

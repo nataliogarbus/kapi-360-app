@@ -49,7 +49,7 @@ const HeroSection = () => {
           Nos convertimos en el departamento de marketing que su industria necesita. Delegue con confianza y vea cómo su inversión se traduce en clientes.
         </p>
         <div className="mt-12 flex flex-col sm:flex-row items-center justify-center gap-4">
-          <Link href="/#contact" className="bg-[#00DD82] text-black font-bold uppercase px-8 py-4 rounded-md hover:bg-green-400 transition-all duration-300 text-lg shadow-lg w-full sm:w-auto">
+          <Link href="https://wa.me/5491140753480" target="_blank" rel="noopener noreferrer" className="bg-[#00DD82] text-black font-bold uppercase px-8 py-4 rounded-md hover:bg-green-400 transition-all duration-300 text-lg shadow-lg w-full sm:w-auto">
             SOLICITAR CONSULTORÍA
           </Link>
           <Link href="/diagnostico" className="bg-transparent border-2 border-gray-600 text-gray-300 font-bold uppercase px-8 py-4 rounded-md hover:bg-gray-800 hover:text-white transition-all duration-300 text-lg w-full sm:w-auto">

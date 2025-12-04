@@ -78,7 +78,7 @@ const CasaVicuñaPage = () => {
           <p className="mt-6 max-w-2xl mx-auto text-lg md:text-xl text-slate-200 text-shadow-md">
             Servicio de decoración de temporada por Casa Vicuña. Diseñamos y preparamos tu hogar para que estas fiestas solo te dediques a disfrutar.
           </p>
-          <a href="#contacto" className="mt-8 inline-block bg-amber-500 text-slate-900 font-bold py-3 px-8 rounded-lg text-lg hover:bg-amber-400 transition-colors duration-300">
+          <a href="https://wa.me/5491140753480" target="_blank" rel="noopener noreferrer" className="mt-8 inline-block bg-amber-500 text-slate-900 font-bold py-3 px-8 rounded-lg text-lg hover:bg-amber-400 transition-colors duration-300">
             Solicitar una Consulta
           </a>
         </div>

@@ -18,7 +18,7 @@ const steps = [
     title: '3. Reciba su Informe',
     description: 'Obtenga un puntaje y un informe detallado. El siguiente paso es una consultoría estratégica para analizar los resultados.',
     cta: (
-      <Link href="/#contact">
+      <Link href="https://wa.me/5491140753480" target="_blank" rel="noopener noreferrer">
         <span className="mt-4 inline-block bg-cyan-500 text-black font-bold py-2 px-4 rounded-md hover:bg-cyan-600 transition-colors duration-300 text-sm">
           Agendar Consultoría
         </span>
