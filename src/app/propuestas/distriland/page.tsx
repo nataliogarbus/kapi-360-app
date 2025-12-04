@@ -122,71 +122,97 @@ export default function DistrilandProposal() {
             </section>
 
             {/* --- Section 1.5: Growth Architecture (The Path) --- */}
-            <section className="py-24 px-6 relative overflow-hidden">
-                <div className="max-w-4xl mx-auto">
+            <section className="py-24 px-6 relative overflow-hidden bg-white/[0.01]">
+                <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(0,230,118,0.03),transparent_70%)]"></div>
+
+                <div className="max-w-7xl mx-auto relative z-10">
                     <FadeIn className="text-center mb-16">
                         <h2 className="text-3xl md:text-4xl font-bold text-white">Arquitectura de Crecimiento</h2>
-                        <p className="mt-4 text-gray-400">El camino para transformar creatividad en ingresos</p>
+                        <p className="mt-4 text-gray-400">Cómo transformamos áreas clave en resultados financieros</p>
                     </FadeIn>
 
-                    <div className="relative">
-                        {/* Connecting Line */}
-                        <div className="absolute left-1/2 top-0 bottom-0 w-1 bg-gradient-to-b from-[#00e676]/0 via-[#00e676]/20 to-[#00e676]/0 -translate-x-1/2 hidden md:block" />
+                    <div className="grid md:grid-cols-3 gap-6 relative">
 
-                        <div className="space-y-12 relative z-10">
-                            {/* Step 1: Input */}
-                            <FadeIn className="flex flex-col md:flex-row items-center justify-center gap-6">
-                                <div className="bg-white/5 border border-white/10 p-6 rounded-xl text-center w-full md:w-64 backdrop-blur-sm">
-                                    <span className="text-[#00e676] font-bold block mb-2">INPUT</span>
-                                    <h3 className="text-white font-bold text-lg">Negocio Distriland</h3>
-                                    <p className="text-xs text-gray-500 mt-2">+ Creatividad Kapi</p>
+                        <div className="hidden md:block absolute top-1/2 left-0 w-full h-px bg-gradient-to-r from-transparent via-[#00e676]/20 to-transparent -translate-y-1/2 z-0"></div>
+
+                        <FadeIn delay={0.1} className="bg-white/5 border border-white/10 p-8 rounded-2xl relative group hover:border-[#00e676]/30 transition-all duration-300 z-10">
+                            <div className="absolute -top-3 left-8 bg-[#050505] px-2 text-[#00e676] text-xs font-bold tracking-widest uppercase border border-[#00e676]/20 rounded">Área 1: Cimientos</div>
+
+                            <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
+                                <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5 text-gray-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" /></svg>
+                                Tecnología & Datos
+                            </h3>
+
+                            <div className="space-y-4">
+                                <div className="bg-black/40 p-3 rounded border-l-2 border-gray-600">
+                                    <span className="text-xs text-gray-500 block mb-1">Acción Kapi</span>
+                                    <p className="text-gray-300 text-sm">Integración Odoo ↔ Ads + Setup de Medición Avanzada.</p>
                                 </div>
-                            </FadeIn>
 
-                            {/* Arrow Down */}
-                            <div className="flex justify-center text-[#00e676]/50"><ArrowRight className="rotate-90 w-6 h-6" /></div>
+                                <div className="flex justify-center md:hidden text-[#00e676]"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 5v14M19 12l-7 7-7-7" /></svg></div>
 
-                            {/* Step 2: Process Loop */}
-                            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                                {['Diseño & Branding', 'Campañas Ads', 'Canales de Venta', 'Inversión'].map((item, i) => (
-                                    <FadeIn key={i} delay={i * 0.1}>
-                                        <div className="bg-white/[0.02] border border-white/5 p-4 rounded-lg text-center h-full flex items-center justify-center hover:bg-white/5 transition-colors">
-                                            <span className="text-gray-300 text-sm font-medium">{item}</span>
-                                        </div>
-                                    </FadeIn>
-                                ))}
+                                <div className="bg-[#00e676]/10 p-3 rounded border-l-2 border-[#00e676]">
+                                    <span className="text-xs text-[#00e676] block mb-1">Resultado</span>
+                                    <p className="text-white text-sm font-bold">Datos confiables para comprar stock inteligente.</p>
+                                </div>
                             </div>
+                        </FadeIn>
 
-                            {/* Arrow Down */}
-                            <div className="flex justify-center text-[#00e676]/50"><ArrowRight className="rotate-90 w-6 h-6" /></div>
+                        <FadeIn delay={0.2} className="bg-white/5 border border-white/10 p-8 rounded-2xl relative group hover:border-[#00e676]/30 transition-all duration-300 z-10">
+                            <div className="absolute -top-3 left-8 bg-[#050505] px-2 text-[#00e676] text-xs font-bold tracking-widest uppercase border border-[#00e676]/20 rounded">Área 2: Expansión</div>
 
-                            {/* Step 3: Output */}
-                            <FadeIn>
-                                <div className="bg-gradient-to-b from-[#00e676]/10 to-transparent border border-[#00e676]/20 p-8 rounded-2xl text-center relative overflow-hidden">
-                                    <div className="absolute inset-0 bg-[#00e676]/5 blur-xl" />
-                                    <div className="relative z-10">
-                                        <span className="text-[#00e676] font-bold tracking-widest text-xs uppercase mb-4 block">RESULTADOS</span>
-                                        <div className="flex flex-wrap justify-center gap-4 md:gap-8 text-white font-bold">
-                                            <span>Impresiones</span>
-                                            <span className="text-gray-600">→</span>
-                                            <span>Clicks</span>
-                                            <span className="text-gray-600">→</span>
-                                            <span>Consultas</span>
-                                            <span className="text-gray-600">→</span>
-                                            <span className="text-[#00e676] text-xl">VENTAS</span>
-                                        </div>
-                                    </div>
+                            <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
+                                <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5 text-gray-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10" /><path d="m16 12-4-4-4 4" /><path d="M12 16V8" /></svg>
+                                Tráfico Calificado
+                            </h3>
+
+                            <div className="space-y-4">
+                                <div className="bg-black/40 p-3 rounded border-l-2 border-gray-600">
+                                    <span className="text-xs text-gray-500 block mb-1">Acción Kapi</span>
+                                    <p className="text-gray-300 text-sm">Campañas Google (Técnicos) + Meta (Retail) + Email Marketing.</p>
                                 </div>
-                            </FadeIn>
 
-                            {/* Step 4: Feedback Loop */}
-                            <FadeIn delay={0.2} className="flex justify-center">
-                                <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 text-xs text-gray-400">
-                                    <Users className="w-3 h-3" />
-                                    <span>Automatización & Remarketing (Ciclo Continuo)</span>
+                                <div className="flex justify-center md:hidden text-[#00e676]"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 5v14M19 12l-7 7-7-7" /></svg></div>
+
+                                <div className="bg-[#00e676]/10 p-3 rounded border-l-2 border-[#00e676]">
+                                    <span className="text-xs text-[#00e676] block mb-1">Resultado</span>
+                                    <p className="text-white text-sm font-bold">Reducción de dependencia de MercadoLibre.</p>
                                 </div>
-                            </FadeIn>
-                        </div>
+                            </div>
+                        </FadeIn>
+
+                        <FadeIn delay={0.3} className="bg-gradient-to-b from-white/5 to-[#00e676]/5 border border-white/10 p-8 rounded-2xl relative group hover:border-[#00e676]/50 transition-all duration-300 z-10 shadow-[0_0_30px_rgba(0,230,118,0.05)]">
+                            <div className="absolute -top-3 left-8 bg-[#050505] px-2 text-[#00e676] text-xs font-bold tracking-widest uppercase border border-[#00e676]/20 rounded">Área 3: Diferenciación</div>
+
+                            <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
+                                <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5 text-[#00e676]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 2v20M2 12h20" /><path d="m12 2 4 4-4 4" /><path d="M12 22 8 18l4-4" /></svg>
+                                Nuevos Negocios
+                            </h3>
+
+                            <div className="space-y-4">
+                                <div className="bg-black/40 p-3 rounded border-l-2 border-gray-600">
+                                    <span className="text-xs text-gray-500 block mb-1">Acción Kapi</span>
+                                    <p className="text-gray-300 text-sm">Desarrollo de Ecosistemas Propios (Proyectos MVP).</p>
+                                </div>
+
+                                <div className="flex justify-center md:hidden text-[#00e676]"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 5v14M19 12l-7 7-7-7" /></svg></div>
+
+                                <div className="bg-[#00e676]/20 p-3 rounded border-l-2 border-[#00e676]">
+                                    <span className="text-xs text-[#00e676] block mb-1">Resultado</span>
+                                    <p className="text-white text-sm font-bold">Activos digitales que generan clientes propios.</p>
+                                </div>
+                            </div>
+                        </FadeIn>
+                    </div>
+
+                    <div className="mt-12 text-center">
+                        <FadeIn delay={0.4} className="inline-flex items-center gap-3 px-6 py-3 rounded-full bg-white/5 border border-white/10 text-sm text-gray-300">
+                            <span className="flex h-2 w-2 relative">
+                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#00e676] opacity-75"></span>
+                                <span className="relative inline-flex rounded-full h-2 w-2 bg-[#00e676]"></span>
+                            </span>
+                            Ciclo de optimización continua: Medir → Ajustar → Escalar
+                        </FadeIn>
                     </div>
                 </div>
             </section>
