@@ -482,7 +482,7 @@ export default function CelupLanding() {
             {/* --- CTA --- */}
             <section className="py-24 px-6 text-center">
                 <FadeIn>
-                    <h2 className="text-3xl md:text-5xl font-bold text-white mb-12">"El que controla la demanda,<br />controla el mercado."</h2>
+                    <h2 className="text-3xl md:text-5xl font-bold text-white mb-12">&quot;El que controla la demanda,<br />controla el mercado.&quot;</h2>
 
                     <a
                         href="https://wa.me/5491140753480?text=Aprobar%20MVP%20Celup"
