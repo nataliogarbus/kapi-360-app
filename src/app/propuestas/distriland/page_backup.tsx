@@ -111,7 +111,7 @@ export default function DistrilandProposal() {
                                     <h3 className="text-xl font-bold text-white">Situación Actual</h3>
                                 </div>
                                 <p className="text-gray-400 leading-relaxed">
-                                    Distriland cuenta con activos sólidos: 7 años de trayectoria, **expertise única en microelectrónica**, e implementación de <Tooltip text="ERP de gestión integral para empresas">Odoo</Tooltip> + Tienda Nube. Sin embargo, la dependencia de MercadoLibre comprime márgenes. Se detecta la necesidad de <strong>profesionalizar los canales</strong> para hacer valer su autoridad técnica y <strong>potenciar el crecimiento comercial</strong>.
+                                    Distriland cuenta con activos sólidos: 7 años de trayectoria, implementación de <Tooltip text="ERP de gestión integral para empresas">Odoo</Tooltip> + Tienda Nube y equipo de diseño in-house. Sin embargo, la dependencia de MercadoLibre comprime márgenes y diluye la identidad de marca. Se detecta la necesidad de <strong>profesionalizar los canales de venta</strong>, inyectar <strong>creatividad</strong> para destacar en el mercado y <strong>aumentar las ventas</strong>.
                                 </p>
                             </Card>
                         </FadeIn>
@@ -123,7 +123,7 @@ export default function DistrilandProposal() {
                                     <h3 className="text-xl font-bold text-white">La Solución Kapi</h3>
                                 </div>
                                 <p className="text-gray-300 leading-relaxed">
-                                    Posicionar a Distriland como <strong>La Referencia Técnica del Gremio</strong>. No solo vender repuestos, sino ofrecer <strong>soluciones de microelectrónica</strong> que nadie más tiene. Implementaremos una estrategia de Geolocalización para Once y canales digitales para convertir al técnico en un socio estratégico.
+                                    Evolucionar de &quot;Vendedor Mayorista&quot; a <strong className="text-white">&quot;Socio Estratégico del Técnico&quot;</strong>. Implementaremos una Dirección Externa de Marketing para unificar canales y optimizar la inversión. Además, generamos <strong>ideas creativas y soluciones de negocio</strong> para impactar en el mercado y potenciar la inversión publicitaria.
                                 </p>
                             </Card>
                         </FadeIn>
@@ -179,7 +179,7 @@ export default function DistrilandProposal() {
                             <div className="space-y-4">
                                 <div className="bg-black/40 p-3 rounded border-l-2 border-gray-600">
                                     <span className="text-xs text-gray-500 block mb-1">Acción Kapi</span>
-                                    <p className="text-gray-300 text-sm">Campañas de <strong>Geolocalización (Once)</strong> + Google Ads y Meta para captación de Gremio.</p>
+                                    <p className="text-gray-300 text-sm">Campañas Google (Técnicos) + Meta (Retail) + Email Marketing.</p>
                                 </div>
 
                                 <div className="flex justify-center md:hidden text-[#00e676]"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 5v14M19 12l-7 7-7-7" /></svg></div>
@@ -243,7 +243,7 @@ export default function DistrilandProposal() {
                                 </div>
                                 <h3 className="text-xl font-bold text-white mb-3">Performance & Tráfico</h3>
                                 <p className="text-gray-400 text-sm leading-relaxed">
-                                    Estrategia <strong>Drive-to-Store</strong> para potenciar el local de Once y campañas digitales orientadas a resultados de negocio. Segmentación dual: <Tooltip text="Servicio Técnico al Gremio">Gremio (Soporte Técnico)</Tooltip> vs <Tooltip text="Venta a Consumidor Final">Consumidor Final</Tooltip>.
+                                    Gestión intensiva de campañas en Google Ads (Búsqueda Técnica) y Meta Ads (Catálogo) orientadas a <Tooltip text="Retorno de Inversión Publicitaria">ROAS</Tooltip>. Segmentación dual: <Tooltip text="Venta a Empresas/Gremio">Gremio (B2B)</Tooltip> vs <Tooltip text="Venta a Consumidor Final">Consumidor Final (B2C)</Tooltip>.
                                 </p>
                             </Card>
                         </FadeIn>
@@ -288,7 +288,7 @@ export default function DistrilandProposal() {
                             {
                                 title: "Eficiencia Publicitaria",
                                 method: "Segmentación Técnica",
-                                result: "Maximización de Rentabilidad",
+                                result: "Menor Costo por Venta (ROAS)",
                                 icon: <BarChart3 className="w-6 h-6 text-[#00e676]" />
                             },
                             {
@@ -300,7 +300,7 @@ export default function DistrilandProposal() {
                             {
                                 title: "Soberanía Digital",
                                 method: "Incentivos Odoo",
-                                result: "Independencia Comercial",
+                                result: "Ventas Directas (Sin Comisión)",
                                 icon: <Database className="w-6 h-6 text-[#00e676]" />
                             }
                         ].map((obj, idx) => (
@@ -508,17 +508,28 @@ export default function DistrilandProposal() {
 
                     <FadeIn>
                         <div className="overflow-hidden rounded-xl border border-white/10 bg-white/5 backdrop-blur-sm">
-
-
-                            <div className="grid grid-cols-1 md:grid-cols-12">
+                            <div className="grid grid-cols-1 md:grid-cols-12 border-b border-white/10">
                                 <div className="p-8 md:col-span-8">
-                                    <h3 className="text-xl font-bold text-white mb-2">Inversión Total Mensual</h3>
-                                    <p className="text-gray-400 text-sm">Presupuesto integral para la ejecución del proyecto (Fee + Pauta).</p>
+                                    <h3 className="text-xl font-bold text-white mb-2">Fee Mensual Agencia (Partner)</h3>
+                                    <p className="text-gray-400 text-sm">Incluye: Dirección, Estrategia, Gestión de Campañas, Reportes y Consultoría.</p>
                                 </div>
                                 <div className="p-8 md:col-span-4 bg-white/[0.02] flex items-center justify-center md:justify-end border-t md:border-t-0 md:border-l border-white/10">
                                     <div className="text-center md:text-right">
-                                        <span className="block text-xl font-bold text-white">$2.000.000 - $2.500.000</span>
-                                        <span className="text-xs text-gray-500 uppercase">/ mes (Estimado)</span>
+                                        <span className="block text-2xl font-bold text-[#00e676]">$1.250.000</span>
+                                        <span className="text-xs text-gray-500 uppercase">+ IVA / mes</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="grid grid-cols-1 md:grid-cols-12">
+                                <div className="p-8 md:col-span-8">
+                                    <h3 className="text-xl font-bold text-white mb-2">Inversión Publicitaria (Ad Spend)</h3>
+                                    <p className="text-gray-400 text-sm">Presupuesto sugerido para pago directo a plataformas (Google/Meta).</p>
+                                </div>
+                                <div className="p-8 md:col-span-4 bg-white/[0.02] flex items-center justify-center md:justify-end border-t md:border-t-0 md:border-l border-white/10">
+                                    <div className="text-center md:text-right">
+                                        <span className="block text-xl font-bold text-white">Desde $750.000</span>
+                                        <span className="text-xs text-gray-500 uppercase">/ mes</span>
                                     </div>
                                 </div>
                             </div>
@@ -562,23 +573,13 @@ export default function DistrilandProposal() {
                         ))}
                     </div>
 
-                    <div className="flex flex-col md:flex-row items-center justify-center gap-4">
-                        <a
-                            href="https://wa.me/5491140753480"
-                            className="inline-flex items-center gap-3 bg-[#00e676] text-black font-bold py-4 px-10 rounded-full text-lg hover:bg-[#00c853] hover:scale-105 transition-all duration-300 shadow-[0_0_20px_rgba(0,230,118,0.4)]"
-                        >
-                            Aceptar Propuesta y Agendar Kick-off
-                            <ArrowRight className="w-5 h-5" />
-                        </a>
-                        <a
-                            href="/propuestas/distriland/propuesta-distriland-no-oficial.pdf"
-                            download="Propuesta_Estrategica_Distriland_2026.pdf"
-                            className="inline-flex items-center gap-3 bg-white/5 border border-white/10 text-white font-medium py-4 px-8 rounded-full text-lg hover:bg-white/10 transition-all duration-300"
-                        >
-                            <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="7 10 12 15 17 10" /><line x1="12" x2="12" y1="15" y2="3" /></svg>
-                            Descargar PDF
-                        </a>
-                    </div>
+                    <a
+                        href="https://wa.me/5491140753480"
+                        className="inline-flex items-center gap-3 bg-[#00e676] text-black font-bold py-4 px-10 rounded-full text-lg hover:bg-[#00c853] hover:scale-105 transition-all duration-300 shadow-[0_0_20px_rgba(0,230,118,0.4)]"
+                    >
+                        Aceptar Propuesta y Agendar Kick-off
+                        <ArrowRight className="w-5 h-5" />
+                    </a>
                 </FadeIn>
             </section>
 
