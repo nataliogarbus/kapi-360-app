@@ -1,16 +1,39 @@
 import Link from 'next/link';
 import { Post } from '@/app/types';
 
-const RecommendedPosts = ({ posts }: { posts: Post[] }) => {
-  if (!posts || posts.length === 0) {
+interface RecommendedPostsProps {
+  posts?: Post[];
+  allPosts?: Post[];
+  filterTags?: string[];
+  currentSlug?: string;
+  title?: string;
+}
+
+const RecommendedPosts = ({ posts, allPosts, filterTags, currentSlug, title = "Lecturas Recomendadas" }: RecommendedPostsProps) => {
+  let displayPosts: Post[] = [];
+
+  if (posts && posts.length > 0) {
+    displayPosts = posts;
+  } else if (allPosts && filterTags) {
+    displayPosts = allPosts.filter(post => {
+      // Exclude current post
+      if (currentSlug && post.slug === currentSlug) return false;
+
+      // Check if post has tags and if any tag matches filterTags
+      // Note: tags might be undefined on some posts, handle safely
+      return post.tags?.some(tag => filterTags.includes(tag));
+    }).slice(0, 3);
+  }
+
+  if (displayPosts.length === 0) {
     return null;
   }
 
   return (
     <div className="mt-16 pt-12 border-t border-gray-700/50">
-      <h2 className="text-2xl font-bold text-center text-white mb-8">Lecturas Recomendadas</h2>
+      <h2 className="text-2xl font-bold text-center text-white mb-8">{title}</h2>
       <div className="grid gap-8 md:grid-cols-1 lg:grid-cols-3">
-        {posts.map((post) => (
+        {displayPosts.map((post) => (
           <Link href={`/blog/${post.slug}`} key={post.slug} className="block bg-gray-800/50 rounded-2xl p-8 flex flex-col h-full hover:bg-gray-700/50 transition-colors duration-300">
             <div className="flex-grow">
               <p className="text-sm font-semibold text-cyan-400 uppercase">{post.category}</p>

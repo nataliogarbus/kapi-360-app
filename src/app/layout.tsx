@@ -9,6 +9,8 @@ import { Toaster } from 'react-hot-toast';
 import { Analytics } from '@vercel/analytics/react';
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import WhatsAppButton from "@/components/WhatsAppButton";
+import { LanguageProvider } from "@/context/LanguageContext";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -25,23 +27,26 @@ export default function RootLayout({
   return (
     <html lang="es">
       <body className={`${inter.className} bg-kapi-negro-suave text-kapi-gris-medio`}>
-        <Suspense fallback={null}>
-          <GoogleTagManager />
-        </Suspense>
-        <CaptchaProvider>
-          <Toaster 
-            position="bottom-right"
-            toastOptions={{
-              style: {
-                background: '#333',
-                color: '#fff',
-              },
-            }}
-          />
-          <Header />
-          {children}
-          <Footer />
-        </CaptchaProvider>
+        <LanguageProvider>
+          <Suspense fallback={null}>
+            <GoogleTagManager />
+          </Suspense>
+          <CaptchaProvider>
+            <Toaster
+              position="bottom-right"
+              toastOptions={{
+                style: {
+                  background: '#333',
+                  color: '#fff',
+                },
+              }}
+            />
+            <Header />
+            {children}
+            <WhatsAppButton />
+            <Footer />
+          </CaptchaProvider>
+        </LanguageProvider>
         {/* Pipedrive Leadbooster Script */}
         <Script id="pipedrive-leadbooster-config" strategy="beforeInteractive">
           {`

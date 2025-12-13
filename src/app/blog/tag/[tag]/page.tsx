@@ -16,7 +16,6 @@ export default function TagPage({ params }: { params: { tag: string } }) {
 
   return (
     <main className="flex min-h-screen flex-col items-center p-4 sm:p-8 bg-[#1a1a1a] text-white">
-      <Header />
       <div className="w-full max-w-4xl mx-auto py-12 sm:py-24">
         <h1 className="text-4xl sm:text-5xl font-extrabold mb-4 text-center text-white">Etiqueta: #{decodedTag}</h1>
         <p className="text-center text-gray-400 mb-12">{filteredPosts.length} artículo(s) encontrado(s)</p>
@@ -39,7 +38,6 @@ export default function TagPage({ params }: { params: { tag: string } }) {
           </Link>
         </div>
       </div>
-      <Footer />
     </main>
   );
 }

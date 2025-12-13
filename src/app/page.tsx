@@ -13,11 +13,15 @@ import NewsletterSection from "@/components/NewsletterSection";
 import FeaturedTestimonial from "@/components/FeaturedTestimonial";
 import ContactForm from "@/components/ContactForm";
 import HeroSection from "@/components/HeroSection";
+import PartnersEcosystem from "@/components/PartnersEcosystem";
 import { Reporte } from '@/app/types';
 import { ScrollAnimationWrapper } from '@/components/ScrollAnimationWrapper';
 
+import { useLanguage } from '@/context/LanguageContext';
+
 export default function Home() {
   console.log("Verificación de Kapi");
+  const { language } = useLanguage();
   const [isLoading, setIsLoading] = useState(false);
   const [report, setReport] = useState<Reporte | null>(null);
   const [featuredPosts, setFeaturedPosts] = useState([]);
@@ -25,7 +29,7 @@ export default function Home() {
   useEffect(() => {
     const fetchPosts = async () => {
       try {
-        const response = await fetch('/api/posts');
+        const response = await fetch(`/api/posts?lang=${language}`);
         const data = await response.json();
         setFeaturedPosts(data);
       } catch (err) {
@@ -33,7 +37,7 @@ export default function Home() {
       }
     };
     fetchPosts();
-  }, []);
+  }, [language]);
 
   const organizationSchema = {
     '@context': 'https://schema.org',
@@ -59,6 +63,9 @@ export default function Home() {
       ) : (
         <>
           <HeroSection />
+          <ScrollAnimationWrapper>
+            <PartnersEcosystem />
+          </ScrollAnimationWrapper>
           <ScrollAnimationWrapper>
             <ComoFunciona />
           </ScrollAnimationWrapper>

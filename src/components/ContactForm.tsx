@@ -1,10 +1,25 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { pushEvent } from '@/lib/datalayer';
 
-const ContactForm: React.FC = () => {
+import { useLanguage } from '@/context/LanguageContext';
+import { translations } from '@/lib/translations';
+
+interface ContactFormProps {
+  title?: string;
+  subtitle?: string;
+}
+
+const ContactFormContent: React.FC<ContactFormProps> = ({
+  title,
+  subtitle
+}) => {
+  const { language } = useLanguage();
+  // @ts-ignore
+  const t = translations[language].contactForm;
+
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -48,7 +63,7 @@ const ContactForm: React.FC = () => {
     setSubmitError(null);
 
     try {
-            const response = await fetch('https://hook.eu2.make.com/z734t2xlgmyykc278eiiykhqibmpe9qq', {
+      const response = await fetch('https://hook.eu2.make.com/z734t2xlgmyykc278eiiykhqibmpe9qq', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData),
@@ -60,34 +75,34 @@ const ContactForm: React.FC = () => {
         event: 'generate_lead',
         form_location: 'contact_form_homepage'
       });
-      setSubmitMessage('¡Gracias! Su mensaje ha sido enviado. Nos pondremos en contacto con usted a la brevedad.');
+      setSubmitMessage(t.messages.success);
       setFormData(prev => ({ ...prev, name: '', email: '', company: '', message: '' }));
     } catch (err: any) {
-      setSubmitError(err.message || 'Ocurrió un error. Por favor, inténtelo de nuevo.');
+      setSubmitError(t.messages.error);
     } finally {
       setIsSubmitting(false);
     }
   };
-  
+
   return (
     <section id="contact" className="w-full max-w-3xl mx-auto py-12 px-4 sm:px-6 lg:px-8 bg-[#1a1a1a] rounded-lg shadow-xl mt-12">
-      <h2 className="text-3xl font-bold text-center text-white mb-2">Agende una Consultoría Estratégica</h2>
-      <p className="text-center text-gray-300 mb-8">Cuéntenos sobre su empresa. Estamos listos para ser el socio estratégico que le ayude a profesionalizar sus ventas.</p>
+      <h2 className="text-3xl font-bold text-center text-white mb-2">{title || t.title}</h2>
+      <p className="text-center text-gray-300 mb-8">{subtitle || t.subtitle}</p>
       <form onSubmit={handleSubmit} className="space-y-6">
         <div>
-          <label htmlFor="name" className="block text-sm font-medium text-gray-300">Nombre Completo</label>
+          <label htmlFor="name" className="block text-sm font-medium text-gray-300">{t.fields.name}</label>
           <input type="text" name="name" id="name" value={formData.name} onChange={handleChange} required className="mt-1 block w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-[#00DD82] focus:border-[#00DD82] sm:text-sm text-white" />
         </div>
         <div>
-          <label htmlFor="email" className="block text-sm font-medium text-gray-300">Correo Electrónico</label>
+          <label htmlFor="email" className="block text-sm font-medium text-gray-300">{t.fields.email}</label>
           <input type="email" name="email" id="email" value={formData.email} onChange={handleChange} required className="mt-1 block w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-[#00DD82] focus:border-[#00DD82] sm:text-sm text-white" />
         </div>
         <div>
-          <label htmlFor="company" className="block text-sm font-medium text-gray-300">Empresa</label>
+          <label htmlFor="company" className="block text-sm font-medium text-gray-300">{t.fields.company}</label>
           <input type="text" name="company" id="company" value={formData.company} onChange={handleChange} className="mt-1 block w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-[#00DD82] focus:border-[#00DD82] sm:text-sm text-white" />
         </div>
         <div>
-          <label htmlFor="message" className="block text-sm font-medium text-gray-300">Su Mensaje</label>
+          <label htmlFor="message" className="block text-sm font-medium text-gray-300">{t.fields.message}</label>
           <textarea name="message" id="message" rows={4} value={formData.message} onChange={handleChange} required className="mt-1 block w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-[#00DD82] focus:border-[#00DD82] sm:text-sm text-white"></textarea>
         </div>
         {submitMessage && (
@@ -102,13 +117,24 @@ const ContactForm: React.FC = () => {
         )}
         <div>
           <button type="submit" disabled={isSubmitting} className="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-black bg-[#00DD82] hover:bg-green-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 uppercase font-bold disabled:opacity-50">
-            {isSubmitting ? 'Enviando...' : 'Enviar Mensaje'}
+            {isSubmitting ? t.buttons.submitting : t.buttons.submit}
           </button>
         </div>
       </form>
     </section>
   );
 };
+
+const ContactForm: React.FC<ContactFormProps> = ({
+  title,
+  subtitle
+}) => {
+  return (
+    <Suspense fallback={<div className="text-center py-8 text-white">Cargando formulario...</div>}>
+      <ContactFormContent title={title} subtitle={subtitle} />
+    </Suspense>
+  );
+}
 
 export default ContactForm;
 

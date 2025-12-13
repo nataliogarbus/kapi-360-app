@@ -24,9 +24,17 @@ function slugify(text: string): string {
 
 
 // Function to get all posts, sorted by date
-export function getSortedPostsData(): (Post & { fileName: string })[] {
+export function getSortedPostsData(language: 'es' | 'en' = 'es'): (Post & { fileName: string })[] {
   const fileNames = fs.readdirSync(postsDirectory);
-  const allPostsData = fileNames.map((fileName) => {
+
+  const filteredFileNames = fileNames.filter(fileName => {
+    if (language === 'en') {
+      return fileName.endsWith('.en.md');
+    }
+    return fileName.endsWith('.md') && !fileName.endsWith('.en.md');
+  });
+
+  const allPostsData = filteredFileNames.map((fileName) => {
     const fullPath = path.join(postsDirectory, fileName);
     const fileContents = fs.readFileSync(fullPath, 'utf8');
     const matterResult = matter(fileContents);
@@ -36,7 +44,7 @@ export function getSortedPostsData(): (Post & { fileName: string })[] {
 
     return {
       slug,
-      fileName: fileName.replace(/\.md$/, ''),
+      fileName: fileName.replace(/\.md$/, '').replace(/\.en$/, ''),
       title,
       date: matterResult.data.date,
       excerpt: matterResult.data.excerpt,
@@ -55,8 +63,9 @@ export function getSortedPostsData(): (Post & { fileName: string })[] {
 }
 
 // Function to get all slugs for individual post pages
+// Note: This needs to return slugs for both languages or we handle it dynamically
 export function getAllPostIds() {
-  const posts = getSortedPostsData();
+  const posts = getSortedPostsData('es'); // Default to ES for main slugs
   return posts.map((post) => {
     return {
       params: {
@@ -67,20 +76,39 @@ export function getAllPostIds() {
 }
 
 // Function to get data for a single post
-export function getPostData(slug: string): PostData | null {
-  const allPosts = getSortedPostsData();
-  const post = allPosts.find(p => p.slug === slug);
+export function getPostData(slug: string, language: 'es' | 'en' = 'es'): PostData | null {
+  // First, find the file that matches this slug in the requested language
+  // Since we slugify titles, and titles might differ, we need to be careful.
+  // STRATEGY: We assume the user stays on the same URL (/blog/slug-in-spanish) 
+  // but we want to load the English content if available.
+  // HOWEVER, filtering by slug based on the *Spanish* title might be tricky if we want to switch languages.
+  // SIMPLER FOR NOW: Let's assume we search for the post in Spanish to find the base filename, 
+  // then look for the .en.md version of that file.
 
-  if (!post) {
+  const allPostsEs = getSortedPostsData('es');
+  const postEs = allPostsEs.find(p => p.slug === slug);
+
+  if (!postEs) {
     return null;
   }
 
-  const fullPath = path.join(postsDirectory, `${post.fileName}.md`);
+  // Original filename (without .md)
+  const baseFileName = postEs.fileName;
+
+  let fullPath = path.join(postsDirectory, `${baseFileName}.md`);
+
+  if (language === 'en') {
+    const enPath = path.join(postsDirectory, `${baseFileName}.en.md`);
+    if (fs.existsSync(enPath)) {
+      fullPath = enPath;
+    }
+  }
+
   const fileContents = fs.readFileSync(fullPath, 'utf8');
   const matterResult = matter(fileContents);
 
   return {
-    slug: post.slug,
+    slug: postEs.slug, // Keep the original slug
     content: matterResult.content,
     title: matterResult.data.title,
     date: matterResult.data.date,
