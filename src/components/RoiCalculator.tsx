@@ -34,13 +34,13 @@ const RoiCalculator = () => {
             roi: 'ROI',
         },
         source: language === 'es' ? 'Fuente: Promedios de mercado 2024 (WordStream & HubSpot).' : 'Source: 2024 Market Averages (WordStream & HubSpot).',
-        disclaimer: language === 'es' ? 'Proyección estimada basada en benchmarks de la industria. Los resultados reales pueden variar según la estrategia.' : 'Estimated projection based on industry benchmarks. Actual results may vary based on strategy.',
+        disclaimer: language === 'es' ? 'Proyección estimada basada en benchmarks de industria. Los resultados no están garantizados y pueden variar según la estrategia.' : 'Estimated projection based on industry benchmarks. Results are not guaranteed and may vary.',
     };
 
     const [industry, setIndustry] = useState<keyof typeof INDUSTRIES>('general');
     const [budget, setBudget] = useState(1000);
     const [ticket, setTicket] = useState(100);
-    const [closeRate, setCloseRate] = useState(10); // Percentage
+    const [closeRate, setCloseRate] = useState(10); // Percentage - Conservative default
 
     const [results, setResults] = useState({
         traffic: 0,
@@ -61,29 +61,16 @@ const RoiCalculator = () => {
         // 5. ROI = (Revenue - Budget) / Budget
 
         const estimatedTraffic = Math.floor(budget / selectedIndustry.cpc);
-        const estimatedLeads = Math.floor(estimatedTraffic * 0.10); // Assuming 10% landing page conversion for leads (high but standard for good LPs) or use industry CR if it's direct sale. Let's use a standard Landing Page conversion of 10% for Lead Gen.
 
-        // Let's refine: The industry CR usually refers to "visitor to lead".
-        // B2B avg landing page conv rate is ~5-10%.
-        // E-commerce avg conversion rate is ~2-3% (direct sale).
-
-        let calculatedLeads = 0;
-        if (industry === 'ecommerce') {
-            // For e-commerce, a "lead" is basically a cart add or equivalent, but usually we measure direct sales.
-            // Let's keep "Leads" as "Qualified Visitors/Add to carts" or simplify to Sales directly?
-            // To keep it standard: Let's assume CR is for Sales in Ecommerce, and for Leads in others.
-            calculatedLeads = Math.floor(estimatedTraffic * selectedIndustry.cr); // Direct sales for ecomm?
-        } else {
-            // Lead gen
-            calculatedLeads = Math.floor(estimatedTraffic * 0.08); // 8% generic LP conversion
-        }
+        // Use industry specific conversion rate (usually 2-5%) instead of purely optimistic assumption
+        const estimatedLeads = Math.floor(estimatedTraffic * selectedIndustry.cr);
 
         // Sales calculation
         let estimatedSales = 0;
         if (industry === 'ecommerce') {
-            estimatedSales = calculatedLeads; // simplified
+            estimatedSales = estimatedLeads; // simplified: in ecomm 'leads' here assumes 'purchases' based on low CR
         } else {
-            estimatedSales = Math.floor(calculatedLeads * (closeRate / 100));
+            estimatedSales = Math.floor(estimatedLeads * (closeRate / 100));
         }
 
         const estimatedRevenue = estimatedSales * ticket;
@@ -92,7 +79,7 @@ const RoiCalculator = () => {
 
         setResults({
             traffic: estimatedTraffic,
-            leads: calculatedLeads,
+            leads: estimatedLeads,
             sales: estimatedSales,
             revenue: estimatedRevenue,
             roi: netProfit,
