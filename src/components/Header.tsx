@@ -78,7 +78,7 @@ function Header() {
       <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2 flex justify-between items-center">
 
         <Link href="/" className="flex items-center space-x-2" onClick={() => setIsMenuOpen(false)}>
-          <div className="relative w-[220px] h-[70px]">
+          <div className="relative w-[300px] h-[95px]">
             <Image
               src="/logo-kapi-verde.svg"
               alt="Logo de Kapi"

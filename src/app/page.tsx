@@ -43,13 +43,20 @@ export default function Home() {
     '@context': 'https://schema.org',
     '@type': 'Organization',
     name: 'Kapi',
-    url: 'https://kapi-360-app.vercel.app',
-    logo: 'https://kapi-360-app.vercel.app/logo-kapi-verde.svg',
+    url: 'https://kapi.com.ar',
+    logo: 'https://kapi.com.ar/logo-kapi-verde.svg',
     contactPoint: {
       '@type': 'ContactPoint',
       contactType: 'customer support',
       email: 'contacto@kapi.com.ar'
-    }
+    },
+    sameAs: [
+      'https://instagram.com/kapi.agencia',
+      'https://facebook.com/kapi.agencia',
+      'https://linkedin.com/company/kapi-agencia',
+      'https://twitter.com/kapi_agencia',
+      'https://youtube.com/@kapi.agencia'
+    ]
   };
 
   return (

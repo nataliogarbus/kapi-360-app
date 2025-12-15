@@ -15,8 +15,23 @@ import { LanguageProvider } from "@/context/LanguageContext";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Kapi 360 - Diagnóstico Digital IA",
-  description: "Obtén un análisis 360° de tu presencia digital impulsado por IA.",
+  metadataBase: new URL('https://kapi.com.ar'),
+  title: "Agencia de Marketing Digital y Tecnología | Kapi",
+  description: "Kapi es una agencia de marketing digital y tecnología que impulsa el crecimiento de empresas con estrategias 360°, desarrollo web y diagnósticos con IA.",
+  alternates: {
+    canonical: '/',
+  },
+  icons: {
+    icon: '/logo-kapi-verde.svg', // Using logo as favicon for now
+  },
+  openGraph: {
+    title: "Agencia de Marketing Digital y Tecnología | Kapi",
+    description: "Impulsa el crecimiento de tu empresa con estrategias 360°, desarrollo web y diagnósticos con IA.",
+    url: 'https://kapi.com.ar',
+    siteName: 'Kapi',
+    locale: 'es_AR',
+    type: 'website',
+  },
 };
 
 export default function RootLayout({

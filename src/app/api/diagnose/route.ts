@@ -169,6 +169,16 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
     const { recaptchaToken } = body;
 
+    // --- VALIDACIÓN DE API KEY ---
+    if (!geminiApiKey || geminiApiKey === '') {
+      console.error("GEMINI_API_KEY no está configurada en las variables de entorno.");
+      return NextResponse.json(
+        { error: 'La API Key de Gemini no está configurada. Por favor, configura GEMINI_API_KEY en tu archivo .env.local.' },
+        { status: 500 }
+      );
+    }
+    // -----------------------------
+
     const recaptchaSecret = process.env.RECAPTCHA_SECRET_KEY;
     if (recaptchaSecret && recaptchaToken !== 'dev_bypass') {
       const params = new URLSearchParams();

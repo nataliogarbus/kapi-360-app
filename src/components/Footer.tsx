@@ -3,7 +3,8 @@
 import React from 'react';
 import Link from 'next/link';
 
-import { CONTACT_INFO } from '@/lib/constants';
+import { Facebook, Instagram, Linkedin, Twitter, Youtube } from 'lucide-react';
+import { CONTACT_INFO, SOCIAL_LINKS } from '@/lib/constants';
 import { useLanguage } from '@/context/LanguageContext';
 import { translations } from '@/lib/translations';
 
@@ -51,12 +52,31 @@ const Footer = () => {
             <p className="text-sm mb-6 leading-relaxed">
               {t.tagline}
             </p>
-            <div className="flex flex-col gap-3 text-sm">
+            <div className="flex flex-col gap-3 text-sm mb-6">
               <a href={`mailto:${CONTACT_INFO.EMAIL}`} className="hover:text-[#00DD82] transition-colors flex items-center gap-2">
                 📧 {CONTACT_INFO.EMAIL}
               </a>
               <a href={CONTACT_INFO.WHATSAPP_LINK} target="_blank" rel="noopener noreferrer" className="hover:text-[#00DD82] transition-colors flex items-center gap-2">
                 📱 {CONTACT_INFO.PHONE_DISPLAY}
+              </a>
+            </div>
+
+            {/* Social Icons */}
+            <div className="flex space-x-4">
+              <a href={SOCIAL_LINKS.instagram} target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-[#E1306C] transition-colors">
+                <Instagram size={20} />
+              </a>
+              <a href={SOCIAL_LINKS.facebook} target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-[#1877F2] transition-colors">
+                <Facebook size={20} />
+              </a>
+              <a href={SOCIAL_LINKS.linkedin} target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-[#0A66C2] transition-colors">
+                <Linkedin size={20} />
+              </a>
+              <a href={SOCIAL_LINKS.twitter} target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-[#1DA1F2] transition-colors">
+                <Twitter size={20} />
+              </a>
+              <a href={SOCIAL_LINKS.youtube} target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-[#FF0000] transition-colors">
+                <Youtube size={20} />
               </a>
             </div>
           </div>
