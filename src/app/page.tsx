@@ -8,6 +8,7 @@ import Footer from "@/components/Footer";
 import ComoFunciona from "@/components/ComoFunciona";
 import Servicios from "@/components/Servicios";
 import CasosExito from "@/components/CasosExito";
+import RoiCalculator from "@/components/RoiCalculator";
 import FeaturedPosts from "@/components/FeaturedPosts";
 import NewsletterSection from "@/components/NewsletterSection";
 import FeaturedTestimonial from "@/components/FeaturedTestimonial";
@@ -81,6 +82,9 @@ export default function Home() {
           </ScrollAnimationWrapper>
           <ScrollAnimationWrapper>
             <CasosExito />
+          </ScrollAnimationWrapper>
+          <ScrollAnimationWrapper>
+            <RoiCalculator />
           </ScrollAnimationWrapper>
           {featuredPosts.length > 0 && (
             <ScrollAnimationWrapper>
