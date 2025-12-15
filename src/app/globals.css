@@ -4,6 +4,14 @@
 
 html {
   scroll-behavior: smooth;
+  font-size: 16px; /* Enforce base size for Mobile */
+  -webkit-text-size-adjust: 100%;
+}
+
+/* Ensure minimum touch targets */
+button, a {
+  min-height: 44px;
+  min-width: 44px;
 }
 
 .section-fade-in {

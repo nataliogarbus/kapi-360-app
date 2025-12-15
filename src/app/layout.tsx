@@ -30,6 +30,7 @@ export const metadata: Metadata = {
     languages: {
       'es': 'https://kapi.com.ar',
       'en': 'https://kapi.com.ar/?lang=en',
+      'x-default': 'https://kapi.com.ar',
     },
   },
   icons: {
