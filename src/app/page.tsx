@@ -1,24 +1,26 @@
 'use client';
 
 import { useState, useEffect, Suspense } from 'react';
+import dynamic from 'next/dynamic';
 import Header from "@/components/Header";
-import ReportSection from "@/components/ReportSection";
-import Faq from "@/components/Faq";
-import Footer from "@/components/Footer";
-import ComoFunciona from "@/components/ComoFunciona";
-import Servicios from "@/components/Servicios";
-import CasosExito from "@/components/CasosExito";
-import RoiCalculator from "@/components/RoiCalculator";
-import FeaturedPosts from "@/components/FeaturedPosts";
-import NewsletterSection from "@/components/NewsletterSection";
-import FeaturedTestimonial from "@/components/FeaturedTestimonial";
-import ContactForm from "@/components/ContactForm";
 import HeroSection from "@/components/HeroSection";
-import PartnersEcosystem from "@/components/PartnersEcosystem";
+import Footer from "@/components/Footer";
 import { Reporte } from '@/app/types';
 import { ScrollAnimationWrapper } from '@/components/ScrollAnimationWrapper';
-
 import { useLanguage } from '@/context/LanguageContext';
+
+// Lazy load heavy components to improve LCP & TBT
+const ReportSection = dynamic(() => import("@/components/ReportSection"));
+const PartnersEcosystem = dynamic(() => import("@/components/PartnersEcosystem"));
+const ComoFunciona = dynamic(() => import("@/components/ComoFunciona"));
+const Servicios = dynamic(() => import("@/components/Servicios"));
+const CasosExito = dynamic(() => import("@/components/CasosExito"));
+const RoiCalculator = dynamic(() => import("@/components/RoiCalculator"));
+const FeaturedPosts = dynamic(() => import("@/components/FeaturedPosts"));
+const FeaturedTestimonial = dynamic(() => import("@/components/FeaturedTestimonial"));
+const Faq = dynamic(() => import("@/components/Faq"));
+const NewsletterSection = dynamic(() => import("@/components/NewsletterSection"));
+const ContactForm = dynamic(() => import("@/components/ContactForm"));
 
 export default function Home() {
   console.log("Verificación de Kapi");
