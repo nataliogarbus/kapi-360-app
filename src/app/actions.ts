@@ -227,7 +227,7 @@ export async function addMessage(projectId: string, formData: FormData) {
 
   // Refresca la página para mostrar el nuevo mensaje
   revalidatePath(`/dashboard/proyectos/${projectId}`);
-  
+
   return { success: true };
 }
 
@@ -289,4 +289,116 @@ export async function signUp(formData: FormData) {
   }
 
   return { success: true, message: '¡Cuenta creada! Revisa tu correo para verificar tu cuenta.' };
+}
+
+export async function sendRoiReport(data: {
+  name: string;
+  email: string;
+  report: any;
+}) {
+  // 1. Validate Input
+  if (!data.email || !data.name) {
+    return { success: false, error: 'Nombre y Email son requeridos.' };
+  }
+
+  // 2. Check Configuration
+  const { SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS, ADMIN_EMAIL } = process.env;
+
+  if (!SMTP_HOST || !SMTP_USER || !SMTP_PASS) {
+    console.error('SMTP Configuration missing');
+    // In dev, we might pretend it worked or return error. 
+    // For now, return error so the user knows they need to set it up.
+    return { success: false, error: 'Error de configuración de correo (Faltan variables SMTP).' };
+  }
+
+  const nodemailer = await import('nodemailer');
+
+  const transporter = nodemailer.createTransport({
+    host: SMTP_HOST,
+    port: Number(SMTP_PORT) || 587,
+    secure: Number(SMTP_PORT) === 465, // true for 465, false for other ports
+    auth: {
+      user: SMTP_USER,
+      pass: SMTP_PASS,
+    },
+  });
+
+  try {
+    // 3. Email Content (HTML)
+    const formatMoney = (val: number, currency: string) =>
+      `${currency} ${val.toLocaleString()}`;
+
+    const { traffic, leads, sales, revenue, requiredBudget, currency, mode } = data.report;
+
+    const htmlContent = `
+            <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; background: #111; color: #fff; padding: 30px; border-radius: 10px;">
+                <h1 style="color: #00DD82; margin-bottom: 10px;">Tu Proyección de Crecimiento 🚀</h1>
+                <p>Hola <strong>${data.name}</strong>,</p>
+                <p>Gracias por usar la calculadora oficial de <strong>Kapi</strong>. Aquí tienes el resumen de tu simulación:</p>
+                
+                <div style="background: #222; padding: 20px; border-radius: 8px; margin: 20px 0;">
+                    <h3 style="margin-top: 0; color: #aaa; font-size: 14px; text-transform: uppercase;">${mode === 'roi' ? 'Est. Ingresos' : 'Inv. Requerida'}</h3>
+                    <p style="font-size: 36px; font-weight: bold; margin: 0; color: #00DD82;">
+                        ${mode === 'roi' ? formatMoney(revenue, currency) : formatMoney(requiredBudget, currency)}
+                    </p>
+                </div>
+
+                <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
+                    <tr>
+                        <td style="padding: 10px; border-bottom: 1px solid #333;">Tráfico Est.</td>
+                        <td style="padding: 10px; border-bottom: 1px solid #333; text-align: right; font-weight: bold;">~${traffic.toLocaleString()}</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 10px; border-bottom: 1px solid #333;">Leads Est.</td>
+                        <td style="padding: 10px; border-bottom: 1px solid #333; text-align: right; font-weight: bold;">${leads.toLocaleString()}</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 10px; border-bottom: 1px solid #333;">Ventas Est.</td>
+                        <td style="padding: 10px; border-bottom: 1px solid #333; text-align: right; font-weight: bold;">${sales.toLocaleString()}</td>
+                    </tr>
+                </table>
+
+                <p style="font-size: 12px; color: #888;">
+                    *Estas cifras son proyecciones basadas en promedios de la industria y no garantizan resultados exactos.
+                </p>
+
+                <div style="text-align: center; margin-top: 30px;">
+                    <a href="https://kapi.com.ar" style="background: #00DD82; color: #000; padding: 12px 24px; text-decoration: none; border-radius: 5px; font-weight: bold;">
+                        Agendar Consultoría Gratuita
+                    </a>
+                </div>
+            </div>
+        `;
+
+    // 4. Send Email to User
+    await transporter.sendMail({
+      from: `"Kapi Tools" <${SMTP_USER}>`,
+      to: data.email,
+      subject: '🚀 Tu Reporte de Proyección - Kapi',
+      html: htmlContent,
+    });
+
+    // 5. Send Notification to Admin (Lead Capture)
+    const adminHtml = `
+            <h1>Nuevo Lead de Calculadora ROI</h1>
+            <p><strong>Nombre:</strong> ${data.name}</p>
+            <p><strong>Email:</strong> ${data.email}</p>
+            <hr/>
+            <h3>Datos de Simulación:</h3>
+            <pre>${JSON.stringify(data.report, null, 2)}</pre>
+        `;
+
+    await transporter.sendMail({
+      from: `"Kapi System" <${SMTP_USER}>`,
+      to: ADMIN_EMAIL || 'contacto@kapi.com.ar', // Fallback
+      subject: `[Lead] Nueva Simulación: ${data.name}`,
+      html: adminHtml,
+    });
+
+    return { success: true };
+
+  } catch (error) {
+    console.error('Email sending error:', error);
+    return { success: false, error: 'Hubo un error enviando el correo. ' + (error instanceof Error ? error.message : '') };
+  }
 }

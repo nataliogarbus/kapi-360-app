@@ -4,6 +4,8 @@ import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Calculator, Info, TrendingUp, DollarSign, Users, Target, Settings } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
+import { sendRoiReport } from '@/app/actions';
+import toast from 'react-hot-toast';
 
 // Industry Benchmarks (Source: WordStream/HubSpot 2024 averages)
 // Added 'rate' buckets for flexible user selection
@@ -47,7 +49,31 @@ const RoiCalculator = () => {
         },
         source: language === 'es' ? 'Fuente: Promedios de mercado 2024 (WordStream & HubSpot).' : 'Source: 2024 Market Averages (WordStream & HubSpot).',
         disclaimer: language === 'es' ? 'Proyección estimada basada en benchmarks de industria. Los resultados no están garantizados y pueden variar según la estrategia.' : 'Estimated projection based on industry benchmarks. Results are not guaranteed and may vary.',
+        investment: {
+            title: language === 'es' ? 'Calculadora de Inversión' : 'Investment Calculator',
+            subtitle: language === 'es' ? 'Define tu meta y descubre cuánto necesitas invertir.' : 'Define your goal and discover how much you need to invest.',
+            modeBtn: language === 'es' ? 'Inversión Requerida' : 'Required Investment',
+            goalLabel: language === 'es' ? 'Ingresá tu Meta de Facturación Mensual' : 'Enter your Monthly Revenue Goal',
+            ticketLabel: language === 'es' ? 'Ingresá tu Ticket Promedio' : 'Enter your Average Ticket',
+            goalHelp: language === 'es' ? '¿Cuánto quieres vender al mes?' : 'How much do you want to sell per month?',
+            resultHeader: language === 'es' ? 'Inversión Requerida Estimada' : 'Estimated Required Investment',
+            simulateBtn: language === 'es' ? 'Simular en ROI Calc' : 'Simulate in ROI Calc',
+        },
+        email: {
+            cta: language === 'es' ? 'ENVIARME\nINFORME' : 'SEND ME\nREPORT',
+            title: language === 'es' ? 'Recibe tu Proyección' : 'Get Your Projection',
+            desc: language === 'es' ? 'Te enviaremos el desglose completo de esta simulación a tu correo.' : 'We will send the full breakdown of this simulation to your email.',
+            nameLabel: language === 'es' ? 'Nombre' : 'Name',
+            emailLabel: language === 'es' ? 'Email Profesional' : 'Professional Email',
+            submitBtn: language === 'es' ? 'Enviar Informe' : 'Send Report',
+            sending: language === 'es' ? 'Enviando...' : 'Sending...',
+            success: language === 'es' ? '¡Informe enviado con éxito!' : 'Report sent successfully!',
+            error: language === 'es' ? 'Error al enviar.' : 'Error sending report.',
+        }
     };
+
+    const [mode, setMode] = useState<'roi' | 'investment'>('roi');
+    const [revenueGoal, setRevenueGoal] = useState(100000);
 
     const [currency, setCurrency] = useState<Currency>('USD');
     const [industry, setIndustry] = useState<keyof typeof INDUSTRIES>('general');
@@ -66,6 +92,11 @@ const RoiCalculator = () => {
     const [effectiveConversionRate, setEffectiveConversionRate] = useState(0.03);
     const [effectiveCloseRate, setEffectiveCloseRate] = useState(10);
 
+    // Email Capture State
+    const [showEmailModal, setShowEmailModal] = useState(false);
+    const [emailForm, setEmailForm] = useState({ name: '', email: '' });
+    const [isSending, setIsSending] = useState(false);
+
     const [results, setResults] = useState({
         traffic: 0,
         leads: 0,
@@ -73,6 +104,7 @@ const RoiCalculator = () => {
         revenue: 0,
         roi: 0,
         roiPercent: 0,
+        requiredBudget: 0, // For Investment Mode
     });
 
     // Update effective rates when industry or tier changes
@@ -106,56 +138,79 @@ const RoiCalculator = () => {
 
     useEffect(() => {
         const selectedIndustry = INDUSTRIES[industry];
-
-        // 1. Traffic calculation
-        // If ARS, we assume CPC is lower or budget is higher relative to USD? 
-        // For simplicity, we assume the inputs are "Value Units" and apply the same CPC ratio logic 
-        // (assuming CPC scales with currency in local markets mostly, although USD CPC is strictly dollar based).
-        // To be precise: Google Ads is an auction. $1 USD CPC ~ $1000 ARS CPC (hypothetically).
-        // The user enters budget in their currency. The CPC benchmark in the constant is in USD.
-        // We need a modifier? Or just assume the user inputs USD equivalent for simplicity?
-        // User asked for "Selector in USD/ARS". 
-        // If user selects ARS, 1000 ARS buy much less than 1000 USD. 
-        // Let's assume an exchange rate for the CPC calculation if in ARS.
-        // Exchange Rate approx: 1 USD = 1000 ARS (for easy math, current real is ~1200).
-
         const EXCHANGE_RATE = 1000;
         const cpc = currency === 'USD' ? selectedIndustry.cpc : (selectedIndustry.cpc * EXCHANGE_RATE);
 
-        const estimatedTraffic = Math.floor(budget / cpc);
+        // Convert rates from percentage (e.g. 3.0) to decimal (0.03)
+        const crDecimal = effectiveConversionRate / 100;
+        const clDecimal = effectiveCloseRate / 100;
 
-        // 2. Leads: Traffic * Effective CR (%)
-        // effectiveConversionRate is in format 3.0 for 3%. Need to divide by 100.
-        // Logic check: if tier is 'medium' (industry avg), e.g. 0.03 * 100 = 3.
-        const conversionMultiplier = (conversionTier === 'custom' ? customConversionRate : effectiveConversionRate) / 100;
-        const estimatedLeads = Math.floor(estimatedTraffic * conversionMultiplier);
+        if (mode === 'roi') {
+            // Forward Logic: Budget -> Revenue
+            const estimatedTraffic = Math.floor(budget / cpc);
+            const estimatedLeads = Math.floor(estimatedTraffic * crDecimal);
 
-        // 3. Sales
-        const closeMultiplier = (closeTier === 'custom' ? customCloseRate : effectiveCloseRate) / 100;
-        let estimatedSales = 0;
-        if (industry === 'ecommerce') {
-            // For ecomm, the "Conversion Rate" usually IS the sale.
-            // So Leads = Sales. Close Rate isn't typically used or is 100%.
-            // However, to keep UI consistent, we can say "Close Rate" is 100% or hidden.
-            estimatedSales = estimatedLeads;
+            let estimatedSales = 0;
+            if (industry === 'ecommerce') {
+                estimatedSales = estimatedLeads;
+            } else {
+                estimatedSales = Math.floor(estimatedLeads * clDecimal);
+            }
+
+            const estimatedRevenue = estimatedSales * ticket;
+            const netProfit = estimatedRevenue - budget;
+            const calculatedRoiPercent = budget > 0 ? (netProfit / budget) * 100 : 0;
+
+            setResults({
+                traffic: estimatedTraffic,
+                leads: estimatedLeads,
+                sales: estimatedSales,
+                revenue: estimatedRevenue,
+                roi: netProfit,
+                roiPercent: calculatedRoiPercent,
+                requiredBudget: 0
+            });
         } else {
-            estimatedSales = Math.floor(estimatedLeads * closeMultiplier);
+            // Reverse Logic: Revenue Goal -> Budget
+            // 1. Required Sales = Goal / Ticket
+            const requiredSales = Math.ceil(revenueGoal / ticket);
+
+            // 2. Required Leads
+            let requiredLeads = 0;
+            if (industry === 'ecommerce') {
+                requiredLeads = requiredSales;
+            } else {
+                requiredLeads = Math.ceil(requiredSales / clDecimal);
+            }
+
+            // 3. Required Traffic
+            const requiredTraffic = Math.ceil(requiredLeads / crDecimal);
+
+            // 4. Required Budget
+            const calculatedBudget = requiredTraffic * cpc;
+
+            // ROI stats for this scenario (should be positive hopefully!)
+            const netProfit = revenueGoal - calculatedBudget;
+            const calculatedRoiPercent = calculatedBudget > 0 ? (netProfit / calculatedBudget) * 100 : 0;
+
+            setResults({
+                traffic: requiredTraffic,
+                leads: requiredLeads,
+                sales: requiredSales,
+                revenue: revenueGoal, // In this mode, revenue IS the goal
+                roi: netProfit,
+                roiPercent: calculatedRoiPercent,
+                requiredBudget: calculatedBudget
+            });
         }
 
-        const estimatedRevenue = estimatedSales * ticket;
-        const netProfit = estimatedRevenue - budget;
-        const calculatedRoiPercent = budget > 0 ? (netProfit / budget) * 100 : 0;
+    }, [mode, revenueGoal, industry, budget, ticket, currency, effectiveConversionRate, effectiveCloseRate]);
 
-        setResults({
-            traffic: estimatedTraffic,
-            leads: estimatedLeads,
-            sales: estimatedSales,
-            revenue: estimatedRevenue,
-            roi: netProfit,
-            roiPercent: calculatedRoiPercent
-        });
-
-    }, [industry, budget, ticket, conversionTier, closeTier, customConversionRate, customCloseRate, currency, effectiveConversionRate, effectiveCloseRate]);
+    // Setup for Simulate in ROI
+    const handleSimulateInRoi = () => {
+        setBudget(Math.round(results.requiredBudget));
+        setMode('roi');
+    };
 
     // UI Helper for Tier Buttons
     const TierSelector = ({
@@ -212,6 +267,7 @@ const RoiCalculator = () => {
 
     return (
         <section id="roi" className="py-20 bg-gradient-to-br from-[#0a0a0a] to-[#111] relative overflow-hidden border-t border-gray-900">
+            {/* Background Effects */}
             <div className="absolute top-0 left-0 w-full h-full opacity-10 pointer-events-none">
                 <div className="absolute right-0 top-0 w-96 h-96 bg-green-500 rounded-full blur-[128px]" />
                 <div className="absolute left-0 bottom-0 w-96 h-96 bg-blue-500 rounded-full blur-[128px]" />
@@ -220,11 +276,29 @@ const RoiCalculator = () => {
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
                 <div className="text-center mb-12">
                     <h2 className="text-3xl md:text-5xl font-bold text-white mb-4">
-                        {t.title} <span className="text-[#00DD82]">Kapi</span>
+                        {mode === 'roi' ? t.title : t.investment.title} <span className="text-[#00DD82]">Kapi</span>
                     </h2>
                     <p className="text-gray-400 max-w-2xl mx-auto text-lg">
-                        {t.subtitle}
+                        {mode === 'roi' ? t.subtitle : t.investment.subtitle}
                     </p>
+
+                    {/* Mode Toggle */}
+                    <div className="flex justify-center mt-6">
+                        <div className="bg-[#1a1a1a] p-1 rounded-full border border-gray-800 flex">
+                            <button
+                                onClick={() => setMode('roi')}
+                                className={`px-6 py-2 rounded-full text-sm font-bold transition-all ${mode === 'roi' ? 'bg-[#00DD82] text-black' : 'text-gray-400 hover:text-white'}`}
+                            >
+                                ROI Calculator
+                            </button>
+                            <button
+                                onClick={() => setMode('investment')}
+                                className={`px-6 py-2 rounded-full text-sm font-bold transition-all ${mode === 'investment' ? 'bg-[#00DD82] text-black' : 'text-gray-400 hover:text-white'}`}
+                            >
+                                {t.investment.modeBtn}
+                            </button>
+                        </div>
+                    </div>
                 </div>
 
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 bg-white/5 border border-white/10 rounded-3xl p-6 md:p-10 backdrop-blur-sm">
@@ -239,13 +313,13 @@ const RoiCalculator = () => {
                                         onClick={() => setCurrency('ARS')}
                                         className={`flex-1 py-2 text-xs font-bold rounded-md transition-all ${currency === 'ARS' ? 'bg-[#00DD82] text-black' : 'text-gray-500'}`}
                                     >
-                                        ARS $
+                                        ARS
                                     </button>
                                     <button
                                         onClick={() => setCurrency('USD')}
                                         className={`flex-1 py-2 text-xs font-bold rounded-md transition-all ${currency === 'USD' ? 'bg-[#00DD82] text-black' : 'text-gray-500'}`}
                                     >
-                                        USD $
+                                        USD
                                     </button>
                                 </div>
                             </div>
@@ -263,30 +337,49 @@ const RoiCalculator = () => {
                             </div>
                         </div>
 
-                        {/* Budget */}
-                        <div>
-                            <div className="flex justify-between mb-2">
-                                <label className="text-sm font-medium text-gray-400">{t.inputs.budget}</label>
-                                <span className="text-[#00DD82] font-bold">{currency} {budget.toLocaleString()}</span>
+                        {/* Middle Input: Budget OR Goal (Depending on Mode) */}
+                        {mode === 'roi' ? (
+                            <div>
+                                <div className="flex justify-between mb-2">
+                                    <label className="text-sm font-medium text-gray-400">{t.inputs.budget}</label>
+                                    <span className="text-[#00DD82] font-bold">{currency} {budget.toLocaleString()}</span>
+                                </div>
+                                <input
+                                    type="range"
+                                    min={currency === 'USD' ? 500 : 500000}
+                                    max={currency === 'USD' ? 20000 : 20000000}
+                                    step={currency === 'USD' ? 100 : 100000}
+                                    value={budget}
+                                    onChange={(e) => setBudget(Number(e.target.value))}
+                                    className="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-[#00DD82]"
+                                />
+                                <div className="flex justify-between text-xs text-gray-500 mt-1">
+                                    <span>{currency === 'USD' ? '$500' : '$500k'}</span>
+                                    <span>{currency === 'USD' ? '$20k+' : '$20M+'}</span>
+                                </div>
                             </div>
-                            <input
-                                type="range"
-                                min={currency === 'USD' ? 500 : 500000}
-                                max={currency === 'USD' ? 20000 : 20000000}
-                                step={currency === 'USD' ? 100 : 100000}
-                                value={budget}
-                                onChange={(e) => setBudget(Number(e.target.value))}
-                                className="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-[#00DD82]"
-                            />
-                            <div className="flex justify-between text-xs text-gray-500 mt-1">
-                                <span>{currency === 'USD' ? '$500' : '$500k'}</span>
-                                <span>{currency === 'USD' ? '$20k+' : '$20M+'}</span>
+                        ) : (
+                            <div>
+                                <label className="block text-sm font-medium text-gray-400 mb-2">{t.investment.goalLabel}</label>
+                                <div className="relative">
+                                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 text-sm">{currency}</span>
+                                    <input
+                                        type="number"
+                                        value={revenueGoal}
+                                        onChange={(e) => setRevenueGoal(Number(e.target.value))}
+                                        className="w-full bg-[#1a1a1a] border border-2 border-blue-900/50 rounded-lg pl-12 pr-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-[#00DD82] transition-all"
+                                        placeholder="Ej: 100000"
+                                    />
+                                </div>
+                                <p className="text-xs text-gray-500 mt-1">{t.investment.goalHelp}</p>
                             </div>
-                        </div>
+                        )}
 
                         {/* Ticket */}
                         <div>
-                            <label className="block text-sm font-medium text-gray-400 mb-2">{t.inputs.ticket}</label>
+                            <label className="block text-sm font-medium text-gray-400 mb-2">
+                                {mode === 'investment' ? t.investment.ticketLabel : t.inputs.ticket}
+                            </label>
                             <div className="relative">
                                 <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 text-sm">{currency}</span>
                                 <input
@@ -323,44 +416,77 @@ const RoiCalculator = () => {
                     {/* Results Visualizer */}
                     <div className="bg-[#0f0f0f] rounded-2xl p-8 border border-gray-800 flex flex-col justify-between relative overflow-hidden h-full">
                         <div className="z-10 relative flex-1 flex flex-col justify-center">
-                            <div className="grid grid-cols-2 gap-6 mb-8">
-                                <div className="bg-[#1a1a1a] p-4 rounded-xl border border-gray-800">
-                                    <div className="flex items-center gap-2 text-gray-400 mb-1">
-                                        <Users size={16} />
-                                        <span className="text-xs uppercase font-bold">{t.results.traffic}</span>
-                                    </div>
-                                    <p className="text-xl font-bold text-white">~{results.traffic.toLocaleString()}</p>
-                                </div>
-                                <div className="bg-[#1a1a1a] p-4 rounded-xl border border-gray-800">
-                                    <div className="flex items-center gap-2 text-gray-400 mb-1">
-                                        <Target size={16} />
-                                        <span className="text-xs uppercase font-bold text-blue-400">{t.results.leads}</span>
-                                    </div>
-                                    <p className="text-xl font-bold text-white">{results.leads.toLocaleString()}</p>
-                                </div>
-                            </div>
 
-                            <div className="text-center py-6">
-                                <p className="text-gray-400 text-sm uppercase tracking-widest mb-2">{t.results.revenue}</p>
+                            {/* Header Result based on Mode */}
+                            <div className="text-center pb-6 border-b border-gray-800 mb-6">
+                                <p className="text-gray-400 text-sm uppercase tracking-widest mb-2">
+                                    {mode === 'roi' ? t.results.revenue : t.investment.resultHeader}
+                                </p>
                                 <motion.p
-                                    key={results.revenue}
+                                    key={mode === 'roi' ? results.revenue : results.requiredBudget}
                                     initial={{ scale: 0.9, opacity: 0 }}
                                     animate={{ scale: 1, opacity: 1 }}
                                     className="text-4xl sm:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-[#00DD82] break-words"
                                 >
-                                    {currency} {results.revenue.toLocaleString()}
+                                    {currency} {mode === 'roi' ? results.revenue.toLocaleString() : Math.round(results.requiredBudget).toLocaleString()}
                                 </motion.p>
-                                {results.roiPercent > -100 && (
-                                    <div className={`inline-block mt-4 px-4 py-1 rounded-full border ${results.roiPercent > 0 ? 'bg-green-900/30 border-green-500/30' : 'bg-red-900/30 border-red-500/30'}`}>
-                                        <span className={results.roiPercent > 0 ? 'text-green-400 font-bold' : 'text-red-400 font-bold'}>
-                                            ROI: {results.roiPercent.toFixed(0)}%
-                                        </span>
+
+                                {mode === 'roi' ? (
+                                    results.roiPercent > -100 && (
+                                        <div className={`inline-block mt-4 px-4 py-1 rounded-full border ${results.roiPercent > 0 ? 'bg-green-900/30 border-green-500/30' : 'bg-red-900/30 border-red-500/30'}`}>
+                                            <span className={results.roiPercent > 0 ? 'text-green-400 font-bold' : 'text-red-400 font-bold'}>
+                                                ROI: {results.roiPercent.toFixed(0)}%
+                                            </span>
+                                        </div>
+                                    )
+                                ) : (
+                                    <div className="mt-4">
+                                        <button
+                                            onClick={handleSimulateInRoi}
+                                            className="text-xs bg-white text-black px-4 py-2 rounded-full font-bold hover:bg-gray-200 transition-colors flex items-center gap-2 mx-auto"
+                                        >
+                                            <Calculator size={14} />
+                                            {t.investment.simulateBtn}
+                                        </button>
                                     </div>
                                 )}
                             </div>
+
+                            {/* Detailed Stats */}
+                            <div className="grid grid-cols-2 gap-4 mb-4">
+                                <div className="bg-[#1a1a1a] p-3 rounded-xl border border-gray-800">
+                                    <div className="flex items-center gap-2 text-gray-400 mb-1">
+                                        <Users size={14} />
+                                        <span className="text-[10px] uppercase font-bold">{t.results.traffic}</span>
+                                    </div>
+                                    <p className="text-lg font-bold text-white">~{results.traffic.toLocaleString()}</p>
+                                </div>
+                                <div className="bg-[#1a1a1a] p-3 rounded-xl border border-gray-800">
+                                    <div className="flex items-center gap-2 text-gray-400 mb-1">
+                                        <Target size={14} />
+                                        <span className="text-[10px] uppercase font-bold text-blue-400">{t.results.leads}</span>
+                                    </div>
+                                    <p className="text-lg font-bold text-white">{results.leads.toLocaleString()}</p>
+                                </div>
+                                <div className="bg-[#1a1a1a] p-3 rounded-xl border border-gray-800">
+                                    <div className="flex items-center gap-2 text-gray-400 mb-1">
+                                        <DollarSign size={14} />
+                                        <span className="text-[10px] uppercase font-bold text-green-400">{t.results.sales}</span>
+                                    </div>
+                                    <p className="text-lg font-bold text-white">{results.sales.toLocaleString()}</p>
+                                </div>
+                                {/* CTA Box */}
+                                <div className="bg-gradient-to-br from-[#00DD82] to-green-600 p-3 rounded-xl border border-green-400 flex flex-col justify-center items-center cursor-pointer hover:scale-105 transition-transform"
+                                    onClick={() => setShowEmailModal(true)}
+                                >
+                                    <p className="text-black font-extrabold text-sm text-center leading-tight whitespace-pre-line">
+                                        {t.email.cta}
+                                    </p>
+                                </div>
+                            </div>
                         </div>
 
-                        <div className="mt-auto pt-6 border-t border-gray-800 text-center z-10 relative">
+                        <div className="mt-auto pt-4 border-t border-gray-800 text-center z-10 relative">
                             <p className="text-[10px] text-gray-500 mb-1">
                                 {t.source}
                             </p>
@@ -371,6 +497,85 @@ const RoiCalculator = () => {
                     </div>
                 </div>
             </div>
+
+            {/* Email Modal */}
+            {showEmailModal && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+                    <motion.div
+                        initial={{ opacity: 0, scale: 0.9 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        className="bg-[#111] border border-gray-800 rounded-2xl p-8 max-w-md w-full relative"
+                    >
+                        <button
+                            onClick={() => setShowEmailModal(false)}
+                            className="absolute top-4 right-4 text-gray-500 hover:text-white"
+                        >
+                            ✕
+                        </button>
+                        <h3 className="text-2xl font-bold text-white mb-2">{t.email.title}</h3>
+                        <p className="text-gray-400 mb-6 text-sm">{t.email.desc}</p>
+
+                        <div className="space-y-4">
+                            <div>
+                                <label className="block text-xs font-medium text-gray-500 mb-1">{t.email.nameLabel}</label>
+                                <input
+                                    type="text"
+                                    className="w-full bg-[#1a1a1a] border border-gray-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-[#00DD82]"
+                                    placeholder={language === 'es' ? "Tu nombre" : "Your name"}
+                                    value={emailForm.name}
+                                    onChange={e => setEmailForm({ ...emailForm, name: e.target.value })}
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-xs font-medium text-gray-500 mb-1">{t.email.emailLabel}</label>
+                                <input
+                                    type="email"
+                                    className="w-full bg-[#1a1a1a] border border-gray-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-[#00DD82]"
+                                    placeholder={language === 'es' ? "tu@empresa.com" : "you@company.com"}
+                                    value={emailForm.email}
+                                    onChange={e => setEmailForm({ ...emailForm, email: e.target.value })}
+                                />
+                            </div>
+                            <button
+                                className="w-full bg-[#00DD82] hover:bg-green-400 text-black font-bold py-3 rounded-lg transition-colors mt-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                                disabled={isSending}
+                                onClick={async () => {
+                                    setIsSending(true);
+                                    try {
+                                        // Prepare Report Data
+                                        const reportData = {
+                                            ...results,
+                                            currency,
+                                            mode
+                                        };
+
+                                        const response = await sendRoiReport({
+                                            name: emailForm.name,
+                                            email: emailForm.email,
+                                            report: reportData
+                                        });
+
+                                        if (response.success) {
+                                            toast.success(t.email.success);
+                                            setShowEmailModal(false);
+                                            setEmailForm({ name: '', email: '' });
+                                        } else {
+                                            toast.error(response.error || t.email.error);
+                                        }
+                                    } catch (e) {
+                                        toast.error(language === 'es' ? 'Ocurrió un error inesperado.' : 'An unexpected error occurred.');
+                                    } finally {
+                                        setIsSending(false);
+                                    }
+                                }}
+                            >
+                                {isSending ? t.email.sending : t.email.submitBtn}
+                            </button>
+                        </div>
+                    </motion.div>
+                </div>
+            )}
+
         </section>
     );
 };

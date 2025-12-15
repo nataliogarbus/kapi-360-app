@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import { Suspense } from 'react';
 import "./globals.css";
@@ -14,19 +14,30 @@ import { LanguageProvider } from "@/context/LanguageContext";
 
 const inter = Inter({ subsets: ["latin"] });
 
+export const viewport: Viewport = {
+  themeColor: '#0a0a0a',
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 5,
+};
+
 export const metadata: Metadata = {
   metadataBase: new URL('https://kapi.com.ar'),
-  title: "Agencia de Marketing Digital y Tecnología | Kapi",
-  description: "Kapi es una agencia de marketing digital y tecnología que impulsa el crecimiento de empresas con estrategias 360°, desarrollo web y diagnósticos con IA.",
+  title: "Agencia de Marketing Digital y Tecnología Integral | Kapi",
+  description: "Impulsa tu empresa con estrategias 360°, desarrollo web y diagnósticos con IA. Marketing digital enfocado en resultados reales.",
   alternates: {
-    canonical: '/',
+    canonical: 'https://kapi.com.ar',
+    languages: {
+      'es': 'https://kapi.com.ar',
+      'en': 'https://kapi.com.ar/?lang=en',
+    },
   },
   icons: {
-    icon: '/logo-kapi-verde.svg', // Using logo as favicon for now
+    icon: '/logo-kapi-verde.svg',
   },
   openGraph: {
-    title: "Agencia de Marketing Digital y Tecnología | Kapi",
-    description: "Impulsa el crecimiento de tu empresa con estrategias 360°, desarrollo web y diagnósticos con IA.",
+    title: "Agencia de Marketing Digital y Tecnología Integral | Kapi",
+    description: "Impulsa tu empresa con estrategias 360°, desarrollo web y diagnósticos con IA.",
     url: 'https://kapi.com.ar',
     siteName: 'Kapi',
     locale: 'es_AR',
@@ -63,7 +74,7 @@ export default function RootLayout({
           </CaptchaProvider>
         </LanguageProvider>
         {/* Pipedrive Leadbooster Script */}
-        <Script id="pipedrive-leadbooster-config" strategy="beforeInteractive">
+        <Script id="pipedrive-leadbooster-config" strategy="afterInteractive">
           {`
             window.pipedriveLeadboosterConfig = {
               base: 'leadbooster-chat.pipedrive.com',
