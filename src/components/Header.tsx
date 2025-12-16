@@ -155,17 +155,17 @@ function Header() {
 
           {navLinks.map((link) => (
             link.href.startsWith('/#') ? (
-              <SmoothLink key={link.href} href={link.href} className="text-gray-300 hover:text-white transition-colors duration-300">
+              <SmoothLink key={link.href} href={link.href} className="hidden lg:block text-gray-300 hover:text-white transition-colors duration-300">
                 {link.text}
               </SmoothLink>
             ) : (
-              <Link key={link.href} href={link.href} className="text-gray-300 hover:text-white transition-colors duration-300">
+              <Link key={link.href} href={link.href} className="hidden lg:block text-gray-300 hover:text-white transition-colors duration-300">
                 {link.text}
               </Link>
             )
           ))}
 
-          <Link href="/diagnostico" className="text-[#00DD82] hover:text-white transition-colors font-medium">
+          <Link href="/diagnostico" className="hidden lg:block text-[#00DD82] hover:text-white transition-colors font-medium">
             {t.diagnostic}
           </Link>
 
@@ -176,13 +176,15 @@ function Header() {
             {language === 'es' ? 'ES | EN' : 'EN | ES'}
           </button>
 
-          <Link href="/agendar" className="text-white hover:text-[#00DD82] transition-colors font-medium">
-            {t.schedule}
-          </Link>
+          <div className="flex items-center gap-3">
+            <Link href="/agendar" className="text-white hover:text-[#00DD82] transition-colors font-medium border border-white/20 px-4 py-2 rounded-lg hover:border-[#00DD82]">
+              {t.schedule}
+            </Link>
 
-          <Link href={CONTACT_INFO.WHATSAPP_LINK} target="_blank" rel="noopener noreferrer" className="bg-white/10 text-white py-2 px-5 rounded-lg hover:bg-white/20 transition-colors duration-300">
-            {t.contact}
-          </Link>
+            <Link href={CONTACT_INFO.WHATSAPP_LINK} target="_blank" rel="noopener noreferrer" className="bg-[#00DD82] text-black font-bold py-2 px-5 rounded-lg hover:bg-green-400 transition-colors duration-300">
+              {t.contact}
+            </Link>
+          </div>
         </div>
 
         {/* Mobile Toggle */}

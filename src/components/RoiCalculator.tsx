@@ -290,7 +290,9 @@ const RoiCalculator = () => {
     );
 
     return (
-        <section id="roi" className="py-20 bg-gradient-to-br from-[#0a0a0a] to-[#111] relative overflow-hidden border-t border-gray-900">
+        <section id="inversion" className="py-20 bg-gradient-to-br from-[#0a0a0a] to-[#111] relative overflow-hidden border-t border-gray-900">
+            {/* Invisible anchor for ROI mode if needed */}
+            <div id="roi" className="absolute -top-24 hidden lg:block" />
             {/* Background Effects */}
             <div className="absolute top-0 left-0 w-full h-full opacity-10 pointer-events-none">
                 <div className="absolute right-0 top-0 w-96 h-96 bg-green-500 rounded-full blur-[128px]" />
