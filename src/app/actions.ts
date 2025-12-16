@@ -402,3 +402,71 @@ export async function sendRoiReport(data: {
     return { success: false, error: 'Hubo un error enviando el correo. ' + (error instanceof Error ? error.message : '') };
   }
 }
+
+export async function sendContactEmail(data: {
+  name: string;
+  email: string;
+  company?: string;
+  message: string;
+}) {
+  const { SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS } = process.env;
+
+  if (!SMTP_HOST || !SMTP_USER || !SMTP_PASS) {
+    console.error('SMTP Configuration missing');
+    return { success: false, error: 'Error de configuración (Faltan variables SMTP).' };
+  }
+
+  const nodemailer = await import('nodemailer');
+  const transporter = nodemailer.createTransport({
+    host: SMTP_HOST,
+    port: Number(SMTP_PORT) || 587,
+    secure: Number(SMTP_PORT) === 465,
+    auth: { user: SMTP_USER, pass: SMTP_PASS },
+  });
+
+  try {
+    // Email al administrador (Kapi)
+    const adminHtml = `
+      <div style="font-family: sans-serif; background: #f9f9f9; padding: 20px;">
+        <div style="max-width: 600px; margin: 0 auto; background: #fff; padding: 30px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+          <h2 style="color: #00DD82; margin-top: 0;">Nuevo Mensaje de Contacto</h2>
+          <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;" />
+          
+          <p><strong>Nombre:</strong> ${data.name}</p>
+          <p><strong>Email:</strong> <a href="mailto:${data.email}">${data.email}</a></p>
+          <p><strong>Empresa:</strong> ${data.company || 'No especificada'}</p>
+          
+          <h3 style="margin-top: 30px; font-size: 16px; color: #666;">Mensaje:</h3>
+          <div style="background: #f0f0f0; padding: 15px; border-radius: 4px; color: #333;">
+            ${data.message.replace(/\n/g, '<br>')}
+          </div>
+        </div>
+      </div>
+    `;
+
+    await transporter.sendMail({
+      from: `"Web Kapi" <${SMTP_USER}>`,
+      to: 'hola@kapi.com.ar',
+      cc: 'nataliogarbus@gmail.com',
+      replyTo: data.email,
+      subject: `[Web] Nuevo Mensaje de: ${data.name} (${data.company || 'Personal'})`,
+      html: adminHtml,
+    });
+
+    // Respuesta automática al usuario (opcional, pero buena práctica)
+    /*
+    await transporter.sendMail({
+      from: `"Equipo Kapi" <${SMTP_USER}>`,
+      to: data.email,
+      subject: 'Hemos recibido tu mensaje - Kapi',
+      html: `<p>Hola ${data.name}, gracias por contactarnos. Te responderemos a la brevedad.</p>`
+    });
+    */
+
+    return { success: true };
+
+  } catch (error) {
+    console.error('Contact email error:', error);
+    return { success: false, error: 'No se pudo enviar el correo.' };
+  }
+}
