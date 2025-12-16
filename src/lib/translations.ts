@@ -8,6 +8,7 @@ export const translations = {
             faq: 'FAQ',
             diagnostic: 'Diagnóstico IA',
             contact: 'Contacto',
+            schedule: 'Agendar',
             menuOpen: 'Abrir menú principal',
         },
         hero: {
@@ -717,6 +718,7 @@ export const translations = {
             faq: 'FAQ',
             diagnostic: 'AI Diagnostic',
             contact: 'Contact',
+            schedule: 'Book Call',
             menuOpen: 'Open main menu',
         },
         hero: {

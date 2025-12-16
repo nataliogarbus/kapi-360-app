@@ -13,9 +13,11 @@ interface ContactFormProps {
   subtitle?: string;
 }
 
-const ContactFormContent: React.FC<ContactFormProps> = ({
+const ContactFormContent: React.FC<ContactFormProps & { onSuccessRedirect?: string; buttonText?: string }> = ({
   title,
-  subtitle
+  subtitle,
+  onSuccessRedirect,
+  buttonText
 }) => {
   const { language } = useLanguage();
   // @ts-ignore
@@ -77,10 +79,17 @@ const ContactFormContent: React.FC<ContactFormProps> = ({
 
       pushEvent({
         event: 'generate_lead',
-        form_location: 'contact_form_homepage'
+        form_location: 'contact_form_homepage' // You might want to make this dynamic too
       });
       setSubmitMessage(t.messages.success);
       setFormData(prev => ({ ...prev, name: '', email: '', company: '', message: '' }));
+
+      if (onSuccessRedirect) {
+        setTimeout(() => {
+          window.location.href = onSuccessRedirect;
+        }, 1500);
+      }
+
     } catch (err: any) {
       console.error(err);
       setSubmitError(t.messages.error || "Hubo un error al enviar el mensaje.");
@@ -122,7 +131,7 @@ const ContactFormContent: React.FC<ContactFormProps> = ({
         )}
         <div>
           <button type="submit" disabled={isSubmitting} className="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-black bg-[#00DD82] hover:bg-green-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 uppercase font-bold disabled:opacity-50">
-            {isSubmitting ? t.buttons.submitting : t.buttons.submit}
+            {isSubmitting ? t.buttons.submitting : (buttonText || t.buttons.submit)}
           </button>
         </div>
       </form>
@@ -130,13 +139,15 @@ const ContactFormContent: React.FC<ContactFormProps> = ({
   );
 };
 
-const ContactForm: React.FC<ContactFormProps> = ({
+const ContactForm: React.FC<ContactFormProps & { onSuccessRedirect?: string; buttonText?: string }> = ({
   title,
-  subtitle
+  subtitle,
+  onSuccessRedirect,
+  buttonText
 }) => {
   return (
     <Suspense fallback={<div className="text-center py-8 text-white">Cargando formulario...</div>}>
-      <ContactFormContent title={title} subtitle={subtitle} />
+      <ContactFormContent title={title} subtitle={subtitle} onSuccessRedirect={onSuccessRedirect} buttonText={buttonText} />
     </Suspense>
   );
 }

@@ -176,6 +176,10 @@ function Header() {
             {language === 'es' ? 'ES | EN' : 'EN | ES'}
           </button>
 
+          <Link href="/agendar" className="text-white hover:text-[#00DD82] transition-colors font-medium">
+            {t.schedule}
+          </Link>
+
           <Link href={CONTACT_INFO.WHATSAPP_LINK} target="_blank" rel="noopener noreferrer" className="bg-white/10 text-white py-2 px-5 rounded-lg hover:bg-white/20 transition-colors duration-300">
             {t.contact}
           </Link>
@@ -252,6 +256,10 @@ function Header() {
                 >
                   {language === 'es' ? 'ES | EN' : 'EN | ES'}
                 </button>
+
+                <Link href="/agendar" className="text-[#00DD82] font-bold text-lg" onClick={() => setIsMenuOpen(false)}>
+                  {t.schedule}
+                </Link>
 
                 <Link href={CONTACT_INFO.WHATSAPP_LINK} target="_blank" rel="noopener noreferrer" className="bg-[#00DD82] text-black font-bold py-2 px-6 rounded-lg hover:bg-green-400 transition-colors duration-300" onClick={() => setIsMenuOpen(false)}>
                   {t.contact}
