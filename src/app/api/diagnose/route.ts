@@ -98,12 +98,23 @@ const generateDeterministicAnalysis = (pilar: any, contextData: any) => {
       analysis.coordenadasClave[1].score = 70; // Diferenciación (Estimado)
       analysis.coordenadasClave[3].score = extractedData?.socialLinks?.length > 0 ? 80 : 20; // Reputación ligada a redes
 
+      // --- PLAN DE ACCIÓN ---
+      // Lo Hago Yo
       if (extractedData?.socialLinks?.length === 0) {
         analysis.planDeAccion.loHagoYo.push("Crear perfiles de empresa en LinkedIn e Instagram.");
+        analysis.planDeAccion.loHagoYo.push("Completar la información de 'Google My Business'.");
       } else {
         analysis.planDeAccion.loHagoYo.push("Publicar al menos una vez por semana en tus redes activas.");
+        analysis.planDeAccion.loHagoYo.push("Interactuar con comentarios de usuarios para mejorar engagement.");
       }
-      analysis.planDeAccion.loHaceKapi.push("Realizar auditoría de competencia y benchmarking.");
+
+      // Kapi con mi Equipo
+      analysis.planDeAccion.loHaceKapiConMiEquipo.push("Definir los 3 competidores directos para monitorear.");
+      analysis.planDeAccion.loHaceKapiConMiEquipo.push("Crear un calendario editorial básico alineado a ventas.");
+
+      // Lo Hace Kapi
+      analysis.planDeAccion.loHaceKapi.push("Realizar auditoría profunda de competencia y benchmarking.");
+      analysis.planDeAccion.loHaceKapi.push("Ejecutar campañas de 'Brand Awareness' para ganar cuota de mercado.");
       break;
 
     case 'plataforma_ux':
@@ -118,9 +129,26 @@ const generateDeterministicAnalysis = (pilar: any, contextData: any) => {
       analysis.coordenadasClave[0].score = pageSpeedScore || 50;
       analysis.coordenadasClave[3].score = hasHttps ? 100 : 0;
 
-      if (!hasHttps) analysis.planDeAccion.loHagoYo.push("Contactar al hosting para instalar certificado SSL gratuito.");
-      if (pageSpeedScore && pageSpeedScore < 60) analysis.planDeAccion.loHagoYo.push("Comprimir imágenes usando TinyPNG antes de subirlas.");
-      analysis.planDeAccion.loHaceKapi.push("Optimización de código (WPO) y mejora de Core Web Vitals.");
+      // --- PLAN DE ACCIÓN ---
+      // Lo Hago Yo
+      if (!hasHttps) {
+        analysis.planDeAccion.loHagoYo.push("Contactar al hosting para instalar certificado SSL gratuito.");
+      } else {
+        analysis.planDeAccion.loHagoYo.push("Verificar que no haya enlaces rotos en el menú principal.");
+      }
+      if (pageSpeedScore && pageSpeedScore < 60) {
+        analysis.planDeAccion.loHagoYo.push("Comprimir imágenes usando TinyPNG antes de subirlas.");
+      } else {
+        analysis.planDeAccion.loHagoYo.push("Mantener los plugins y sistemas actualizados.");
+      }
+
+      // Kapi con mi Equipo
+      analysis.planDeAccion.loHaceKapiConMiEquipo.push("Revisar la navegación móvil para asegurar que los botones sean grandes.");
+      analysis.planDeAccion.loHaceKapiConMiEquipo.push("Testear el formulario de contacto cada mes.");
+
+      // Lo Hace Kapi
+      analysis.planDeAccion.loHaceKapi.push("Optimización técnica de código (WPO/Core Web Vitals).");
+      analysis.planDeAccion.loHaceKapi.push("Rediseño UX/UI enfocado en conversión (CRO).");
       break;
 
     case 'contenido_autoridad':
@@ -136,9 +164,19 @@ const generateDeterministicAnalysis = (pilar: any, contextData: any) => {
       analysis.coordenadasClave[0].score = extractedData?.hasH1 ? 90 : 30; // Estrategia SEO básico
       analysis.coordenadasClave[2].score = extractedData?.wordCount > 300 ? 80 : 40; // Calidad (longitud)
 
-      if (!extractedData?.hasH1) analysis.planDeAccion.loHagoYo.push("Asegurar que cada página tenga un título H1 único.");
+      // --- PLAN DE ACCIÓN ---
+      // Lo Hago Yo
+      if (!extractedData?.hasH1) analysis.planDeAccion.loHagoYo.push("Asegurar que la home tenga un título H1 único y descriptivo.");
       if (!extractedData?.hasMetaDesc) analysis.planDeAccion.loHagoYo.push("Redactar meta descripciones atractivas para cada sección.");
-      analysis.planDeAccion.loHaceKapi.push("Crear estrategia de contenidos y blog optimizado para SEO.");
+      analysis.planDeAccion.loHagoYo.push("Escribir artículos de blog resolviendo dudas frecuentes de clientes.");
+
+      // Kapi con mi Equipo
+      analysis.planDeAccion.loHaceKapiConMiEquipo.push("Listar las 10 preguntas más frecuentes de ventas para crear contenido.");
+      analysis.planDeAccion.loHaceKapiConMiEquipo.push("Grabar videos cortos explicando productos para insertar en la web.");
+
+      // Lo Hace Kapi
+      analysis.planDeAccion.loHaceKapi.push("Crear estrategia integral de contenidos SEO (Cluster de temas).");
+      analysis.planDeAccion.loHaceKapi.push("Gestión de Backlinks y autoridad de dominio.");
       break;
 
     case 'crecimiento_adquisicion':
@@ -154,9 +192,19 @@ const generateDeterministicAnalysis = (pilar: any, contextData: any) => {
       analysis.coordenadasClave[0].score = extractedData?.hasContactForm ? 90 : 20; // Generación Leads
       analysis.coordenadasClave[1].score = extractedData?.hasAnalytics ? 100 : 0; // Datos
 
-      if (!extractedData?.hasContactForm) analysis.planDeAccion.loHagoYo.push("Agregar un formulario de contacto simple en la home.");
-      if (!extractedData?.hasAnalytics) analysis.planDeAccion.loHagoYo.push("Crear cuenta de Google Analytics 4.");
-      analysis.planDeAccion.loHaceKapi.push("Implementar CRM y automatización de correos.");
+      // --- PLAN DE ACCIÓN ---
+      // Lo Hago Yo
+      if (!extractedData?.hasContactForm) analysis.planDeAccion.loHagoYo.push("Agregar un formulario de contacto visible en la home.");
+      if (!extractedData?.hasAnalytics) analysis.planDeAccion.loHagoYo.push("Crear y conectar cuenta de Google Analytics 4.");
+      analysis.planDeAccion.loHagoYo.push("Responder a las consultas en menos de 24 horas.");
+
+      // Kapi con mi Equipo
+      analysis.planDeAccion.loHaceKapiConMiEquipo.push("Definir qué es un 'Lead Calificado' para tu negocio.");
+      analysis.planDeAccion.loHaceKapiConMiEquipo.push("Revisar las tasas de conversión actuales.");
+
+      // Lo Hace Kapi
+      analysis.planDeAccion.loHaceKapi.push("Implementar CRM y automatización de correos (Email Marketing).");
+      analysis.planDeAccion.loHaceKapi.push("Gestión campañas de publicidad paga (Google Ads / Meta Ads).");
       break;
   }
 

@@ -177,6 +177,7 @@ export const translations = {
                 blog: 'Blog Estratégico',
                 diagnostic: 'Diagnóstico Gratuito',
                 calculator: 'Calculadora ROI',
+                investmentCalculator: 'Calculadora de Inversión',
                 privacy: 'Política de Privacidad',
                 terms: 'Términos y Condiciones'
             },
@@ -965,6 +966,7 @@ export const translations = {
                 blog: 'Strategic Blog',
                 diagnostic: 'Free Diagnostic',
                 calculator: 'ROI Calculator',
+                investmentCalculator: 'Investment Calculator',
                 privacy: 'Privacy Policy',
                 terms: 'Terms & Conditions'
             },

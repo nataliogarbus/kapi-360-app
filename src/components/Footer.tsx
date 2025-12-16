@@ -33,6 +33,7 @@ const Footer = () => {
       { name: t.links.blog, href: '/blog' },
       { name: t.links.diagnostic, href: '/diagnostico' },
       { name: t.links.calculator, href: '/#roi' },
+      { name: t.links.investmentCalculator, href: '/#inversion' },
     ],
     legal: [
       { name: t.links.privacy, href: '/politica-privacidad' },

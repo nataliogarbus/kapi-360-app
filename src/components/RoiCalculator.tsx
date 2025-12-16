@@ -107,6 +107,30 @@ const RoiCalculator = () => {
         requiredBudget: 0, // For Investment Mode
     });
 
+    useEffect(() => {
+        // Check hash on mount to auto-switch mode
+        if (typeof window !== 'undefined' && window.location.hash === '#inversion') {
+            setMode('investment');
+            // Optional: Scroll to section if likely missed by browser default behavior
+            const element = document.getElementById('roi');
+            if (element) {
+                setTimeout(() => element.scrollIntoView({ behavior: 'smooth' }), 500);
+            }
+        }
+    }, []);
+
+    // Also listen for hash changes if user navigates while on page
+    useEffect(() => {
+        const handleHashChange = () => {
+            if (window.location.hash === '#inversion') {
+                setMode('investment');
+            } else if (window.location.hash === '#roi') {
+                setMode('roi');
+            }
+        };
+        window.addEventListener('hashchange', handleHashChange);
+        return () => window.removeEventListener('hashchange', handleHashChange);
+    }, []);
     // Update effective rates when industry or tier changes
     useEffect(() => {
         const selectedIndustry = INDUSTRIES[industry];
