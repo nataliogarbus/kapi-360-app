@@ -153,17 +153,29 @@ function Header() {
             </AnimatePresence>
           </div>
 
-          {navLinks.map((link) => (
-            link.href.startsWith('/#') ? (
-              <SmoothLink key={link.href} href={link.href} className="hidden lg:block text-gray-300 hover:text-white transition-colors duration-300">
+          {navLinks.map((link) => {
+            // Filter: Hide "Servicios", "Cómo Trabajamos", "FAQ" on desktop
+            // Show only "Casos de Éxito" and "Blog"
+            const shouldShowOnDesktop = link.href.includes('casos-exito') || link.href.includes('blog');
+
+            return link.href.startsWith('/#') ? (
+              <SmoothLink
+                key={link.href}
+                href={link.href}
+                className={`${shouldShowOnDesktop ? 'hidden lg:block' : 'hidden'} text-gray-300 hover:text-white transition-colors duration-300`}
+              >
                 {link.text}
               </SmoothLink>
             ) : (
-              <Link key={link.href} href={link.href} className="hidden lg:block text-gray-300 hover:text-white transition-colors duration-300">
+              <Link
+                key={link.href}
+                href={link.href}
+                className={`${shouldShowOnDesktop ? 'hidden lg:block' : 'hidden'} text-gray-300 hover:text-white transition-colors duration-300`}
+              >
                 {link.text}
               </Link>
-            )
-          ))}
+            );
+          })}
 
           <Link href="/diagnostico" className="hidden lg:block text-[#00DD82] hover:text-white transition-colors font-medium">
             {t.diagnostic}
