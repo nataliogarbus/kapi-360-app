@@ -1,14 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { GoogleGenerativeAI } from '@google/generative-ai';
 import { REPORT_STRUCTURE } from '@/app/report-structure';
 import { Ratelimit } from '@upstash/ratelimit';
 import { kv } from '@vercel/kv';
 import { ipAddress } from '@vercel/edge';
-
-// --- CONFIGURACIÓN DE SERVICIOS ---
-const geminiApiKey = process.env.GEMINI_API_KEY || '';
-const genAI = new GoogleGenerativeAI(geminiApiKey);
-const model = genAI.getGenerativeModel({ model: "gemini-1.5-pro" });
 
 // --- CONFIGURACIÓN DE RATE LIMITER ---
 const ratelimit = new Ratelimit({
@@ -18,42 +12,45 @@ const ratelimit = new Ratelimit({
   prefix: '@kapi/ratelimit',
 });
 
-// --- FUNCIONES HELPERS DE OBTENCIÓN DE DATOS ---
+// --- FUNCIONES HELPERS (RegEx & Deterministic) ---
 
-const extractStructuredDataFromHtml = async (html: string): Promise<any | null> => {
-  if (!html || html.trim() === '') return null;
-  try {
-    const prompt = `
-      Tu tarea es actuar como un robot extractor de datos. Analiza el siguiente código HTML y devuelve únicamente un objeto JSON válido con la siguiente estructura. No incluyas explicaciones ni texto fuera del JSON.
+/**
+ * Extrae datos básicos del HTML usando Expresiones Regulares para evitar costos de LLM.
+ */
+const extractDataRegex = (html: string) => {
+  if (!html) return null;
 
-      ESTRUCTURA JSON REQUERIDA:
-      {
-        "contact_form_present": boolean,
-        "newsletter_form_present": boolean,
-        "social_media_links": string[],
-        "key_services": string[],
-        "value_proposition": string
-      }
+  const socialPatterns = [
+    /facebook\.com\/[^"'\s]+/,
+    /instagram\.com\/[^"'\s]+/,
+    /linkedin\.com\/[^"'\s]+/,
+    /twitter\.com\/[^"'\s]+/,
+    /youtube\.com\/[^"'\s]+/
+  ];
 
-      INSTRUCCIONES DETALLADAS:
-      - "contact_form_present": true si encuentras un formulario de contacto (con campos como nombre, email, mensaje), false si no.
-      - "newsletter_form_present": true si encuentras un formulario específico para suscripción a newsletter, false si no.
-      - "social_media_links": Un array con las URLs completas a perfiles de redes sociales (Facebook, Instagram, LinkedIn, etc.) que encuentres. Si no hay, devuelve un array vacío [].
-      - "key_services": Un array de strings con los principales productos o servicios que ofrece el sitio.
-      - "value_proposition": Una frase corta que resuma la principal propuesta de valor o eslogan del sitio.
+  const socialLinks = socialPatterns
+    .map(pattern => html.match(pattern)?.[0])
+    .filter(Boolean) as string[];
 
-      Ahora, analiza el siguiente HTML y devuelve el objeto JSON:
+  const hasContactForm = /<form[^>]*>[\s\S]*?(email|correo|mensaje|nombre)[\s\S]*?<\/form>/i.test(html);
+  const hasNewsletter = /subscribe|suscri|newsletter|boletin/i.test(html);
+  const hasAnalytics = /googletagmanager|google-analytics|fbq\(/i.test(html);
+  const hasH1 = /<h1[^>]*>[\s\S]*?<\/h1>/i.test(html);
+  const hasMetaDesc = /<meta[^>]*name=["']description["'][^>]*content=["'][^"']*["'][^>]*>/i.test(html);
 
-      HTML:
-      ${html.substring(0, 40000)}
-    `;
-    const result = await model.generateContent(prompt);
-    const cleanedText = result.response.text().replace(/```json\n|```/g, '').trim();
-    return JSON.parse(cleanedText);
-  } catch (error) {
-    console.error("Error al extraer datos estructurados del HTML:", error);
-    return null;
-  }
+  // Estimación de palabras (muy rudimentaria pero gratis)
+  const textContent = html.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
+  const wordCount = textContent.split(' ').length;
+
+  return {
+    socialLinks,
+    hasContactForm,
+    hasNewsletter,
+    hasAnalytics,
+    hasH1,
+    hasMetaDesc,
+    wordCount
+  };
 };
 
 const getPageSpeedData = async (url: string): Promise<any | null> => {
@@ -77,88 +74,93 @@ const getPageSpeedData = async (url: string): Promise<any | null> => {
   }
 };
 
-// --- LÓGICA DE GENERACIÓN DE PROMPT Y ANÁLISIS ---
+/**
+ * Genera el análisis de un pilar basado en reglas fijas (Heurísticas).
+ */
+const generateDeterministicAnalysis = (pilar: any, contextData: any) => {
+  const { hasHttps, pageSpeedScore, extractedData } = contextData;
+  const analysis = { ...pilar };
 
-const createGenerativePrompt = (url: string | undefined, pageSpeedScore: number | null, hasHttps: boolean, structuredData: any | null, pillar: any) => {
-  let promptContext = `**DATOS DE CONTEXTO PARA TU ANÁLISIS:**\n- URL Analizada: ${url || 'No proporcionada'}`;
-  promptContext += `\n- Usa HTTPS: ${hasHttps ? 'Sí' : 'No'}`;
-  if (pageSpeedScore !== null) promptContext += `\n- Google PageSpeed Score (Móvil): ${pageSpeedScore}/100`;
+  // Clonamos para no mutar el original
+  analysis.score = 50; // Base neutral
+  analysis.planDeAccion = { loHagoYo: [], loHaceKapiConMiEquipo: [], loHaceKapi: [] };
 
-  if (structuredData) {
-    promptContext += `\n- Propuesta de Valor: ${structuredData.value_proposition || 'No detectada'}`;
-    promptContext += `\n- Servicios Clave: ${structuredData.key_services?.join(', ') || 'No detectados'}`;
-    promptContext += `\n- Formulario de Contacto: ${structuredData.contact_form_present ? 'Sí' : 'No'}`;
-    promptContext += `\n- Formulario de Newsletter: ${structuredData.newsletter_form_present ? 'Sí' : 'No'}`;
-    promptContext += `\n- Redes Sociales: ${structuredData.social_media_links?.join(', ') || 'No detectadas'}`;
+  switch (pilar.id) {
+    case 'mercado_competencia':
+      analysis.queEs = "Analiza tu presencia y visibilidad frente a los estándares del mercado.";
+      analysis.porQueImporta = "Estar presente donde tus clientes buscan es el primer paso para vender.";
+
+      let socialScore = 0;
+      if (extractedData?.socialLinks?.length > 0) socialScore += 30;
+      if (extractedData?.socialLinks?.length > 2) socialScore += 20;
+
+      analysis.score = 40 + socialScore;
+      analysis.coordenadasClave[1].score = 70; // Diferenciación (Estimado)
+      analysis.coordenadasClave[3].score = extractedData?.socialLinks?.length > 0 ? 80 : 20; // Reputación ligada a redes
+
+      if (extractedData?.socialLinks?.length === 0) {
+        analysis.planDeAccion.loHagoYo.push("Crear perfiles de empresa en LinkedIn e Instagram.");
+      } else {
+        analysis.planDeAccion.loHagoYo.push("Publicar al menos una vez por semana en tus redes activas.");
+      }
+      analysis.planDeAccion.loHaceKapi.push("Realizar auditoría de competencia y benchmarking.");
+      break;
+
+    case 'plataforma_ux':
+      analysis.queEs = "Evalúa la velocidad, seguridad y facilidad de uso de tu sitio web.";
+      analysis.porQueImporta = "Un sitio lento o inseguro pierde hasta el 40% de las visitas en 3 segundos.";
+
+      let techScore = 0;
+      if (hasHttps) techScore += 30;
+      if (pageSpeedScore) techScore += (pageSpeedScore * 0.7);
+
+      analysis.score = Math.min(Math.round(techScore), 100);
+      analysis.coordenadasClave[0].score = pageSpeedScore || 50;
+      analysis.coordenadasClave[3].score = hasHttps ? 100 : 0;
+
+      if (!hasHttps) analysis.planDeAccion.loHagoYo.push("Contactar al hosting para instalar certificado SSL gratuito.");
+      if (pageSpeedScore && pageSpeedScore < 60) analysis.planDeAccion.loHagoYo.push("Comprimir imágenes usando TinyPNG antes de subirlas.");
+      analysis.planDeAccion.loHaceKapi.push("Optimización de código (WPO) y mejora de Core Web Vitals.");
+      break;
+
+    case 'contenido_autoridad':
+      analysis.queEs = "Verifica si tu contenido está estructurado para que Google lo entienda y posicione.";
+      analysis.porQueImporta = "Sin SEO técnico básico, es invisible para los motores de búsqueda.";
+
+      let contentScore = 40;
+      if (extractedData?.hasH1) contentScore += 20;
+      if (extractedData?.hasMetaDesc) contentScore += 20;
+      if (extractedData?.wordCount > 300) contentScore += 20;
+
+      analysis.score = Math.min(contentScore, 100);
+      analysis.coordenadasClave[0].score = extractedData?.hasH1 ? 90 : 30; // Estrategia SEO básico
+      analysis.coordenadasClave[2].score = extractedData?.wordCount > 300 ? 80 : 40; // Calidad (longitud)
+
+      if (!extractedData?.hasH1) analysis.planDeAccion.loHagoYo.push("Asegurar que cada página tenga un título H1 único.");
+      if (!extractedData?.hasMetaDesc) analysis.planDeAccion.loHagoYo.push("Redactar meta descripciones atractivas para cada sección.");
+      analysis.planDeAccion.loHaceKapi.push("Crear estrategia de contenidos y blog optimizado para SEO.");
+      break;
+
+    case 'crecimiento_adquisicion':
+      analysis.queEs = "Mide la capacidad de tu sitio para convertir visitas en clientes potenciales.";
+      analysis.porQueImporta = "El tráfico sin conversión es vanidad. Necesitas mecanismos de captura.";
+
+      let growthScore = 30;
+      if (extractedData?.hasContactForm) growthScore += 30;
+      if (extractedData?.hasNewsletter) growthScore += 20;
+      if (extractedData?.hasAnalytics) growthScore += 20;
+
+      analysis.score = Math.min(growthScore, 100);
+      analysis.coordenadasClave[0].score = extractedData?.hasContactForm ? 90 : 20; // Generación Leads
+      analysis.coordenadasClave[1].score = extractedData?.hasAnalytics ? 100 : 0; // Datos
+
+      if (!extractedData?.hasContactForm) analysis.planDeAccion.loHagoYo.push("Agregar un formulario de contacto simple en la home.");
+      if (!extractedData?.hasAnalytics) analysis.planDeAccion.loHagoYo.push("Crear cuenta de Google Analytics 4.");
+      analysis.planDeAccion.loHaceKapi.push("Implementar CRM y automatización de correos.");
+      break;
   }
 
-  const goldenExample = `**EJEMPLO DE ANÁLISIS DE ALTA CALIDAD PARA UN PILAR v2.2:**
-{
-  "score": 82,
-  "queEs": "Analiza la calidad técnica y la experiencia de usuario que ofrece tu sitio web, factores cruciales para la retención de visitantes.",
-  "porQueImporta": "Un sitio rápido, fácil de usar y seguro no solo mejora el posicionamiento en Google, sino que también aumenta la confianza y la probabilidad de conversión.",
-  "coordenadasClave": [
-    { "titulo": "Rendimiento Web (Core Web Vitals)", "score": 75 },
-    { "titulo": "Experiencia de Usuario (UX/UI)", "score": 85 },
-    { "titulo": "Accesibilidad (WCAG)", "score": 90 },
-    { "titulo": "Seguridad del Frontend (HTTPS)", "score": 80 }
-  ],
-  "planDeAccion": {
-    "loHagoYo": [
-      "Utilizar herramientas online para comprimir todas las imágenes de la web.",
-      "Revisar la web en un dispositivo móvil para asegurar que todos los textos son legibles y los botones fáciles de pulsar."
-    ],
-    "loHaceKapiConMiEquipo": [
-      "Implementar un sistema de 'lazy loading' para las imágenes y videos.",
-      "Capacitar al equipo sobre las mejores prácticas de accesibilidad para la creación de nuevo contenido."
-    ],
-    "loHaceKapi": [
-      "Realizar una auditoría de rendimiento avanzada e implementar optimizaciones críticas en el código.",
-      "Ejecutar un análisis de 'mapas de calor' para rediseñar los flujos de usuario más importantes."
-    ]
-  }
-}`;
-
-  const task = `**TAREA Y FORMATO DE SALIDA:**\nTu misión es analizar la información del contexto para rellenar la siguiente estructura JSON para el pilar "${pillar.titulo}". Debes seguir el estilo, la profundidad y la calidad del 'EJEMPLO DE ANÁLISIS DE ALTA CALIDAD' proporcionado.`;
-
-  const jsonStructure = `**ESTRUCTURA JSON A RELLENAR (NO MODIFIQUES LAS CLAVES):**
-{
-  "id": "${pillar.id}",
-  "titulo": "${pillar.titulo}",
-  "score": 0,
-  "queEs": "",
-  "porQueImporta": "",
-  "coordenadasClave": [
-    ${pillar.coordenadasClave.map((c: { titulo: string }) => `{ "titulo": "${c.titulo}", "score": 0 }`).join(',\n            ')}
-  ],
-  "planDeAccion": {
-    "loHagoYo": [],
-    "loHaceKapiConMiEquipo": [],
-    "loHaceKapi": []
-  }
-}`;
-
-  const personaAndRules = `**IDENTIDAD Y REGLAS DE ORO:**
-1.  **IDENTIDAD:** Actúas como "El Estratega Digital Kapi", un experto en marketing digital y negocios con un enfoque en datos y resultados.
-2.  **FORMATO:** Tu única salida debe ser un bloque de código JSON válido. No incluyas texto, explicaciones o markdown fuera del bloque JSON.
-3.  **COMPLETITUD:** DEBES rellenar TODOS los campos del JSON solicitado. No dejes campos vacíos a menos que sea un array sin elementos.
-4.  **PROHIBIDO SER GENÉRICO:** Queda estrictamente prohibido usar frases vagas como "mejorar el SEO" o "crear contenido de calidad". Ofrece acciones concretas y específicas.
-5.  **PUNTUACIONES REALISTAS:** Asigna un 'score' entre 0 y 100 basado en los datos de contexto. Justifica implícitamente el puntaje en el campo 'queEs'. No dejes todo en 0.
-6.  **MANEJO DE DATOS FALTANTES:** Si los datos de PageSpeed o de la web no están disponibles, indícalo claramente en el campo 'queEs' (ej: "No se pudieron obtener los datos de PageSpeed para un análisis completo.") y asigna un 'score' de 0. En esos casos, basa tu análisis en suposiciones expertas y el análisis del HTML.`;
-
-  return `${promptContext}\n\n---\n\n${goldenExample}\n\n---\n\n${task}\n\n${jsonStructure}\n\n---\n\n${personaAndRules}`;
-};
-
-const generatePillarAnalysis = async (pillar: any, url: string | undefined, pageSpeedScore: number | null, hasHttps: boolean, structuredData: any | null): Promise<any> => {
-  try {
-    const prompt = createGenerativePrompt(url, pageSpeedScore, hasHttps, structuredData, pillar);
-    const result = await model.generateContent(prompt);
-    const cleanedText = result.response.text().replace(/```json\n|```/g, '').trim();
-    return JSON.parse(cleanedText);
-  } catch (error) {
-    console.error(`Error al generar análisis para el pilar '${pillar.titulo}':`, error);
-    return pillar;
-  }
+  return analysis;
 };
 
 
@@ -169,75 +171,77 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
     const { recaptchaToken } = body;
 
-    // --- VALIDACIÓN DE API KEY ---
-    if (!geminiApiKey || geminiApiKey === '') {
-      console.error("GEMINI_API_KEY no está configurada en las variables de entorno.");
-      return NextResponse.json(
-        { error: 'La API Key de Gemini no está configurada. Por favor, configura GEMINI_API_KEY en tu archivo .env.local.' },
-        { status: 500 }
-      );
-    }
-    // -----------------------------
-
+    // --- RECAPTCHA ---
     const recaptchaSecret = process.env.RECAPTCHA_SECRET_KEY;
     if (recaptchaSecret && recaptchaToken !== 'dev_bypass') {
       const params = new URLSearchParams();
       params.append('secret', recaptchaSecret);
       params.append('response', recaptchaToken);
       params.append('remoteip', ip);
-      const recaptchaResponse = await fetch('https://www.google.com/recaptcha/api/siteverify', { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: params.toString() });
-      const recaptchaData = await recaptchaResponse.json();
-      if (!recaptchaData.success || recaptchaData.score < 0.5) {
-        return NextResponse.json({ error: 'Verificación de humanidad fallida.' }, { status: 403 });
-      }
+      try {
+        const recaptchaResponse = await fetch('https://www.google.com/recaptcha/api/siteverify', { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: params.toString() });
+        const recaptchaData = await recaptchaResponse.json();
+        if (!recaptchaData.success || recaptchaData.score < 0.5) {
+          // Silent fail or warn? let's return error
+          return NextResponse.json({ error: 'Verificación de humanidad fallida.' }, { status: 403 });
+        }
+      } catch (e) { console.error("Recaptcha error", e); }
     }
+    // -----------------
 
+    // --- RATE LIMIT ---
     try {
       const { success } = await ratelimit.limit(ip);
       if (!success) return new NextResponse('Too many requests.', { status: 429 });
     } catch (e) {
       console.warn('Rate limiting failed (Redis not configured?), proceeding anyway.');
     }
+    // ------------------
 
     const { mode, url, context } = body;
 
     if ((mode === 'auto' || mode === 'custom') && !url) {
       return NextResponse.json({ error: 'La URL es requerida.' }, { status: 400 });
     }
-    if (!mode) return NextResponse.json({ error: 'El modo es requerido' }, { status: 400 });
-    if (mode === 'consulta') return NextResponse.json({ analysis: { puntajeGeneral: 0, pilares: [] }, debugData: {} });
 
     let pageSpeedData: any = null;
-    let structuredData: any = null;
+    let extractedData: any = null;
     let finalScrapedUrl: string | null = null;
+    let scrapedHtml: string | null = null;
 
     if (mode === 'auto' || mode === 'custom') {
-      const scrapeUrl = `${req.nextUrl.origin}/api/scrape`;
-      let scrapedHtml: string | null = null;
+      // 1. SCRAPING (Internal Only, simple fetch)
       try {
+        const scrapeUrl = `${req.nextUrl.origin}/api/scrape`;
         const scrapeResponse = await fetch(scrapeUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ url }) });
         if (scrapeResponse.ok) {
           const scrapeResult = await scrapeResponse.json();
           scrapedHtml = scrapeResult.html;
           finalScrapedUrl = scrapeResult.finalUrl;
         }
-      } catch (e) { console.error("Error en scraping:", e); }
+      } catch (e) { console.error("Scrape internal error:", e); }
 
-      [pageSpeedData, structuredData] = await Promise.all([
+      // 2. PARALLEL FETCHING: PageSpeed + Regex Extraction
+      const results = await Promise.all([
         getPageSpeedData(url!),
-        extractStructuredDataFromHtml(scrapedHtml || '')
+        Promise.resolve(extractDataRegex(scrapedHtml || '')) // Ejecutamos regex sobre el HTML obtenido
       ]);
+      pageSpeedData = results[0];
+      extractedData = results[1];
     }
 
     const hasHttps = finalScrapedUrl ? finalScrapedUrl.startsWith('https://') : (url ? url.startsWith('https://') : false);
     const pageSpeedScore = pageSpeedData ? Math.round(pageSpeedData.lighthouseResult.categories.performance.score * 100) : null;
 
+    // Seleccionamos pilares
     const pilaresAAnalizar = context ? REPORT_STRUCTURE.pilares.filter(p => context.includes(p.titulo)) : REPORT_STRUCTURE.pilares;
 
-    const analysisPromises = pilaresAAnalizar.map(pilar =>
-      generatePillarAnalysis(pilar, url, pageSpeedScore, hasHttps, structuredData)
+    // Generamos análisis deterministicos
+    const contextData = { hasHttps, pageSpeedScore, extractedData };
+
+    const analyzedPilares = pilaresAAnalizar.map(pilar =>
+      generateDeterministicAnalysis(pilar, contextData)
     );
-    const analyzedPilares = await Promise.all(analysisPromises);
 
     const scores = analyzedPilares.map(p => p.score).filter(s => s >= 0);
     const puntajeGeneral = scores.length > 0 ? Math.round(scores.reduce((a, b) => a + b, 0) / scores.length) : 0;
@@ -247,16 +251,16 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({
       analysis: analysisObject,
       debugData: {
-        apollo: { status: "disabled", data: null },
-        pageSpeed: { status: pageSpeedData ? "success" : "error", data: pageSpeedData },
-        structuredHtmlData: { status: structuredData ? "success" : "error", data: structuredData },
+        method: "deterministic",
+        pageSpeed: { status: pageSpeedData ? "success" : "error" },
+        extraction: { status: extractedData ? "success" : "error", data: extractedData },
         scrapeInfo: { finalUrl: finalScrapedUrl }
       }
     }, { status: 200 });
 
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : "Un error desconocido ocurrió.";
-    console.error('[API /api/diagnose] Error en la ruta:', errorMessage);
+    console.error('[API /api/diagnose] Error:', errorMessage);
     return NextResponse.json({ error: `Error en el servidor: ${errorMessage}` }, { status: 500 });
   }
 }
